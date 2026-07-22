@@ -225,7 +225,7 @@ export function Home() {
       {/* ── SPLIT INTRO ──────────────────────────────────────── */}
       <section className="grid md:grid-cols-2 min-h-[380px]">
         {/* Left dark photo */}
-        <div className="relative overflow-hidden min-h-[300px]">
+        <div className="relative overflow-hidden min-h-[180px]">
           <img src={IMG.dark1} alt="Expert consultant" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-8 left-8 right-8">
