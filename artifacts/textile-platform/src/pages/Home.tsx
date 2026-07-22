@@ -513,6 +513,12 @@ export function Home() {
           </div>
         </div>
       </section>
+      {/* ── TEAM PHOTO ───────────────────────────────────────── */}
+      <section className="bg-white overflow-hidden">
+        <div className="w-full h-[220px] sm:h-[320px] md:h-[520px]">
+          <img src={IMG.team} alt="Textile care professionals" className="w-full h-full object-cover" />
+        </div>
+      </section>
       {/* ── STATS TABS ───────────────────────────────────────── */}
       <section className="bg-white border-t border-[#f0f0f0] py-8 px-6">
         <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -524,12 +530,6 @@ export function Home() {
               <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{tab.label}</p>
             </RiseUp>
           ))}
-        </div>
-      </section>
-      {/* ── TEAM PHOTO ───────────────────────────────────────── */}
-      <section className="bg-white overflow-hidden">
-        <div className="w-full h-[220px] sm:h-[320px] md:h-[520px]">
-          <img src={IMG.team} alt="Textile care professionals" className="w-full h-full object-cover" />
         </div>
       </section>
 
