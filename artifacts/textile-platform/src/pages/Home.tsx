@@ -500,10 +500,10 @@ export function Home() {
       <section className="bg-white border-t border-[#f0f0f0] py-8 px-6">
         <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-            { n: "500+", l: "Research Articles" },
+            { n: "8", l: "Research Articles" },
+            { n: "5", l: "Domain Experts" },
+            { n: "20", l: "Topics" },
             { n: "94", l: "Countries Reached" },
-            { n: "25+", l: "Domain Experts" },
-            { n: "12k+", l: "Professionals" },
           ].map((s, i) => (
             <RiseUp key={s.l} delay={i * 0.08} className="text-center">
               <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">{s.n}</p>
