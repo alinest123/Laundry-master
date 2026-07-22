@@ -99,7 +99,7 @@ export function ArticleList() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+        <div className="bg-white rounded-xl border border-stone-200 overflow-x-auto">
           {loading ? (
             <div className="p-12 text-center text-stone-400 text-sm">Loading…</div>
           ) : articles.length === 0 ? (

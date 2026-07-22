@@ -81,10 +81,12 @@ export function Tags() {
                     <div key={t.id} className="px-4 py-3 flex items-center gap-3">
                       {editingId === t.id ? (
                         <>
-                          <input className="flex-1 px-2 py-1 border border-stone-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
-                            value={editName} onChange={e => { setEditName(e.target.value); setEditSlug(generateSlug(e.target.value)); }} />
-                          <input className="w-36 px-2 py-1 border border-stone-200 rounded text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
-                            value={editSlug} onChange={e => setEditSlug(e.target.value)} placeholder="slug" />
+                          <div className="flex flex-col sm:flex-row flex-1 gap-1.5 min-w-0">
+                            <input className="flex-1 min-w-0 px-2 py-1 border border-stone-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                              value={editName} onChange={e => { setEditName(e.target.value); setEditSlug(generateSlug(e.target.value)); }} />
+                            <input className="w-full sm:w-32 px-2 py-1 border border-stone-200 rounded text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                              value={editSlug} onChange={e => setEditSlug(e.target.value)} placeholder="slug" />
+                          </div>
                           <button onClick={update} disabled={saving} className="p-1.5 rounded bg-[#4a7c59] text-white hover:bg-[#3d6849]"><Check className="w-3.5 h-3.5" /></button>
                           <button onClick={() => setEditingId(null)} className="p-1.5 rounded hover:bg-stone-100 text-stone-400"><X className="w-3.5 h-3.5" /></button>
                         </>

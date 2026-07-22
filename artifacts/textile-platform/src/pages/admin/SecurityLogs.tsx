@@ -42,7 +42,8 @@ export function SecurityLogs() {
                   <p className="text-sm text-stone-700 truncate">{l.detail||l.path||"—"}</p>
                   <p className="text-xs text-stone-400">{l.ipAddress||"no IP"}{l.userId ? ` · user #${l.userId}` : ""}</p>
                 </div>
-                <p className="text-xs text-stone-400 shrink-0">{new Date(l.createdAt).toLocaleString()}</p>
+                <p className="text-xs text-stone-400 shrink-0 hidden sm:block">{new Date(l.createdAt).toLocaleString()}</p>
+                <p className="text-xs text-stone-400 shrink-0 sm:hidden">{new Date(l.createdAt).toLocaleDateString()}</p>
               </div>
             ))}
           </div>}

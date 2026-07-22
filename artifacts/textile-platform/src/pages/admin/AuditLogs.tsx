@@ -45,7 +45,8 @@ export function AuditLogs() {
                   </div>
                   <p className="text-xs text-stone-400 mt-0.5">{l.userEmail||"system"} · {l.ipAddress||"—"}</p>
                 </div>
-                <p className="text-xs text-stone-400 shrink-0">{new Date(l.createdAt).toLocaleString()}</p>
+                <p className="text-xs text-stone-400 shrink-0 hidden sm:block">{new Date(l.createdAt).toLocaleString()}</p>
+                <p className="text-xs text-stone-400 shrink-0 sm:hidden">{new Date(l.createdAt).toLocaleDateString()}</p>
               </div>
             ))}
           </div>}

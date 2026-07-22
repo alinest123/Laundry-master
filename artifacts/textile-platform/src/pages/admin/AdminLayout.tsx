@@ -3,10 +3,10 @@ import {
   FileText, Users, Tag, Folder, LayoutDashboard, ChevronRight,
   Globe, LogOut, Shirt, Droplets, UserCog, Calendar, CreditCard,
   Video, Mail, Image, Search, ArrowLeftRight, Settings, Shield,
-  ClipboardList, BookOpen, ChevronDown,
+  ClipboardList, BookOpen, ChevronDown, Menu, X,
 } from "lucide-react";
 import { useAuth, can } from "@/lib/auth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type NavItem = {
   href: string;
@@ -84,6 +84,16 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change (mobile nav tap)
+  useEffect(() => { setSidebarOpen(false); }, [location]);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [sidebarOpen]);
 
   const toggleSection = (label: string) => {
     setCollapsedSections(prev => ({ ...prev, [label]: !prev[label] }));
@@ -98,10 +108,24 @@ export function AdminLayout({ children, title, breadcrumbs }: {
 
   return (
     <div className="min-h-screen bg-[#f5f5f4] flex">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-56 bg-[#111111] flex flex-col shrink-0 fixed inset-y-0 left-0 z-40">
+      <aside className={`
+        w-64 lg:w-56 bg-[#111111] flex flex-col shrink-0
+        fixed inset-y-0 left-0 z-40
+        transition-transform duration-200 ease-in-out
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0
+      `}>
         {/* Logo */}
-        <div className="px-4 py-4 border-b border-white/10">
+        <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-7 h-7 bg-[#4a7c59] rounded flex items-center justify-center shrink-0">
               <Globe className="w-4 h-4 text-white" />
@@ -111,6 +135,13 @@ export function AdminLayout({ children, title, breadcrumbs }: {
               <p className="text-white/40 text-[10px] mt-0.5">CMS Admin</p>
             </div>
           </Link>
+          {/* Close button — mobile only */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1 text-white/40 hover:text-white"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Nav */}
@@ -132,7 +163,7 @@ export function AdminLayout({ children, title, breadcrumbs }: {
                 const isActive = exact ? location === href : location.startsWith(href) && href !== "/admin";
                 return (
                   <Link key={href} href={href}>
-                    <span className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded text-sm cursor-pointer transition-colors ${
+                    <span className={`flex items-center gap-2.5 px-2.5 py-2 lg:py-1.5 rounded text-sm cursor-pointer transition-colors ${
                       isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
                     }`}>
                       <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -169,25 +200,36 @@ export function AdminLayout({ children, title, breadcrumbs }: {
       </aside>
 
       {/* Main */}
-      <div className="pl-56 flex-1 flex flex-col min-h-screen">
+      <div className="pl-0 lg:pl-56 flex-1 flex flex-col min-h-screen w-full min-w-0">
         {/* Top bar */}
-        <header className="bg-white border-b border-stone-200 px-6 py-3 flex items-center gap-2">
-          {breadcrumbs ? (
-            breadcrumbs.map((b, i) => (
-              <span key={i} className="flex items-center gap-2">
-                {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-stone-400" />}
-                {b.href
-                  ? <Link href={b.href}><span className="text-sm text-stone-500 hover:text-stone-900 cursor-pointer">{b.label}</span></Link>
-                  : <span className="text-sm text-stone-900 font-medium">{b.label}</span>}
-              </span>
-            ))
-          ) : (
-            <span className="text-sm font-semibold text-stone-900">{title}</span>
-          )}
+        <header className="bg-white border-b border-stone-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-20">
+          {/* Hamburger — mobile only */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden p-1.5 -ml-1 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          {/* Breadcrumbs / title */}
+          <div className="flex items-center gap-2 min-w-0">
+            {breadcrumbs ? (
+              breadcrumbs.map((b, i) => (
+                <span key={i} className="flex items-center gap-2 min-w-0">
+                  {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-stone-400 shrink-0" />}
+                  {b.href
+                    ? <Link href={b.href}><span className="text-sm text-stone-500 hover:text-stone-900 cursor-pointer truncate">{b.label}</span></Link>
+                    : <span className="text-sm text-stone-900 font-medium truncate">{b.label}</span>}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm font-semibold text-stone-900 truncate">{title}</span>
+            )}
+          </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );
