@@ -6,6 +6,7 @@ import {
   articleRelatedTable, articleImagesTable, articleFaqsTable,
   articleReferencesTable, authorsTable, categoriesTable, tagsTable,
 } from "@workspace/db";
+import { requirePermission } from "../../middleware/requirePermission";
 
 const router = Router();
 
@@ -98,7 +99,7 @@ async function syncRelations(articleId: number, data: {
 }
 
 // ── LIST ──────────────────────────────────────────────────────────────────────
-router.get("/admin/articles", async (req, res): Promise<void> => {
+router.get("/admin/articles", requirePermission("articles", "view"), async (req, res): Promise<void> => {
   try {
     const { status, search, page = "1", limit = "20" } = req.query as Record<string, string>;
     const p = Math.max(1, parseInt(page)), l = Math.min(100, parseInt(limit));
@@ -122,16 +123,16 @@ router.get("/admin/articles", async (req, res): Promise<void> => {
 });
 
 // ── GET ONE ───────────────────────────────────────────────────────────────────
-router.get("/admin/articles/:id", async (req, res): Promise<void> => {
+router.get("/admin/articles/:id", requirePermission("articles", "view"), async (req, res): Promise<void> => {
   try {
-    const a = await getAdminArticle(parseInt(req.params.id));
+    const a = await getAdminArticle(parseInt(req.params.id as string));
     if (!a) { res.status(404).json({ error: "Not found" }); return; }
     res.json(a);
   } catch { res.status(500).json({ error: "Failed to fetch article" }); }
 });
 
 // ── CREATE ────────────────────────────────────────────────────────────────────
-router.post("/admin/articles", async (req, res): Promise<void> => {
+router.post("/admin/articles", requirePermission("articles", "create"), async (req, res): Promise<void> => {
   try {
     const { categoryIds, tagIds, relatedArticleIds, images, faqs, references, ...f } = req.body;
     const [article] = await db.insert(articlesTable).values({
@@ -156,9 +157,9 @@ router.post("/admin/articles", async (req, res): Promise<void> => {
 });
 
 // ── UPDATE ────────────────────────────────────────────────────────────────────
-router.put("/admin/articles/:id", async (req, res): Promise<void> => {
+router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (req, res): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { categoryIds, tagIds, relatedArticleIds, images, faqs, references, ...f } = req.body;
 
     const upd: Record<string, unknown> = {};
@@ -184,9 +185,9 @@ router.put("/admin/articles/:id", async (req, res): Promise<void> => {
 });
 
 // ── DELETE ────────────────────────────────────────────────────────────────────
-router.delete("/admin/articles/:id", async (req, res): Promise<void> => {
+router.delete("/admin/articles/:id", requirePermission("articles", "delete"), async (req, res): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     await Promise.all([
       db.delete(articleCategoriesTable).where(eq(articleCategoriesTable.articleId, id)),
       db.delete(articleTagsTable).where(eq(articleTagsTable.articleId, id)),
@@ -201,24 +202,24 @@ router.delete("/admin/articles/:id", async (req, res): Promise<void> => {
 });
 
 // ── PUBLISH / UNPUBLISH / SCHEDULE ───────────────────────────────────────────
-router.post("/admin/articles/:id/publish", async (req, res): Promise<void> => {
+router.post("/admin/articles/:id/publish", requirePermission("articles", "publish"), async (req, res): Promise<void> => {
   try {
-    await db.update(articlesTable).set({ status: "published", publishedAt: new Date() }).where(eq(articlesTable.id, parseInt(req.params.id)));
+    await db.update(articlesTable).set({ status: "published", publishedAt: new Date() }).where(eq(articlesTable.id, parseInt(req.params.id as string)));
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Failed to publish" }); }
 });
 
-router.post("/admin/articles/:id/unpublish", async (req, res): Promise<void> => {
+router.post("/admin/articles/:id/unpublish", requirePermission("articles", "publish"), async (req, res): Promise<void> => {
   try {
-    await db.update(articlesTable).set({ status: "archived" }).where(eq(articlesTable.id, parseInt(req.params.id)));
+    await db.update(articlesTable).set({ status: "archived" }).where(eq(articlesTable.id, parseInt(req.params.id as string)));
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Failed to unpublish" }); }
 });
 
-router.post("/admin/articles/:id/schedule", async (req, res): Promise<void> => {
+router.post("/admin/articles/:id/schedule", requirePermission("articles", "publish"), async (req, res): Promise<void> => {
   try {
     const { scheduledAt } = req.body;
-    await db.update(articlesTable).set({ status: "scheduled", scheduledAt: new Date(scheduledAt) }).where(eq(articlesTable.id, parseInt(req.params.id)));
+    await db.update(articlesTable).set({ status: "scheduled", scheduledAt: new Date(scheduledAt) }).where(eq(articlesTable.id, parseInt(req.params.id as string)));
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Failed to schedule" }); }
 });

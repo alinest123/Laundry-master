@@ -4,6 +4,9 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 
+import { AuthProvider } from "@/lib/auth";
+import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
+
 import { Home } from "@/pages/Home";
 import { ArticleList } from "@/pages/articles/ArticleList";
 import { ArticleDetail } from "@/pages/articles/ArticleDetail";
@@ -18,26 +21,68 @@ import { About } from "@/pages/about/About";
 import { Contact } from "@/pages/contact/Contact";
 
 // Admin CMS
+import { Login } from "@/pages/admin/Login";
 import { Dashboard } from "@/pages/admin/Dashboard";
 import { ArticleList as AdminArticleList } from "@/pages/admin/articles/ArticleList";
 import { ArticleEditor } from "@/pages/admin/articles/ArticleEditor";
 import { Authors } from "@/pages/admin/Authors";
 import { Categories as AdminCategories } from "@/pages/admin/Categories";
 import { Tags } from "@/pages/admin/Tags";
+import { Users } from "@/pages/admin/Users";
+import { Fabrics } from "@/pages/admin/Fabrics";
+import { Stains } from "@/pages/admin/Stains";
+import { Experts } from "@/pages/admin/Experts";
+import { Appointments } from "@/pages/admin/Appointments";
+import { Payments } from "@/pages/admin/Payments";
+import { ZoomMeetings } from "@/pages/admin/ZoomMeetings";
+import { Newsletter } from "@/pages/admin/Newsletter";
+import { MediaLibrary } from "@/pages/admin/MediaLibrary";
+import { SeoManagement } from "@/pages/admin/SeoManagement";
+import { Redirects } from "@/pages/admin/Redirects";
+import { SiteSettings } from "@/pages/admin/SiteSettings";
+import { AuditLogs } from "@/pages/admin/AuditLogs";
+import { SecurityLogs } from "@/pages/admin/SecurityLogs";
 
 const queryClient = new QueryClient();
+
+function AdminRoute({ path, component: Component }: { path: string; component: React.ComponentType }) {
+  return (
+    <Route path={path}>
+      <ProtectedRoute>
+        <Component />
+      </ProtectedRoute>
+    </Route>
+  );
+}
 
 function Router() {
   return (
     <Switch>
-      {/* Admin CMS — must come before public routes */}
-      <Route path="/admin" component={Dashboard} />
-      <Route path="/admin/articles" component={AdminArticleList} />
-      <Route path="/admin/articles/new" component={ArticleEditor} />
-      <Route path="/admin/articles/:id/edit" component={ArticleEditor} />
-      <Route path="/admin/authors" component={Authors} />
-      <Route path="/admin/categories" component={AdminCategories} />
-      <Route path="/admin/tags" component={Tags} />
+      {/* Admin login — unprotected */}
+      <Route path="/admin/login" component={Login} />
+
+      {/* Admin CMS — protected */}
+      <AdminRoute path="/admin" component={Dashboard} />
+      <AdminRoute path="/admin/articles" component={AdminArticleList} />
+      <AdminRoute path="/admin/articles/new" component={ArticleEditor} />
+      <AdminRoute path="/admin/articles/:id/edit" component={ArticleEditor} />
+      <AdminRoute path="/admin/authors" component={Authors} />
+      <AdminRoute path="/admin/categories" component={AdminCategories} />
+      <AdminRoute path="/admin/tags" component={Tags} />
+      <AdminRoute path="/admin/users" component={Users} />
+      <AdminRoute path="/admin/fabrics" component={Fabrics} />
+      <AdminRoute path="/admin/stains" component={Stains} />
+      <AdminRoute path="/admin/experts" component={Experts} />
+      <AdminRoute path="/admin/appointments" component={Appointments} />
+      <AdminRoute path="/admin/payments" component={Payments} />
+      <AdminRoute path="/admin/zoom" component={ZoomMeetings} />
+      <AdminRoute path="/admin/newsletter" component={Newsletter} />
+      <AdminRoute path="/admin/media" component={MediaLibrary} />
+      <AdminRoute path="/admin/seo" component={SeoManagement} />
+      <AdminRoute path="/admin/redirects" component={Redirects} />
+      <AdminRoute path="/admin/settings" component={SiteSettings} />
+      <AdminRoute path="/admin/audit-logs" component={AuditLogs} />
+      <AdminRoute path="/admin/security-logs" component={SecurityLogs} />
 
       {/* Public site */}
       <Route path="/" component={Home} />
@@ -61,10 +106,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
+        <AuthProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

@@ -13,3 +13,14 @@ export * from "./services";
 export * from "./appointments";
 export * from "./testimonials";
 export * from "./newsletterSubscribers";
+// New RBAC tables
+export * from "./users";
+export * from "./fabrics";
+export * from "./stains";
+export * from "./payments";
+export * from "./zoomMeetings";
+export * from "./mediaLibrary";
+export * from "./redirects";
+export * from "./siteSettings";
+export * from "./securityLogs";
+export * from "./auditLogs";

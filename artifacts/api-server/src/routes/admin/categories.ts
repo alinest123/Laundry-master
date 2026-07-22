@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { eq, isNull, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { categoriesTable } from "@workspace/db";
+import { requirePermission } from "../../middleware/requirePermission";
 
 const router = Router();
 
-router.get("/admin/categories", async (req, res): Promise<void> => {
+router.get("/admin/categories", requirePermission("categories", "view"), async (req, res): Promise<void> => {
   try {
     const all = await db.select().from(categoriesTable).orderBy(categoriesTable.name);
     // Nest subcategories under parents
@@ -18,14 +19,14 @@ router.get("/admin/categories", async (req, res): Promise<void> => {
   } catch { res.status(500).json({ error: "Failed to list categories" }); }
 });
 
-router.get("/admin/categories/flat", async (req, res): Promise<void> => {
+router.get("/admin/categories/flat", requirePermission("categories", "view"), async (req, res): Promise<void> => {
   try {
     const rows = await db.select().from(categoriesTable).orderBy(categoriesTable.name);
     res.json(rows);
   } catch { res.status(500).json({ error: "Failed to list categories" }); }
 });
 
-router.post("/admin/categories", async (req, res): Promise<void> => {
+router.post("/admin/categories", requirePermission("categories", "create"), async (req, res): Promise<void> => {
   try {
     const { name, slug, description, featuredImage, parentId } = req.body;
     const [cat] = await db.insert(categoriesTable).values({
@@ -39,9 +40,9 @@ router.post("/admin/categories", async (req, res): Promise<void> => {
   }
 });
 
-router.put("/admin/categories/:id", async (req, res): Promise<void> => {
+router.put("/admin/categories/:id", requirePermission("categories", "edit"), async (req, res): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { name, slug, description, featuredImage, parentId } = req.body;
     const upd: Record<string, unknown> = {};
     if (name !== undefined) upd.name = name;
@@ -58,9 +59,9 @@ router.put("/admin/categories/:id", async (req, res): Promise<void> => {
   }
 });
 
-router.delete("/admin/categories/:id", async (req, res): Promise<void> => {
+router.delete("/admin/categories/:id", requirePermission("categories", "delete"), async (req, res): Promise<void> => {
   try {
-    await db.delete(categoriesTable).where(eq(categoriesTable.id, parseInt(req.params.id)));
+    await db.delete(categoriesTable).where(eq(categoriesTable.id, parseInt(req.params.id as string)));
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Failed to delete category" }); }
 });

@@ -2,25 +2,26 @@ import { Router } from "express";
 import { eq, desc } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { authorsTable } from "@workspace/db";
+import { requirePermission } from "../../middleware/requirePermission";
 
 const router = Router();
 
-router.get("/admin/authors", async (req, res): Promise<void> => {
+router.get("/admin/authors", requirePermission("authors", "view"), async (req, res): Promise<void> => {
   try {
     const rows = await db.select().from(authorsTable).orderBy(desc(authorsTable.createdAt));
     res.json(rows);
   } catch { res.status(500).json({ error: "Failed to list authors" }); }
 });
 
-router.get("/admin/authors/:id", async (req, res): Promise<void> => {
+router.get("/admin/authors/:id", requirePermission("authors", "view"), async (req, res): Promise<void> => {
   try {
-    const rows = await db.select().from(authorsTable).where(eq(authorsTable.id, parseInt(req.params.id))).limit(1);
+    const rows = await db.select().from(authorsTable).where(eq(authorsTable.id, parseInt(req.params.id as string))).limit(1);
     if (!rows[0]) { res.status(404).json({ error: "Not found" }); return; }
     res.json(rows[0]);
   } catch { res.status(500).json({ error: "Failed to fetch author" }); }
 });
 
-router.post("/admin/authors", async (req, res): Promise<void> => {
+router.post("/admin/authors", requirePermission("authors", "create"), async (req, res): Promise<void> => {
   try {
     const { name, bio, avatar, role, email, twitter, linkedin, expertise } = req.body;
     const [author] = await db.insert(authorsTable).values({
@@ -32,9 +33,9 @@ router.post("/admin/authors", async (req, res): Promise<void> => {
   } catch { res.status(500).json({ error: "Failed to create author" }); }
 });
 
-router.put("/admin/authors/:id", async (req, res): Promise<void> => {
+router.put("/admin/authors/:id", requirePermission("authors", "edit"), async (req, res): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { name, bio, avatar, role, email, twitter, linkedin, expertise } = req.body;
     const upd: Record<string, unknown> = {};
     if (name !== undefined) upd.name = name;
@@ -51,9 +52,9 @@ router.put("/admin/authors/:id", async (req, res): Promise<void> => {
   } catch { res.status(500).json({ error: "Failed to update author" }); }
 });
 
-router.delete("/admin/authors/:id", async (req, res): Promise<void> => {
+router.delete("/admin/authors/:id", requirePermission("authors", "delete"), async (req, res): Promise<void> => {
   try {
-    await db.delete(authorsTable).where(eq(authorsTable.id, parseInt(req.params.id)));
+    await db.delete(authorsTable).where(eq(authorsTable.id, parseInt(req.params.id as string)));
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Failed to delete author" }); }
 });

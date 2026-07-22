@@ -3,6 +3,7 @@ const BASE = "/api/admin";
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method,
+    credentials: "include",
     headers: body !== undefined ? { "Content-Type": "application/json" } : {},
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
@@ -54,6 +55,125 @@ export const adminApi = {
     create: (data: any) => req<any>("POST", "/tags", data),
     update: (id: number, data: any) => req<any>("PUT", `/tags/${id}`, data),
     delete: (id: number) => req<void>("DELETE", `/tags/${id}`),
+  },
+
+  // ── Users ─────────────────────────────────────────────────────────────────
+  users: {
+    list: () => req<any[]>("GET", "/users"),
+    get: (id: number) => req<any>("GET", `/users/${id}`),
+    create: (data: any) => req<any>("POST", "/users", data),
+    update: (id: number, data: any) => req<any>("PUT", `/users/${id}`, data),
+    delete: (id: number) => req<void>("DELETE", `/users/${id}`),
+  },
+
+  // ── Fabrics ───────────────────────────────────────────────────────────────
+  fabrics: {
+    list: () => req<any[]>("GET", "/fabrics"),
+    get: (id: number) => req<any>("GET", `/fabrics/${id}`),
+    create: (data: any) => req<any>("POST", "/fabrics", data),
+    update: (id: number, data: any) => req<any>("PUT", `/fabrics/${id}`, data),
+    delete: (id: number) => req<void>("DELETE", `/fabrics/${id}`),
+  },
+
+  // ── Stains ────────────────────────────────────────────────────────────────
+  stains: {
+    list: () => req<any[]>("GET", "/stains"),
+    get: (id: number) => req<any>("GET", `/stains/${id}`),
+    create: (data: any) => req<any>("POST", "/stains", data),
+    update: (id: number, data: any) => req<any>("PUT", `/stains/${id}`, data),
+    delete: (id: number) => req<void>("DELETE", `/stains/${id}`),
+  },
+
+  // ── Experts ───────────────────────────────────────────────────────────────
+  experts: {
+    list: () => req<any[]>("GET", "/experts"),
+    get: (id: number) => req<any>("GET", `/experts/${id}`),
+    create: (data: any) => req<any>("POST", "/experts", data),
+    update: (id: number, data: any) => req<any>("PUT", `/experts/${id}`, data),
+    delete: (id: number) => req<void>("DELETE", `/experts/${id}`),
+  },
+
+  // ── Appointments ──────────────────────────────────────────────────────────
+  appointments: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any>("GET", `/appointments${q}`);
+    },
+    update: (id: number, data: any) => req<any>("PATCH", `/appointments/${id}`, data),
+  },
+
+  // ── Payments ──────────────────────────────────────────────────────────────
+  payments: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any>("GET", `/payments${q}`);
+    },
+    get: (id: number) => req<any>("GET", `/payments/${id}`),
+  },
+
+  // ── Zoom ──────────────────────────────────────────────────────────────────
+  zoom: {
+    list: () => req<any[]>("GET", "/zoom"),
+    get: (id: number) => req<any>("GET", `/zoom/${id}`),
+    create: (data: any) => req<any>("POST", "/zoom", data),
+    update: (id: number, data: any) => req<any>("PUT", `/zoom/${id}`, data),
+    delete: (id: number) => req<void>("DELETE", `/zoom/${id}`),
+  },
+
+  // ── Newsletter ────────────────────────────────────────────────────────────
+  newsletter: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any>("GET", `/newsletter${q}`);
+    },
+    deleteOne: (id: number) => req<void>("DELETE", `/newsletter/${id}`),
+    bulkDelete: (ids: number[]) => req<any>("POST", "/newsletter/bulk-delete", { ids }),
+  },
+
+  // ── Media ─────────────────────────────────────────────────────────────────
+  media: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any>("GET", `/media${q}`);
+    },
+    create: (data: any) => req<any>("POST", "/media", data),
+    delete: (id: number) => req<void>("DELETE", `/media/${id}`),
+  },
+
+  // ── SEO ───────────────────────────────────────────────────────────────────
+  seo: {
+    list: () => req<any[]>("GET", "/seo"),
+    update: (id: number, data: any) => req<any>("PATCH", `/seo/${id}`, data),
+  },
+
+  // ── Redirects ─────────────────────────────────────────────────────────────
+  redirects: {
+    list: () => req<any[]>("GET", "/redirects"),
+    create: (data: any) => req<any>("POST", "/redirects", data),
+    update: (id: number, data: any) => req<any>("PUT", `/redirects/${id}`, data),
+    delete: (id: number) => req<void>("DELETE", `/redirects/${id}`),
+  },
+
+  // ── Settings ──────────────────────────────────────────────────────────────
+  settings: {
+    get: () => req<any>("GET", "/settings"),
+    update: (data: any) => req<any>("PUT", "/settings", data),
+  },
+
+  // ── Audit Logs ────────────────────────────────────────────────────────────
+  auditLogs: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any>("GET", `/audit-logs${q}`);
+    },
+  },
+
+  // ── Security Logs ─────────────────────────────────────────────────────────
+  securityLogs: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any>("GET", `/security-logs${q}`);
+    },
   },
 };
 
