@@ -1,2 +1,10 @@
 User-agent: *
 Allow: /
+
+# Keep admin panel and API out of search indexes
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /api/admin/
+
+Sitemap: https://laundry-master.com/sitemap.xml

@@ -24,14 +24,17 @@ export default defineConfig(async ({ command }) => {
   // On Replit it is set to the artifact's sub-path (e.g. '/textile-platform')
   const basePath = process.env.BASE_PATH ?? '/';
 
+  const isReplit =
+    process.env.REPL_ID !== undefined && process.env.NODE_ENV !== 'production';
+
   return {
     base: basePath,
     plugins: [
       react(),
       tailwindcss(),
-      runtimeErrorOverlay(),
-      ...(process.env.NODE_ENV !== 'production' &&
-      process.env.REPL_ID !== undefined
+      // Runtime error overlay — Replit dev only
+      ...(isReplit ? [runtimeErrorOverlay()] : []),
+      ...(isReplit
         ? [
             await import('@replit/vite-plugin-cartographer').then((m) =>
               m.cartographer({
@@ -60,6 +63,22 @@ export default defineConfig(async ({ command }) => {
     build: {
       outDir: path.resolve(import.meta.dirname, 'dist/public'),
       emptyOutDir: true,
+      // Raise warning limit — vendor chunk is large but permanently cached
+      chunkSizeWarningLimit: 700,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return undefined;
+            // Keep framer-motion separate — large, rarely changes
+            if (id.includes('framer-motion')) return 'vendor-motion';
+            // Keep tanstack-query separate — medium, rarely changes
+            if (id.includes('@tanstack/react-query')) return 'vendor-query';
+            // Everything else (react, radix, lucide, etc.) in one vendor chunk
+            // to avoid circular dependency warnings from cross-package imports
+            return 'vendor';
+          },
+        },
+      },
     },
     server: {
       port,
