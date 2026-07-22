@@ -532,24 +532,7 @@ export function Home() {
           <img src={IMG.team} alt="Textile care professionals" className="w-full h-full object-cover" />
         </div>
       </section>
-      {/* ── NUMBERS BAR ──────────────────────────────────────── */}
-      <section className="bg-white border-t border-[#f0f0f0] py-8 px-6">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { n: "8", l: "Research Articles" },
-            { n: "5", l: "Domain Experts" },
-            { n: "20", l: "Topics" },
-            { n: "94", l: "Countries Reached" },
-          ].map((s, i) => (
-            <RiseUp key={s.l} delay={i * 0.08} className="text-center">
-              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">
-                <CountUp value={s.n} delay={i * 0.08} />
-              </p>
-              <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{s.l}</p>
-            </RiseUp>
-          ))}
-        </div>
-      </section>
+
       {/* ── FEATURE SPLIT ────────────────────────────────────── */}
       <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
