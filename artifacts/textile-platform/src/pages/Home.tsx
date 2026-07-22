@@ -222,16 +222,17 @@ export function Home() {
         </div>
       </section>
       {/* ── SPLIT INTRO ──────────────────────────────────────── */}
-      <section className="grid md:grid-cols-2 min-h-[380px]">
+      <section className="grid md:grid-cols-2 min-h-[380px] relative">
         {/* Left dark photo */}
-        <div className="relative overflow-hidden min-h-[180px]">
-          <img src={IMG.dark1} alt="Expert consultant" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          <div className="absolute bottom-8 left-8 right-8">
-            <p className="text-white font-bold text-[1.35rem] leading-snug text-left bg-foreground">
-              Science & support<br />for your textile<br />care operations
-            </p>
-          </div>
+        <div className="relative min-h-[320px] md:min-h-0">
+          <img src={IMG.dark1} alt="Expert consultant" className="w-full h-full object-cover object-top" />
+        </div>
+
+        {/* Text caption box — overlaps bottom-right corner of image */}
+        <div className="absolute bottom-0 right-0 md:left-1/2 md:translate-x-[-30%] bg-[#1c1c1c] px-8 py-7 max-w-[280px] z-10">
+          <p className="text-white font-bold text-[1.2rem] leading-snug">
+            Science & support<br />for your textile<br />care operations
+          </p>
         </div>
 
         {/* Right white */}
