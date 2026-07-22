@@ -171,13 +171,10 @@ const TESTIMONIALS = [
   },
 ];
 
-const TABS = ["Articles", "Experts", "Topics", "Countries"];
-
 export function Home() {
   const { data: stats } = useGetPlatformStats();
   const { data: featuredArticles } = useGetFeaturedArticles({ limit: 3 });
   const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
 
   const t = TESTIMONIALS[testimonialIdx];
 
@@ -472,21 +469,13 @@ export function Home() {
         </div>
       </section>
       {/* ── STATS TABS ───────────────────────────────────────── */}
-      <section className="bg-[#f5f5f2] border-y border-[#e8e8e8] py-0">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4">
+      <section className="bg-white border-t border-[#f0f0f0] py-8 px-6">
+        <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {STAT_TABS.map((tab, i) => (
-            <button
-              key={tab.label}
-              onClick={() => setActiveTab(i)}
-              className={`py-5 px-4 md:px-6 text-center border-[#e8e8e8] transition-colors
-                ${i % 2 === 0 ? 'border-r' : ''}
-                ${i < 2 ? 'border-b md:border-b-0' : ''}
-                ${i < 3 ? 'md:border-r' : ''}
-                ${activeTab === i ? "bg-white" : "hover:bg-white/60"}`}
-            >
-              <p className="font-extrabold text-[#1c1c1c] text-sm">{tab.value}</p>
-              <p className="text-[#888] text-xs mt-0.5">{tab.label}</p>
-            </button>
+            <RiseUp key={tab.label} delay={i * 0.08} className="text-center">
+              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">{tab.value}</p>
+              <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{tab.label}</p>
+            </RiseUp>
           ))}
         </div>
       </section>
