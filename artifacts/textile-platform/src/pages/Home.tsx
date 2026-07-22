@@ -18,6 +18,12 @@ const IMG = {
   hero2: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80",
   hero3: "https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=200&q=80",
   dark1: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=700&q=80",
+  /* Hero collage — 8 elements */
+  collageMain: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",  // woman on phone + laptop
+  collage1: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80",     // woman presenting/whiteboard
+  collage3: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&q=80",         // group meeting
+  collage7: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80",         // man in navy suit
+  collage8: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&q=80",      // businessman duo
   service1: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=500&q=80",
   service2: "https://images.unsplash.com/photo-1606185540834-d6e7483ee1a4?w=500&q=80",
   service3: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80",
@@ -224,47 +230,89 @@ export function Home() {
             </motion.div>
           </div>
 
-          {/* Right – photo collage */}
-          <div className="relative h-[300px] sm:h-[380px] md:h-[500px] select-none overflow-hidden">
-            {/* Small circle top-left — wipes in first */}
+          {/* Right – 8-element photo collage */}
+          <div className="relative h-[360px] sm:h-[440px] md:h-[540px] select-none">
+
+            {/* ① Top-left: woman presenting */}
             <motion.div
-              className="absolute left-0 top-[10%] w-[38%] aspect-square rounded-full overflow-hidden shadow-md border-4 border-white"
+              className="absolute top-[3%] left-[2%] w-[22%] h-[50%] rounded-[22px] overflow-hidden"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94], delay: 0 }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0 }}
             >
-              <img src={IMG.hero2} alt="Laboratory" className="w-full h-full object-cover" />
+              <img src={IMG.collage1} alt="Consultant presenting" className="w-full h-full object-cover object-center" />
             </motion.div>
 
-            {/* Small circle bottom-left — wipes in second */}
+            {/* ② Middle-left: beige play circle */}
             <motion.div
-              className="absolute left-[14%] bottom-[8%] w-[28%] aspect-square rounded-full overflow-hidden shadow-md border-4 border-white"
+              className="absolute left-[2%] top-[50%] w-[20%] aspect-square rounded-full bg-[#C4A07C] flex items-center justify-center"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.18 }}
+              transition={{ duration: 0.7, ease: [0.25,0.46,0.45,0.94], delay: 0.1 }}
             >
-              <img src={IMG.hero3} alt="Fabric testing" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/60 flex items-center justify-center">
+                <Play className="w-3 h-3 md:w-4 md:h-4 text-white fill-white ml-0.5" />
+              </div>
             </motion.div>
 
-            {/* Green accent pill — wipes in third */}
+            {/* ③ Bottom-left: group meeting */}
             <motion.div
-              className="absolute right-[64%] top-[47%] bg-[#4a7c59] text-white text-[0.7rem] font-bold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap z-10"
+              className="absolute bottom-[3%] left-[2%] w-[26%] h-[27%] rounded-[20px] overflow-hidden"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.32 }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.2 }}
             >
-              500+ Research Articles
+              <img src={IMG.collage3} alt="Team meeting" className="w-full h-full object-cover object-top" />
             </motion.div>
 
-            {/* Main tall photo — wipes in last */}
+            {/* ④ Center: main tall photo */}
             <motion.div
-              className="absolute right-0 top-0 w-[62%] h-full rounded-[180px_180px_180px_24px] overflow-hidden shadow-lg"
+              className="absolute top-[3%] left-[26%] w-[41%] h-[88%] rounded-[28px] overflow-hidden shadow-md"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.45 }}
+              transition={{ duration: 0.9, ease: [0.25,0.46,0.45,0.94], delay: 0.3 }}
             >
-              <img src={IMG.hero1} alt="Textile expert" className="w-full h-full object-cover" />
+              <img src={IMG.collageMain} alt="Expert consultant on phone" className="w-full h-full object-cover object-top" />
             </motion.div>
+
+            {/* ⑤ Bottom-center: green rounded square with ↙ arrow */}
+            <motion.div
+              className="absolute bottom-[3%] left-[26%] w-[17%] h-[17%] rounded-[18px] bg-[#4DB86A] flex items-end justify-end p-2 md:p-3"
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.15 }}
+            >
+              <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white rotate-180" />
+            </motion.div>
+
+            {/* ⑥ Top-right: small beige decorative square */}
+            <motion.div
+              className="absolute top-[3%] right-[2%] w-[15%] h-[16%] rounded-[18px] bg-[#C4A07C]"
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.05 }}
+            />
+
+            {/* ⑦ Middle-right: man in suit */}
+            <motion.div
+              className="absolute top-[21%] right-[2%] w-[27%] h-[51%] rounded-[22px] overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.25 }}
+            >
+              <img src={IMG.collage7} alt="Business consultant" className="w-full h-full object-cover object-top" />
+            </motion.div>
+
+            {/* ⑧ Bottom-right: circle duo photo */}
+            <motion.div
+              className="absolute bottom-[3%] right-[2%] w-[22%] aspect-square rounded-full overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.35 }}
+            >
+              <img src={IMG.collage8} alt="Professionals talking" className="w-full h-full object-cover object-center" />
+            </motion.div>
+
           </div>
         </div>
       </section>
