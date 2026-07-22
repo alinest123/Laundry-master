@@ -13,7 +13,7 @@ const NAV = [
 function TopBanner() {
   return (
     <div className="bg-[#1a1a1a] text-white">
-      <div className="max-w-[1280px] mx-auto px-6 h-10 flex items-center justify-between gap-4">
+      <div className="hidden md:flex max-w-[1280px] mx-auto px-6 h-10 items-center justify-between gap-4">
         {/* Left: contact info */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-1.5 text-[#aaa] text-[0.72rem]">
