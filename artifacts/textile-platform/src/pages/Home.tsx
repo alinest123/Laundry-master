@@ -31,11 +31,85 @@ const IMG = {
   detail3: "https://images.unsplash.com/photo-1611048267451-e6ed903d4a38?w=500&q=80",
 };
 
+const IconFabricAnalysis = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Microscope body */}
+    <rect x="20" y="6" width="8" height="12" rx="1.5" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Eyepiece */}
+    <rect x="22" y="3" width="4" height="5" rx="1" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Arm */}
+    <path d="M24 18 L24 28" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
+    {/* Stage */}
+    <path d="M16 28 L32 28" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
+    {/* Objective lens */}
+    <circle cx="24" cy="31" r="4" stroke="#4a7c59" strokeWidth="1.8"/>
+    {/* Base */}
+    <path d="M14 42 L34 42" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
+    <path d="M24 38 L24 42" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
+    <path d="M16 42 L14 38 M32 42 L34 38" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
+    {/* Adjustment knob */}
+    <circle cx="33" cy="26" r="2.5" stroke="#4a7c59" strokeWidth="1.6"/>
+    <path d="M33 23.5 L33 20" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
+  </svg>
+);
+
+const IconStainRemoval = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Main water drop */}
+    <path d="M24 8 C24 8 13 21 13 29 C13 35.627 18.373 41 25 41 C31.627 41 37 35.627 37 29 C37 21 24 8 24 8 Z" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Inner shine arc */}
+    <path d="M18 28 C18 24 20 21 22 19" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
+    {/* Sparkle rays */}
+    <line x1="38" y1="14" x2="41" y2="11" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
+    <line x1="40" y1="18" x2="44" y2="17" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
+    <line x1="37" y1="10" x2="37" y2="6" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
+    {/* Small drop */}
+    <path d="M38 26 C38 26 34 31 34 33.5 C34 35.433 35.567 37 37.5 37 C39.433 37 41 35.433 41 33.5 C41 31 38 26 38 26 Z" stroke="#4a7c59" strokeWidth="1.6" strokeLinejoin="round"/>
+  </svg>
+);
+
+const IconPlantConsulting = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Factory building main body */}
+    <rect x="6" y="22" width="36" height="20" rx="1" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Roof with sawtooth */}
+    <path d="M6 22 L14 14 L14 22 L22 14 L22 22 L30 14 L30 22" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Chimneys */}
+    <rect x="32" y="10" width="4" height="12" rx="1" stroke="#4a7c59" strokeWidth="1.6" strokeLinejoin="round"/>
+    <rect x="38" y="14" width="3" height="8" rx="1" stroke="#4a7c59" strokeWidth="1.6" strokeLinejoin="round"/>
+    {/* Smoke */}
+    <path d="M34 10 C34 8 36 7 35 5" stroke="#4a7c59" strokeWidth="1.4" strokeLinecap="round"/>
+    <path d="M39.5 14 C39.5 12 41 11 40 9" stroke="#4a7c59" strokeWidth="1.4" strokeLinecap="round"/>
+    {/* Windows */}
+    <rect x="10" y="27" width="5" height="5" rx="0.5" stroke="#4a7c59" strokeWidth="1.5"/>
+    <rect x="21" y="27" width="5" height="5" rx="0.5" stroke="#4a7c59" strokeWidth="1.5"/>
+    {/* Door */}
+    <rect x="31" y="31" width="7" height="11" rx="0.5" stroke="#4a7c59" strokeWidth="1.5"/>
+    {/* Ground line */}
+    <line x1="4" y1="42" x2="44" y2="42" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
+  </svg>
+);
+
+const IconCompliance = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Document */}
+    <path d="M10 6 L10 42 L38 42 L38 14 L30 6 Z" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Folded corner */}
+    <path d="M30 6 L30 14 L38 14" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
+    {/* Lines of text */}
+    <line x1="15" y1="20" x2="33" y2="20" stroke="#4a7c59" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="15" y1="25" x2="33" y2="25" stroke="#4a7c59" strokeWidth="1.5" strokeLinecap="round"/>
+    {/* Checkmark badge */}
+    <circle cx="19" cy="35" r="6" stroke="#4a7c59" strokeWidth="1.6" fill="white"/>
+    <path d="M16 35 L18 37.5 L22 32.5" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const SERVICES = [
-  { icon: "🧪", title: "Fabric Analysis", desc: "Fiber identification, construction analysis, and professional care assessment for any textile." },
-  { icon: "💧", title: "Stain Removal", desc: "Evidence-based stain identification and treatment protocols for all fiber types and substrates." },
-  { icon: "🏭", title: "Plant Consulting", desc: "Workflow optimization, equipment selection, and quality systems for commercial laundry operations." },
-  { icon: "📋", title: "Compliance & Standards", desc: "ISO care labeling, GINETEX standards, and regulatory compliance guidance for global markets." },
+  { icon: <IconFabricAnalysis />, title: "Fabric Analysis", desc: "Fiber identification, construction analysis, and professional care assessment for any textile." },
+  { icon: <IconStainRemoval />, title: "Stain Removal", desc: "Evidence-based stain identification and treatment protocols for all fiber types and substrates." },
+  { icon: <IconPlantConsulting />, title: "Plant Consulting", desc: "Workflow optimization, equipment selection, and quality systems for commercial laundry operations." },
+  { icon: <IconCompliance />, title: "Compliance & Standards", desc: "ISO care labeling, GINETEX standards, and regulatory compliance guidance for global markets." },
 ];
 
 const SERVICE_PHOTOS = [
