@@ -269,22 +269,22 @@ export function Home() {
         </div>
       </section>
       {/* ── SPLIT INTRO ──────────────────────────────────────── */}
-      <section className="grid md:grid-cols-2 relative">
-        {/* Left dark photo */}
-        <div className="relative min-h-[260px] sm:min-h-[320px] md:min-h-[380px]">
-          <img src={IMG.dark1} alt="Expert consultant" className="w-full h-full object-cover object-top" />
-        </div>
-
-        {/* Caption — static block on mobile, absolute overlay on md+ */}
-        <div className="bg-[#1c1c1c] px-6 py-6 md:hidden">
-          <p className="text-white font-bold text-lg leading-snug">
-            Science & support<br />for your textile<br />care operations
-          </p>
-        </div>
-        <div className="absolute bottom-0 right-0 md:left-1/2 md:translate-x-[-30%] bg-[#1c1c1c] px-8 py-7 max-w-[280px] z-10 hidden md:block">
-          <p className="text-white font-bold text-[1.2rem] leading-snug">
-            Science & support<br />for your textile<br />care operations
-          </p>
+      <section className="grid md:grid-cols-2 bg-white">
+        {/* Left: inset photo with caption overlapping bottom-right */}
+        <div className="bg-white px-6 pt-10 pb-16 md:px-10 md:pt-14 md:pb-20 flex items-start">
+          <div className="relative w-full">
+            <img
+              src={IMG.dark1}
+              alt="Expert consultant"
+              className="w-full aspect-[4/5] object-cover object-top rounded-sm"
+            />
+            {/* Caption box — overlaps bottom-right corner of photo */}
+            <div className="absolute bottom-0 right-0 translate-y-[40%] bg-[#1c1c1c] px-6 py-6 md:px-7 md:py-7 max-w-[230px] md:max-w-[260px] z-10">
+              <p className="text-white font-bold text-base md:text-[1.1rem] leading-snug">
+                Science & support<br />for your textile<br />care operations
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Right white */}
