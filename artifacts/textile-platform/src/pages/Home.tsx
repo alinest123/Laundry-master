@@ -179,42 +179,42 @@ export function Home() {
 
           {/* Right – photo collage */}
           <div className="relative h-[420px] md:h-[500px] select-none overflow-hidden">
-            {/* Small circle top-left — slides in first */}
+            {/* Small circle top-left — wipes in first */}
             <motion.div
               className="absolute left-0 top-[10%] w-[38%] aspect-square rounded-full overflow-hidden shadow-md border-4 border-white"
-              initial={{ x: -120, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94], delay: 0 }}
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94], delay: 0 }}
             >
               <img src={IMG.hero2} alt="Laboratory" className="w-full h-full object-cover" />
             </motion.div>
 
-            {/* Small circle bottom-left — slides in second */}
+            {/* Small circle bottom-left — wipes in second */}
             <motion.div
               className="absolute left-[14%] bottom-[8%] w-[28%] aspect-square rounded-full overflow-hidden shadow-md border-4 border-white"
-              initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.15 }}
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.18 }}
             >
               <img src={IMG.hero3} alt="Fabric testing" className="w-full h-full object-cover" />
             </motion.div>
 
-            {/* Green accent pill — slides in third */}
+            {/* Green accent pill — wipes in third */}
             <motion.div
               className="absolute right-[64%] top-[47%] bg-[#4a7c59] text-white text-[0.7rem] font-bold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap z-10"
-              initial={{ x: -80, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.28 }}
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.32 }}
             >
               500+ Research Articles
             </motion.div>
 
-            {/* Main tall photo — slides in last */}
+            {/* Main tall photo — wipes in last */}
             <motion.div
               className="absolute right-0 top-0 w-[62%] h-full rounded-[180px_180px_180px_24px] overflow-hidden shadow-lg"
-              initial={{ x: -60, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.4 }}
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.45 }}
             >
               <img src={IMG.hero1} alt="Textile expert" className="w-full h-full object-cover" />
             </motion.div>
