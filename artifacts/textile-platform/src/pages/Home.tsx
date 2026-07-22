@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { Shell } from "@/components/layout/Shell";
 import {
   useGetFeaturedArticles,
@@ -120,6 +120,51 @@ const rise = {
     transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay },
   }),
 };
+
+/* Parses "94", "500+", "12k+" → { value: 94 | 500 | 12000, suffix: "" | "+" | "k+" } */
+function parseStatNumber(raw: string): { value: number; suffix: string } {
+  const lower = raw.toLowerCase();
+  if (lower.endsWith("k+")) return { value: parseFloat(lower) * 1000, suffix: "k+" };
+  if (lower.endsWith("k"))  return { value: parseFloat(lower) * 1000, suffix: "k" };
+  if (lower.endsWith("+"))  return { value: parseInt(lower, 10), suffix: "+" };
+  return { value: parseInt(lower, 10) || 0, suffix: "" };
+}
+
+function CountUp({ value: raw, duration = 1.4, delay = 0 }: { value: string; duration?: number; delay?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [display, setDisplay] = useState("0");
+  const { value: target, suffix } = parseStatNumber(raw);
+
+  useEffect(() => {
+    if (!inView) return;
+    let raf: number;
+    let startTime: number | null = null;
+    const delayMs = delay * 1000;
+
+    const tick = (now: number) => {
+      if (startTime === null) startTime = now;
+      const elapsed = now - startTime - delayMs;
+      if (elapsed < 0) { raf = requestAnimationFrame(tick); return; }
+      const progress = Math.min(elapsed / (duration * 1000), 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * target);
+      // Format: if suffix starts with "k", show as e.g. "12k+"
+      if (suffix.startsWith("k")) {
+        setDisplay(`${Math.round(current / 1000)}${suffix}`);
+      } else {
+        setDisplay(`${current}${suffix}`);
+      }
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, target, suffix, duration, delay]);
+
+  return <span ref={ref}>{display}</span>;
+}
 
 function RiseUp({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
@@ -473,7 +518,9 @@ export function Home() {
         <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {STAT_TABS.map((tab, i) => (
             <RiseUp key={tab.label} delay={i * 0.08} className="text-center">
-              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">{tab.value}</p>
+              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">
+                <CountUp value={tab.value} delay={i * 0.08} />
+              </p>
               <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{tab.label}</p>
             </RiseUp>
           ))}
@@ -495,7 +542,9 @@ export function Home() {
             { n: "94", l: "Countries Reached" },
           ].map((s, i) => (
             <RiseUp key={s.l} delay={i * 0.08} className="text-center">
-              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">{s.n}</p>
+              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">
+                <CountUp value={s.n} delay={i * 0.08} />
+              </p>
               <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{s.l}</p>
             </RiseUp>
           ))}
