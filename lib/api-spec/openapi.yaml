@@ -3,13 +3,36 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: The Science of Professional Textile Care API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: articles
+    description: Article/content operations
+  - name: categories
+    description: Category operations
+  - name: tags
+    description: Tag operations
+  - name: search
+    description: Search operations
+  - name: newsletter
+    description: Newsletter operations
+  - name: services
+    description: Consultation service operations
+  - name: experts
+    description: Expert/consultant operations
+  - name: appointments
+    description: Appointment/booking operations
+  - name: testimonials
+    description: Testimonial operations
+  - name: stats
+    description: Platform statistics
+  - name: knowledge
+    description: Knowledge hub operations
+
 paths:
   /healthz:
     get:
@@ -24,6 +47,357 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /articles:
+    get:
+      operationId: listArticles
+      tags: [articles]
+      summary: List articles
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 12 }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: tag
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string, enum: [published, draft, scheduled] }
+      responses:
+        "200":
+          description: Article list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleListResponse"
+
+  /articles/featured:
+    get:
+      operationId: getFeaturedArticles
+      tags: [articles]
+      summary: Get featured articles
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 6 }
+      responses:
+        "200":
+          description: Featured articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArticleSummary"
+
+  /articles/popular:
+    get:
+      operationId: getPopularArticles
+      tags: [articles]
+      summary: Get popular articles
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 8 }
+      responses:
+        "200":
+          description: Popular articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArticleSummary"
+
+  /articles/latest:
+    get:
+      operationId: getLatestArticles
+      tags: [articles]
+      summary: Get latest articles
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 6 }
+      responses:
+        "200":
+          description: Latest articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArticleSummary"
+
+  /articles/{slug}:
+    get:
+      operationId: getArticle
+      tags: [articles]
+      summary: Get article by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Article detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        "404":
+          description: Not found
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List categories
+      parameters:
+        - name: parentOnly
+          in: query
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: Category list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /categories/{slug}:
+    get:
+      operationId: getCategoryDetail
+      tags: [categories]
+      summary: Get category by slug with articles
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Category with articles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryWithArticles"
+        "404":
+          description: Not found
+
+  /tags:
+    get:
+      operationId: listTags
+      tags: [tags]
+      summary: List all tags
+      responses:
+        "200":
+          description: Tag list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+
+  /search:
+    get:
+      operationId: searchContent
+      tags: [search]
+      summary: Global content search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: type
+          in: query
+          schema: { type: string, enum: [articles, categories, guides, all] }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+
+  /newsletter/subscribe:
+    post:
+      operationId: subscribeNewsletter
+      tags: [newsletter]
+      summary: Subscribe to newsletter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterInput"
+      responses:
+        "200":
+          description: Subscription result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterResponse"
+
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List consultation services
+      responses:
+        "200":
+          description: Service list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+
+  /experts:
+    get:
+      operationId: listExperts
+      tags: [experts]
+      summary: List experts/consultants
+      responses:
+        "200":
+          description: Expert list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expert"
+
+  /experts/{id}:
+    get:
+      operationId: getExpert
+      tags: [experts]
+      summary: Get expert by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Expert detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expert"
+        "404":
+          description: Not found
+
+  /appointments:
+    get:
+      operationId: listAppointments
+      tags: [appointments]
+      summary: List appointments for current user
+      responses:
+        "200":
+          description: Appointment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [appointments]
+      summary: Book a consultation appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "201":
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  /appointments/{id}:
+    get:
+      operationId: getAppointment
+      tags: [appointments]
+      summary: Get appointment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Appointment detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "404":
+          description: Not found
+
+  /testimonials:
+    get:
+      operationId: listTestimonials
+      tags: [testimonials]
+      summary: List testimonials
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 6 }
+      responses:
+        "200":
+          description: Testimonial list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Testimonial"
+
+  /stats:
+    get:
+      operationId: getPlatformStats
+      tags: [stats]
+      summary: Get platform statistics
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+  /knowledge:
+    get:
+      operationId: getKnowledgeHub
+      tags: [knowledge]
+      summary: Get knowledge hub summary with sections
+      responses:
+        "200":
+          description: Knowledge hub data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeHub"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +408,265 @@ components:
       required:
         - status
 
+    Author:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        bio: { type: ["string", "null"] }
+        avatar: { type: ["string", "null"] }
+        role: { type: string }
+        articleCount: { type: integer }
+      required: [id, name, role, articleCount]
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: ["string", "null"] }
+        featuredImage: { type: ["string", "null"] }
+        articleCount: { type: integer }
+        parentId: { type: ["integer", "null"] }
+        subcategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+      required: [id, name, slug, articleCount]
+
+    Tag:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        articleCount: { type: integer }
+      required: [id, name, slug, articleCount]
+
+    ArticleSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        excerpt: { type: ["string", "null"] }
+        featuredImage: { type: ["string", "null"] }
+        readingTime: { type: integer }
+        publishedAt: { type: ["string", "null"] }
+        views: { type: integer }
+        author:
+          $ref: "#/components/schemas/Author"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+      required: [id, title, slug, readingTime, views, author, categories, tags]
+
+    Article:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        excerpt: { type: ["string", "null"] }
+        content: { type: string }
+        featuredImage: { type: ["string", "null"] }
+        readingTime: { type: integer }
+        publishedAt: { type: ["string", "null"] }
+        status: { type: string }
+        views: { type: integer }
+        author:
+          $ref: "#/components/schemas/Author"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        relatedArticles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArticleSummary"
+        tableOfContents:
+          type: array
+          items:
+            $ref: "#/components/schemas/TocItem"
+      required: [id, title, slug, content, readingTime, views, status, author, categories, tags, relatedArticles, tableOfContents]
+
+    TocItem:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        level: { type: integer }
+      required: [id, title, level]
+
+    ArticleListResponse:
+      type: object
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArticleSummary"
+        total: { type: integer }
+        page: { type: integer }
+        limit: { type: integer }
+        totalPages: { type: integer }
+      required: [articles, total, page, limit, totalPages]
+
+    CategoryWithArticles:
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/Category"
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArticleSummary"
+        total: { type: integer }
+        page: { type: integer }
+        totalPages: { type: integer }
+      required: [category, articles, total, page, totalPages]
+
+    SearchResult:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        title: { type: string }
+        slug: { type: string }
+        excerpt: { type: ["string", "null"] }
+        featuredImage: { type: ["string", "null"] }
+      required: [id, type, title, slug]
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResult"
+        total: { type: integer }
+        query: { type: string }
+      required: [results, total, query]
+
+    NewsletterInput:
+      type: object
+      properties:
+        email: { type: string }
+        name: { type: ["string", "null"] }
+      required: [email]
+
+    NewsletterResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+      required: [success, message]
+
+    Service:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        duration: { type: integer }
+        price: { type: number }
+        currency: { type: string }
+        icon: { type: ["string", "null"] }
+        category: { type: string }
+      required: [id, name, description, duration, price, currency, category]
+
+    Expert:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        title: { type: string }
+        bio: { type: string }
+        avatar: { type: ["string", "null"] }
+        specializations:
+          type: array
+          items: { type: string }
+        rating: { type: number }
+        sessionCount: { type: integer }
+        yearsExperience: { type: integer }
+      required: [id, name, title, bio, specializations, rating, sessionCount, yearsExperience]
+
+    AppointmentInput:
+      type: object
+      properties:
+        serviceId: { type: integer }
+        expertId: { type: integer }
+        scheduledAt: { type: string, format: date-time }
+        timezone: { type: string }
+        notes: { type: ["string", "null"] }
+        userEmail: { type: string }
+        userName: { type: string }
+      required: [serviceId, expertId, scheduledAt, timezone, userEmail, userName]
+
+    Appointment:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { type: string, enum: [pending, confirmed, cancelled, completed, rejected] }
+        scheduledAt: { type: string }
+        timezone: { type: string }
+        notes: { type: ["string", "null"] }
+        zoomLink: { type: ["string", "null"] }
+        userEmail: { type: string }
+        userName: { type: string }
+        service:
+          $ref: "#/components/schemas/Service"
+        expert:
+          $ref: "#/components/schemas/Expert"
+        createdAt: { type: string }
+      required: [id, status, scheduledAt, timezone, userEmail, userName, service, expert, createdAt]
+
+    Testimonial:
+      type: object
+      properties:
+        id: { type: integer }
+        authorName: { type: string }
+        authorRole: { type: string }
+        authorAvatar: { type: ["string", "null"] }
+        content: { type: string }
+        rating: { type: integer }
+      required: [id, authorName, authorRole, content, rating]
+
+    PlatformStats:
+      type: object
+      properties:
+        totalArticles: { type: integer }
+        totalCategories: { type: integer }
+        totalExperts: { type: integer }
+        totalConsultations: { type: integer }
+        totalReaders: { type: integer }
+        countriesReached: { type: integer }
+      required: [totalArticles, totalCategories, totalExperts, totalConsultations, totalReaders, countriesReached]
+
+    KnowledgeSectionItem:
+      type: object
+      properties:
+        title: { type: string }
+        count: { type: integer }
+        slug: { type: string }
+        description: { type: string }
+      required: [title, count, slug, description]
+
+    KnowledgeHub:
+      type: object
+      properties:
+        guides: { type: array, items: { $ref: "#/components/schemas/KnowledgeSectionItem" } }
+        research: { type: array, items: { $ref: "#/components/schemas/KnowledgeSectionItem" } }
+        caseStudies: { type: array, items: { $ref: "#/components/schemas/KnowledgeSectionItem" } }
+        learningPaths: { type: array, items: { $ref: "#/components/schemas/KnowledgeSectionItem" } }
+        totalItems: { type: integer }
+      required: [guides, research, caseStudies, learningPaths, totalItems]

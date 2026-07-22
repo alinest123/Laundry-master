@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "The Science of Professional Textile Care"
+version = "1.0.0"
+id = "artifacts/textile-platform"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24914
+
+[services.development]
+run = "pnpm --filter @workspace/textile-platform run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/textile-platform", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/textile-platform/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24914"
+BASE_PATH = "/"

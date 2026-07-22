@@ -1,0 +1,703 @@
+Project Overview
+
+Build a production-ready, scalable, secure, SEO-first educational platform called:
+
+The Science of Professional Textile Care
+
+This is NOT a laundry business website.
+
+This is an independent global educational platform dedicated to textile care science, professional laundry, dry cleaning, fabric science, stain removal, garment finishing, textile technology, sustainability, and industry education.
+
+The website must be designed to become the world's most trusted authority in this field.
+
+Tech Stack
+
+Use modern production technologies.
+
+Frontend
+
+Next.js (latest)
+React
+TypeScript
+Tailwind CSS
+shadcn/ui
+Framer Motion (light animations)
+
+Backend
+
+Next.js App Router
+Server Actions
+REST API where needed
+
+Database
+
+PostgreSQL
+Prisma ORM
+
+Authentication
+
+Better Auth or Auth.js
+OAuth support
+Email login
+Admin roles
+Editor roles
+User roles
+
+Deployment
+
+Optimized for Vercel or Replit deployment
+Design
+
+The design should look like a premium educational platform.
+
+Think of a mix between
+
+HubSpot Academy
+Google Developers
+Coursera
+Harvard Business Review
+MDN Documentation
+
+Clean
+
+Professional
+
+Fast
+
+Accessible
+
+Mobile-first
+
+No unnecessary animations.
+
+Homepage
+
+Hero section
+
+Mission statement
+
+Latest Articles
+
+Featured Categories
+
+Popular Articles
+
+Featured Guides
+
+Expert Consultation
+
+Newsletter Signup
+
+Testimonials
+
+Latest Industry News
+
+Knowledge Hub
+
+Search Bar
+
+Footer with complete navigation
+
+Categories
+
+Create a complete category system.
+
+Examples:
+
+Professional Laundry
+
+Dry Cleaning
+
+Fabric Science
+
+Fibers
+
+Natural Fibers
+
+Synthetic Fibers
+
+Textile Technology
+
+Textile Chemistry
+
+Stain Removal
+
+Garment Finishing
+
+Equipment
+
+Water Quality
+
+Detergents
+
+Sustainability
+
+Business Management
+
+Industry Standards
+
+Safety
+
+Training
+
+Case Studies
+
+Research
+
+Innovation
+
+Maintenance
+
+Quality Control
+
+Education
+
+Each category should have:
+
+Description
+
+SEO title
+
+SEO description
+
+Featured image
+
+Parent category
+
+Subcategories
+
+Breadcrumbs
+
+Category page
+
+Related articles
+
+Blog System
+
+Create a full CMS.
+
+Admin should be able to:
+
+Create articles
+
+Edit articles
+
+Delete articles
+
+Schedule publishing
+
+Save drafts
+
+Preview
+
+Upload featured images
+
+Multiple authors
+
+Categories
+
+Tags
+
+SEO settings
+
+Custom URL
+
+Meta title
+
+Meta description
+
+Open Graph image
+
+Canonical URL
+
+Schema markup
+
+Internal link suggestions
+
+Reading time
+
+Table of contents
+
+Code blocks
+
+Callout boxes
+
+Image galleries
+
+Embedded YouTube
+
+PDF attachments
+
+Downloads
+
+Related articles
+
+FAQ section
+
+Author bio
+
+Comments (optional)
+
+Search
+
+Global intelligent search.
+
+Search by
+
+Title
+
+Category
+
+Tag
+
+Content
+
+Author
+
+Autocomplete
+
+Instant search
+
+Filters
+
+Consultation Booking
+
+Users should be able to book paid consultation sessions.
+
+Flow:
+
+Choose service
+
+Choose expert
+
+Choose available date
+
+Choose available time
+
+Timezone detection
+
+Pay consultation fee
+
+Confirmation email
+
+Calendar invite
+
+Automatic reminders
+
+Generate Zoom meeting
+
+Store Zoom link securely
+
+Meeting appears inside dashboard
+
+Admin can approve or reject appointments
+
+Reschedule
+
+Cancel
+
+Refund support
+
+Admin calendar
+
+Consultation Services
+
+Examples:
+
+Fabric Analysis
+
+Stain Removal Consultation
+
+Laundry Plant Design
+
+Dry Cleaning Consultation
+
+Chemical Selection
+
+Training Session
+
+Business Consultation
+
+Quality Audit
+
+Textile Testing
+
+Online Workshop
+
+Payment
+
+Stripe integration
+
+Support future payment gateways
+
+Invoices
+
+Payment history
+
+Taxes
+
+Coupons
+
+User Dashboard
+
+Profile
+
+Appointments
+
+Downloads
+
+Saved Articles
+
+Bookmarks
+
+Certificates
+
+Invoices
+
+Notifications
+
+Newsletter preferences
+
+Admin Dashboard
+
+Analytics
+
+Users
+
+Articles
+
+Categories
+
+Tags
+
+Appointments
+
+Payments
+
+Newsletter
+
+Media Library
+
+SEO Reports
+
+Broken Links
+
+Redirect Manager
+
+Site Settings
+
+Security Logs
+
+Activity Logs
+
+Backup Management
+
+Role Management
+
+SEO
+
+The website must be built for Google's latest SEO best practices.
+
+Include:
+
+Semantic HTML
+
+Core Web Vitals optimization
+
+Server-side rendering
+
+Static generation where appropriate
+
+Automatic sitemap.xml
+
+robots.txt
+
+Canonical URLs
+
+Open Graph
+
+Twitter Cards
+
+JSON-LD structured data
+
+Article schema
+
+Breadcrumb schema
+
+FAQ schema
+
+Organization schema
+
+Website schema
+
+SearchAction schema
+
+Author schema
+
+Pagination
+
+Image optimization
+
+Automatic alt text field
+
+Lazy loading
+
+Internal linking
+
+Related content
+
+XML image sitemap
+
+RSS feed
+
+Clean URLs
+
+Automatic metadata generation
+
+No duplicate content
+
+No index for admin pages
+
+404 page
+
+Redirect system
+
+SEO score inside CMS
+
+Performance
+
+Target Lighthouse scores:
+
+Performance 95+
+
+SEO 100
+
+Accessibility 100
+
+Best Practices 100
+
+Fast loading
+
+Image optimization
+
+Caching
+
+Compression
+
+CDN ready
+
+Security
+
+This is extremely important.
+
+Implement production-level security.
+
+Include:
+
+HTTPS only
+
+Environment variables
+
+Never expose API keys
+
+Never expose tokens
+
+Never expose passwords
+
+Encrypted secrets
+
+Password hashing using Argon2
+
+CSRF protection
+
+XSS protection
+
+SQL injection prevention
+
+Rate limiting
+
+Brute-force protection
+
+Content Security Policy
+
+Secure cookies
+
+HttpOnly cookies
+
+SameSite cookies
+
+Authentication middleware
+
+Role-based authorization
+
+Audit logs
+
+Input validation using Zod
+
+File upload validation
+
+Malware protection for uploads
+
+Secure image uploads
+
+Session expiration
+
+Automatic logout
+
+Email verification
+
+Password reset
+
+Two-factor authentication ready
+
+Secure API routes
+
+Secret rotation support
+
+Backup strategy
+
+Database encryption where applicable
+
+Never hardcode secrets
+
+OWASP Top 10 compliance
+
+Security headers
+
+CORS configuration
+
+Bot protection
+
+Spam protection
+
+Accessibility
+
+WCAG 2.2 AA
+
+Keyboard navigation
+
+Screen reader support
+
+Proper contrast
+
+Accessible forms
+
+Skip navigation
+
+ARIA labels
+
+Knowledge Base
+
+Create a documentation section.
+
+Users should browse by topic.
+
+Include:
+
+Guides
+
+Research
+
+Glossary
+
+FAQs
+
+Downloads
+
+Case Studies
+
+Industry Standards
+
+Learning Paths
+
+Newsletter
+
+Email capture
+
+Double opt-in
+
+Newsletter management
+
+Segmentation
+
+Automation-ready
+
+Future Expansion
+
+The architecture must support:
+
+Learning Management System (LMS)
+
+Professional Certifications
+
+Online Courses
+
+Community Forum
+
+Industry Directory
+
+Research Database
+
+Equipment Reviews
+
+Chemical Database
+
+Fabric Encyclopedia
+
+Stain Encyclopedia
+
+Interactive Calculators
+
+Member Portal
+
+Premium Membership
+
+AI Assistant for Textile Care
+
+Mobile App
+
+Multi-language support
+
+API integrations
+
+Branding
+
+The tone should communicate:
+
+Scientific credibility
+
+Professional expertise
+
+Educational excellence
+
+Trust
+
+Global authority
+
+Modern technology
+
+No marketing hype.
+
+Deliverables
+
+Build a fully functional production-ready website with clean architecture, reusable components, comprehensive documentation, and scalable code. Use TypeScript throughout, follow modern best practices, include automated tests for critical functionality, and ensure the application is maintainable and ready for future expansion.
+
+Strategic recommendation
+
+I would make one major change before development begins.
+
+Don't think of it as a "blog." Think of it as a Knowledge Platform with multiple content types. Your navigation could look like this:
+
+Home
+Knowledge Hub (all educational content)
+Articles
+Guides
+Research
+Case Studies
+Industry Standards
+Fabric Encyclopedia
+Stain Encyclopedia
+Learning Center
+Consultations
+About
+Contact
