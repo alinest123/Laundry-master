@@ -221,7 +221,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
       {/* ── SPLIT INTRO ──────────────────────────────────────── */}
       <section className="grid md:grid-cols-2 min-h-[380px]">
         {/* Left dark photo */}
@@ -229,7 +228,7 @@ export function Home() {
           <img src={IMG.dark1} alt="Expert consultant" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-8 left-8 right-8">
-            <p className="text-white font-bold text-[1.35rem] leading-snug">
+            <p className="text-white font-bold text-[1.35rem] leading-snug text-left bg-foreground">
               Science & support<br />for your textile<br />care operations
             </p>
           </div>
@@ -259,7 +258,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
       {/* ── SERVICES GRID ────────────────────────────────────── */}
       <section className="bg-[#f5f5f2] py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
@@ -288,7 +286,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
       {/* ── PHOTO CARD ROW ───────────────────────────────────── */}
       <section className="bg-white py-0 overflow-hidden">
         <div className="grid grid-cols-5">
@@ -303,7 +300,6 @@ export function Home() {
           ))}
         </div>
       </section>
-
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
       <section className="bg-white py-20 px-6">
         <div className="max-w-[780px] mx-auto text-center">
@@ -348,7 +344,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
       {/* ── STATS TABS ───────────────────────────────────────── */}
       <section className="bg-[#f5f5f2] border-y border-[#e8e8e8] py-0">
         <div className="max-w-[1280px] mx-auto grid grid-cols-4">
@@ -364,14 +359,12 @@ export function Home() {
           ))}
         </div>
       </section>
-
       {/* ── TEAM PHOTO ───────────────────────────────────────── */}
       <section className="bg-white overflow-hidden">
         <div className="w-full h-[420px] md:h-[520px]">
           <img src={IMG.team} alt="Textile care professionals" className="w-full h-full object-cover" />
         </div>
       </section>
-
       {/* ── NUMBERS BAR ──────────────────────────────────────── */}
       <section className="bg-white border-t border-[#f0f0f0] py-8 px-6">
         <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -388,7 +381,6 @@ export function Home() {
           ))}
         </div>
       </section>
-
       {/* ── FEATURE SPLIT ────────────────────────────────────── */}
       <section className="bg-[#f5f5f2] py-20 px-6">
         <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-14 items-center">
@@ -421,7 +413,6 @@ export function Home() {
           </div>
         </div>
       </section>
-
       {/* ── DETAILS / ARTICLES ───────────────────────────────── */}
       <section className="bg-white py-20 px-6">
         <div className="max-w-[1280px] mx-auto">

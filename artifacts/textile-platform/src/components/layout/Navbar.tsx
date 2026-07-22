@@ -77,7 +77,7 @@ export function Navbar() {
               <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
             </svg>
           </div>
-          <span className="font-extrabold text-[1.05rem] tracking-tight text-[#1c1c1c]">TextilePro</span>
+          <span className="font-extrabold text-[1.05rem] tracking-tight text-[#1c1c1c]">Laundry Master</span>
         </Link>
 
         {/* Center nav */}
@@ -113,7 +113,6 @@ export function Navbar() {
           </button>
         </div>
       </div>
-
       {/* Mobile drawer */}
       {open && (
         <div className="md:hidden border-t border-[#e8e8e8] bg-white">
