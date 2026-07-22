@@ -11,10 +11,12 @@ import appointmentsRouter from "./appointments";
 import testimonialsRouter from "./testimonials";
 import statsRouter from "./stats";
 import knowledgeRouter from "./knowledge";
+import adminRouter from "./admin";
 
 const router = Router();
 
 router.use(healthRouter);
+router.use(adminRouter);          // /admin/* — must come before public routes
 router.use(articlesRouter);
 router.use(categoriesRouter);
 router.use(tagsRouter);

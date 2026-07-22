@@ -17,11 +17,29 @@ import { UserDashboard } from "@/pages/dashboard/UserDashboard";
 import { About } from "@/pages/about/About";
 import { Contact } from "@/pages/contact/Contact";
 
+// Admin CMS
+import { Dashboard } from "@/pages/admin/Dashboard";
+import { ArticleList as AdminArticleList } from "@/pages/admin/articles/ArticleList";
+import { ArticleEditor } from "@/pages/admin/articles/ArticleEditor";
+import { Authors } from "@/pages/admin/Authors";
+import { Categories as AdminCategories } from "@/pages/admin/Categories";
+import { Tags } from "@/pages/admin/Tags";
+
 const queryClient = new QueryClient();
 
 function Router() {
   return (
     <Switch>
+      {/* Admin CMS — must come before public routes */}
+      <Route path="/admin" component={Dashboard} />
+      <Route path="/admin/articles" component={AdminArticleList} />
+      <Route path="/admin/articles/new" component={ArticleEditor} />
+      <Route path="/admin/articles/:id/edit" component={ArticleEditor} />
+      <Route path="/admin/authors" component={Authors} />
+      <Route path="/admin/categories" component={AdminCategories} />
+      <Route path="/admin/tags" component={Tags} />
+
+      {/* Public site */}
       <Route path="/" component={Home} />
       <Route path="/articles" component={ArticleList} />
       <Route path="/articles/:slug" component={ArticleDetail} />

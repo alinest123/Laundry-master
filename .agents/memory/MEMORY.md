@@ -1,2 +1,3 @@
 - [DB Schema Tags Export](db-schema-tags.md) — tags.ts was missing from schema/index.ts causing build failures; always verify all new schema files are in index.ts
 - [API Server Build](api-server-build.md) — esbuild bundles from src directly; @workspace/db resolves to lib/db/src/index.ts via exports field; rebuild after any schema addition
+- [CMS Architecture](cms-architecture.md) — admin routes at /api/admin/*, frontend at /admin/*, schema additions, isFeatured stays integer for back-compat
