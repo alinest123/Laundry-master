@@ -60,7 +60,7 @@ export function Footer() {
                 <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
               </svg>
             </div>
-            <span className="font-extrabold text-[1.05rem] tracking-tight">TextilePro</span>
+            <span className="font-extrabold text-[1.05rem] tracking-tight">Laundry Master</span>
           </div>
 
           <p className="text-[#888] text-sm leading-relaxed mb-6 max-w-xs">
@@ -106,7 +106,6 @@ export function Footer() {
           </div>
         ))}
       </div>
-
       {/* Bottom bar */}
       <div className="border-t border-[#2a2a2a]">
         <div className="max-w-[1280px] mx-auto px-6 h-12 flex items-center justify-between gap-4">
