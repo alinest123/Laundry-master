@@ -255,17 +255,13 @@ export function Home() {
               <img src={IMG.collage1} alt="Consultant presenting" className="w-full h-full object-cover object-center" />
             </motion.div>
 
-            {/* ② Col-L mid: beige play circle — rows 44%→68% */}
+            {/* ② Col-L mid: beige plain circle — rows 44%→68% */}
             <motion.div
-              className="absolute left-[2%] top-[44%] w-[22%] h-[24%] rounded-full bg-[#C4A07C] flex items-center justify-center"
+              className="absolute left-[2%] top-[44%] w-[22%] h-[24%] rounded-full bg-[#C4A07C]"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.7, ease: [0.25,0.46,0.45,0.94], delay: 0.1 }}
-            >
-              <div className="w-7 h-7 md:w-9 md:h-9 rounded-full border border-white/60 flex items-center justify-center">
-                <Play className="w-3 h-3 md:w-3.5 md:h-3.5 text-white fill-white ml-0.5" />
-              </div>
-            </motion.div>
+            />
 
             {/* ③ Col-L bot: group meeting — rows 70%→98% */}
             <motion.div
@@ -287,15 +283,13 @@ export function Home() {
               <img src={IMG.collageMain} alt="Expert consultant on phone" className="w-full h-full object-cover object-top" />
             </motion.div>
 
-            {/* ⑤ Col-C bot: green rounded square ↙ — rows 79%→98% */}
+            {/* ⑤ Col-C bot: green plain rounded square — rows 79%→98% */}
             <motion.div
-              className="absolute top-[79%] left-[26%] w-[17%] h-[19%] rounded-[18px] bg-[#4DB86A] flex items-end justify-end p-2 md:p-3"
+              className="absolute top-[79%] left-[26%] w-[17%] h-[19%] rounded-[18px] bg-[#4DB86A]"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.15 }}
-            >
-              <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white rotate-180" />
-            </motion.div>
+            />
 
             {/* ⑥ Col-R top: beige decorative square — rows 2%→19% */}
             <motion.div
