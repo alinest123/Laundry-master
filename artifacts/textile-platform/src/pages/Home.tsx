@@ -105,6 +105,30 @@ const IconCompliance = () => (
   </svg>
 );
 
+/* ─── Rise-up scroll animation helper ─── */
+const rise = {
+  hidden: { opacity: 0, y: 32 },
+  show: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay },
+  }),
+};
+
+function RiseUp({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-60px" }}
+      variants={{ hidden: rise.hidden, show: rise.show(delay) }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 const SERVICES = [
   { icon: <IconFabricAnalysis />, title: "Fabric Analysis", desc: "Fiber identification, construction analysis, and professional care assessment for any textile." },
   { icon: <IconStainRemoval />, title: "Stain Removal", desc: "Evidence-based stain identification and treatment protocols for all fiber types and substrates." },
@@ -165,16 +189,39 @@ export function Home() {
         <div className="max-w-[1280px] mx-auto px-6 py-16 md:py-24 grid md:grid-cols-[1fr_1fr] gap-12 items-center">
           {/* Left */}
           <div>
-            <span className="label-tag">Science-first textile care knowledge</span>
-            <h1 className="heading-xl text-[#1c1c1c] mb-6">
+            <motion.span
+              className="label-tag"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0 }}
+            >
+              Science-first textile care knowledge
+            </motion.span>
+            <motion.h1
+              className="heading-xl text-[#1c1c1c] mb-6"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.1 }}
+            >
               Professional<br />Textile Care<br />Experts
-            </h1>
-            <p className="text-[#555] text-[1rem] leading-relaxed mb-8 max-w-md">
+            </motion.h1>
+            <motion.p
+              className="text-[#555] text-[1rem] leading-relaxed mb-8 max-w-md"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.22 }}
+            >
               World-class knowledge, research, and consultations for laundry, dry cleaning, and fabric science professionals across 94 countries.
-            </p>
-            <Link href="/consultations/book" className="btn-dark inline-flex items-center gap-2 rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]">
-              Book a Consultation <ArrowRight className="w-4 h-4" />
-            </Link>
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.34 }}
+            >
+              <Link href="/consultations/book" className="btn-dark inline-flex items-center gap-2 rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]">
+                Book a Consultation <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
           </div>
 
           {/* Right – photo collage */}
@@ -242,24 +289,28 @@ export function Home() {
 
         {/* Right white */}
         <div className="bg-white px-6 py-10 md:px-10 md:py-14 flex flex-col justify-center">
-          <span className="label-tag">Our expertise</span>
-          <h2 className="heading-md text-[#1c1c1c] mb-8">
-            We help textile care<br />businesses grow
-          </h2>
+          <RiseUp delay={0}><span className="label-tag">Our expertise</span></RiseUp>
+          <RiseUp delay={0.1}>
+            <h2 className="heading-md text-[#1c1c1c] mb-8">
+              We help textile care<br />businesses grow
+            </h2>
+          </RiseUp>
           <div className="space-y-4">
             {[
               { title: "Fabric & fiber science", desc: "Evidence-based knowledge for all fiber types and fabric constructions." },
               { title: "Wet processing & chemistry", desc: "Detergents, solvents, water quality, and cleaning chemistry." },
-            ].map((item) => (
-              <div key={item.title} className="flex items-start justify-between gap-4 pb-4 border-b border-[#f0f0f0] last:border-0">
-                <div>
-                  <p className="font-bold text-[#1c1c1c] text-sm mb-0.5">{item.title}</p>
-                  <p className="text-[#777] text-xs leading-relaxed">{item.desc}</p>
+            ].map((item, i) => (
+              <RiseUp key={item.title} delay={0.2 + i * 0.1}>
+                <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#f0f0f0] last:border-0">
+                  <div>
+                    <p className="font-bold text-[#1c1c1c] text-sm mb-0.5">{item.title}</p>
+                    <p className="text-[#777] text-xs leading-relaxed">{item.desc}</p>
+                  </div>
+                  <Link href="/articles" className="shrink-0 w-8 h-8 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
-                <Link href="/articles" className="shrink-0 w-8 h-8 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+              </RiseUp>
             ))}
           </div>
         </div>
@@ -268,26 +319,28 @@ export function Home() {
       <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
           <div className="grid md:grid-cols-2 gap-6 mb-14">
-            <div>
+            <RiseUp delay={0}>
               <h2 className="heading-lg text-[#1c1c1c]">Your knowledge goals<br />are our priority</h2>
-            </div>
-            <div className="flex flex-col justify-end">
+            </RiseUp>
+            <RiseUp delay={0.12} className="flex flex-col justify-end">
               <p className="text-[#666] text-sm leading-relaxed mb-4 max-w-sm">
                 From fiber science fundamentals to advanced plant operations — expert-authored resources trusted by textile care professionals worldwide.
               </p>
               <Link href="/articles" className="inline-flex items-center gap-1.5 text-[#1c1c1c] text-sm font-bold hover:text-[#4a7c59] transition-colors">
                 Browse all articles <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-            </div>
+            </RiseUp>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SERVICES.map((s) => (
-              <div key={s.title} className="bg-white p-7 rounded-[8px] border border-[#e8e8e8] hover:shadow-md transition-shadow">
-                <div className="text-2xl mb-4">{s.icon}</div>
-                <h3 className="font-bold text-[#1c1c1c] text-sm mb-2">{s.title}</h3>
-                <p className="text-[#777] text-xs leading-relaxed">{s.desc}</p>
-              </div>
+            {SERVICES.map((s, i) => (
+              <RiseUp key={s.title} delay={i * 0.08}>
+                <div className="bg-white p-7 rounded-[8px] border border-[#e8e8e8] hover:shadow-md transition-shadow h-full">
+                  <div className="text-2xl mb-4">{s.icon}</div>
+                  <h3 className="font-bold text-[#1c1c1c] text-sm mb-2">{s.title}</h3>
+                  <p className="text-[#777] text-xs leading-relaxed">{s.desc}</p>
+                </div>
+              </RiseUp>
             ))}
           </div>
         </div>
@@ -296,28 +349,39 @@ export function Home() {
       <section className="bg-white py-0 overflow-hidden">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
           {SERVICE_PHOTOS.map((p, i) => (
-            <div key={i} className={`relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden group cursor-pointer ${i === 4 ? 'hidden sm:hidden md:block' : ''}`}>
+            <motion.div
+              key={i}
+              className={`relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden group cursor-pointer ${i === 4 ? 'hidden sm:hidden md:block' : ''}`}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: i * 0.07 }}
+            >
               <img src={p.img} alt={p.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
                 <p className="text-white font-bold text-xs leading-tight">{p.label}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
       <section className="bg-white py-12 md:py-20 px-6">
         <div className="max-w-[780px] mx-auto text-center">
-          <span className="label-tag">Client feedback</span>
-          <h2 className="heading-md text-[#1c1c1c] mb-8 md:mb-10">Our customer reviews</h2>
+          <RiseUp delay={0}><span className="label-tag">Client feedback</span></RiseUp>
+          <RiseUp delay={0.1}>
+            <h2 className="heading-md text-[#1c1c1c] mb-8 md:mb-10">Our customer reviews</h2>
+          </RiseUp>
 
-          <div className="relative min-h-[200px]">
-            <div className="text-[3rem] leading-none text-[#4a7c59] font-serif mb-3">"</div>
-            <p className="text-[#444] text-[0.95rem] leading-relaxed italic mb-8">{t.quote}</p>
-            <p className="font-bold text-[#1c1c1c] text-sm">{t.name}</p>
-            <p className="text-[#888] text-xs mt-0.5">{t.role}</p>
-          </div>
+          <RiseUp delay={0.18}>
+            <div className="relative min-h-[200px]">
+              <div className="text-[3rem] leading-none text-[#4a7c59] font-serif mb-3">"</div>
+              <p className="text-[#444] text-[0.95rem] leading-relaxed italic mb-8">{t.quote}</p>
+              <p className="font-bold text-[#1c1c1c] text-sm">{t.name}</p>
+              <p className="text-[#888] text-xs mt-0.5">{t.role}</p>
+            </div>
+          </RiseUp>
 
           <div className="flex justify-center items-center gap-4 mt-10">
             <button
@@ -383,11 +447,11 @@ export function Home() {
             { n: "94", l: "Countries Reached" },
             { n: "25+", l: "Domain Experts" },
             { n: "12k+", l: "Professionals" },
-          ].map((s) => (
-            <div key={s.l} className="text-center">
+          ].map((s, i) => (
+            <RiseUp key={s.l} delay={i * 0.08} className="text-center">
               <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">{s.n}</p>
               <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{s.l}</p>
-            </div>
+            </RiseUp>
           ))}
         </div>
       </section>
@@ -395,64 +459,71 @@ export function Home() {
       <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
           {/* Left: stacked photos */}
-          <div className="relative h-[280px] sm:h-[360px] md:h-[440px]">
+          <RiseUp delay={0} className="relative h-[280px] sm:h-[360px] md:h-[440px]">
             <div className="absolute left-0 top-0 w-[72%] h-[68%] rounded-[12px] overflow-hidden shadow-lg">
               <img src={IMG.feature1} alt="Laboratory" className="w-full h-full object-cover" />
             </div>
             <div className="absolute right-0 bottom-0 w-[62%] h-[58%] rounded-[12px] overflow-hidden shadow-lg border-4 border-[#f5f5f2]">
               <img src={IMG.feature2} alt="Research" className="w-full h-full object-cover" />
             </div>
-            {/* Play button overlay */}
             <button className="absolute left-[30%] top-[40%] -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center hover:scale-105 transition-transform">
               <Play className="w-5 h-5 fill-[#1c1c1c] text-[#1c1c1c] ml-0.5" />
             </button>
-          </div>
+          </RiseUp>
 
           {/* Right: text */}
           <div>
-            <span className="label-tag">Professional impact</span>
-            <h2 className="heading-lg text-[#1c1c1c] mb-5">
-              Cut your costs by<br />up to 60%
-            </h2>
-            <p className="text-[#666] text-sm leading-relaxed mb-8 max-w-md">
-              Applying the science in our knowledge base, professionals have reduced chemical spend by 30–60%, cut water usage by 20–40%, and dramatically reduced garment damage claims. Precision beats guesswork every time.
-            </p>
-            <Link href="/consultations/book" className="btn-green">
-              Book a Consultation <ArrowRight className="w-4 h-4" />
-            </Link>
+            <RiseUp delay={0.1}><span className="label-tag">Professional impact</span></RiseUp>
+            <RiseUp delay={0.18}>
+              <h2 className="heading-lg text-[#1c1c1c] mb-5">
+                Cut your costs by<br />up to 60%
+              </h2>
+            </RiseUp>
+            <RiseUp delay={0.26}>
+              <p className="text-[#666] text-sm leading-relaxed mb-8 max-w-md">
+                Applying the science in our knowledge base, professionals have reduced chemical spend by 30–60%, cut water usage by 20–40%, and dramatically reduced garment damage claims. Precision beats guesswork every time.
+              </p>
+            </RiseUp>
+            <RiseUp delay={0.34}>
+              <Link href="/consultations/book" className="btn-green">
+                Book a Consultation <ArrowRight className="w-4 h-4" />
+              </Link>
+            </RiseUp>
           </div>
         </div>
       </section>
       {/* ── DETAILS / ARTICLES ───────────────────────────────── */}
       <section className="bg-white py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
-          <div className="text-center mb-12">
+          <RiseUp delay={0} className="text-center mb-12">
             <span className="label-tag">Latest Knowledge</span>
             <h2 className="heading-lg text-[#1c1c1c]">Details about our research</h2>
-          </div>
+          </RiseUp>
 
           <div className="grid md:grid-cols-3 gap-6 mb-10">
             {[
               { img: IMG.detail1, cat: "Fabric Science", title: "Understanding Cotton Fiber Structure and Wet Processing Behavior", desc: "How the crystalline structure of cotton cellulose affects swelling, shrinkage, and detergent penetration during washing." },
               { img: IMG.detail2, cat: "Stain Removal", title: "Enzyme Detergents: The Science of Biological Stain Removal", desc: "How protease, lipase, and amylase enzymes break down protein, fat, and starch-based stains at molecular level." },
               { img: IMG.detail3, cat: "Sustainability", title: "Reducing Water Consumption in Commercial Laundry by 40%", desc: "A systematic review of bath ratio optimization, counterflow rinsing, and water reuse strategies validated in real facilities." },
-            ].map((card) => (
-              <div key={card.title} className="group cursor-pointer">
-                <div className="aspect-[16/10] rounded-[8px] overflow-hidden mb-4">
-                  <img src={card.img} alt={card.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            ].map((card, i) => (
+              <RiseUp key={card.title} delay={i * 0.1}>
+                <div className="group cursor-pointer">
+                  <div className="aspect-[16/10] rounded-[8px] overflow-hidden mb-4">
+                    <img src={card.img} alt={card.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <p className="text-[#4a7c59] text-[0.7rem] font-bold uppercase tracking-widest mb-1.5">{card.cat}</p>
+                  <h3 className="font-bold text-[#1c1c1c] text-sm leading-snug mb-2">{card.title}</h3>
+                  <p className="text-[#777] text-xs leading-relaxed">{card.desc}</p>
                 </div>
-                <p className="text-[#4a7c59] text-[0.7rem] font-bold uppercase tracking-widest mb-1.5">{card.cat}</p>
-                <h3 className="font-bold text-[#1c1c1c] text-sm leading-snug mb-2">{card.title}</h3>
-                <p className="text-[#777] text-xs leading-relaxed">{card.desc}</p>
-              </div>
+              </RiseUp>
             ))}
           </div>
 
-          <div className="text-center">
+          <RiseUp delay={0.1} className="text-center">
             <Link href="/articles" className="btn-dark">
               See All Articles <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
+          </RiseUp>
         </div>
       </section>
     </Shell>
