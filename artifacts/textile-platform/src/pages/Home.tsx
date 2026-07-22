@@ -178,7 +178,7 @@ export function Home() {
           </div>
 
           {/* Right – photo collage */}
-          <div className="relative h-[420px] md:h-[500px] select-none overflow-hidden">
+          <div className="relative h-[300px] sm:h-[380px] md:h-[500px] select-none overflow-hidden">
             {/* Small circle top-left — wipes in first */}
             <motion.div
               className="absolute left-0 top-[10%] w-[38%] aspect-square rounded-full overflow-hidden shadow-md border-4 border-white"
@@ -222,21 +222,26 @@ export function Home() {
         </div>
       </section>
       {/* ── SPLIT INTRO ──────────────────────────────────────── */}
-      <section className="grid md:grid-cols-2 min-h-[380px] relative">
+      <section className="grid md:grid-cols-2 relative">
         {/* Left dark photo */}
-        <div className="relative min-h-[320px] md:min-h-0">
+        <div className="relative min-h-[260px] sm:min-h-[320px] md:min-h-[380px]">
           <img src={IMG.dark1} alt="Expert consultant" className="w-full h-full object-cover object-top" />
         </div>
 
-        {/* Text caption box — overlaps bottom-right corner of image */}
-        <div className="absolute bottom-0 right-0 md:left-1/2 md:translate-x-[-30%] bg-[#1c1c1c] px-8 py-7 max-w-[280px] z-10 rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[20px]">
+        {/* Caption — static block on mobile, absolute overlay on md+ */}
+        <div className="bg-[#1c1c1c] px-6 py-6 md:hidden">
+          <p className="text-white font-bold text-lg leading-snug">
+            Science & support<br />for your textile<br />care operations
+          </p>
+        </div>
+        <div className="absolute bottom-0 right-0 md:left-1/2 md:translate-x-[-30%] bg-[#1c1c1c] px-8 py-7 max-w-[280px] z-10 hidden md:block">
           <p className="text-white font-bold text-[1.2rem] leading-snug">
             Science & support<br />for your textile<br />care operations
           </p>
         </div>
 
         {/* Right white */}
-        <div className="bg-white px-10 py-14 flex flex-col justify-center">
+        <div className="bg-white px-6 py-10 md:px-10 md:py-14 flex flex-col justify-center">
           <span className="label-tag">Our expertise</span>
           <h2 className="heading-md text-[#1c1c1c] mb-8">
             We help textile care<br />businesses grow
@@ -260,7 +265,7 @@ export function Home() {
         </div>
       </section>
       {/* ── SERVICES GRID ────────────────────────────────────── */}
-      <section className="bg-[#f5f5f2] py-20 px-6">
+      <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
           <div className="grid md:grid-cols-2 gap-6 mb-14">
             <div>
@@ -289,9 +294,9 @@ export function Home() {
       </section>
       {/* ── PHOTO CARD ROW ───────────────────────────────────── */}
       <section className="bg-white py-0 overflow-hidden">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
           {SERVICE_PHOTOS.map((p, i) => (
-            <div key={i} className="relative aspect-[3/4] overflow-hidden group cursor-pointer">
+            <div key={i} className={`relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden group cursor-pointer ${i === 4 ? 'hidden sm:hidden md:block' : ''}`}>
               <img src={p.img} alt={p.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
@@ -302,12 +307,12 @@ export function Home() {
         </div>
       </section>
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="bg-white py-20 px-6">
+      <section className="bg-white py-12 md:py-20 px-6">
         <div className="max-w-[780px] mx-auto text-center">
           <span className="label-tag">Client feedback</span>
-          <h2 className="heading-md text-[#1c1c1c] mb-10">Our customer reviews</h2>
+          <h2 className="heading-md text-[#1c1c1c] mb-8 md:mb-10">Our customer reviews</h2>
 
-          <div className="relative min-h-[160px]">
+          <div className="relative min-h-[200px]">
             <div className="text-[3rem] leading-none text-[#4a7c59] font-serif mb-3">"</div>
             <p className="text-[#444] text-[0.95rem] leading-relaxed italic mb-8">{t.quote}</p>
             <p className="font-bold text-[#1c1c1c] text-sm">{t.name}</p>
@@ -347,12 +352,16 @@ export function Home() {
       </section>
       {/* ── STATS TABS ───────────────────────────────────────── */}
       <section className="bg-[#f5f5f2] border-y border-[#e8e8e8] py-0">
-        <div className="max-w-[1280px] mx-auto grid grid-cols-4">
+        <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4">
           {STAT_TABS.map((tab, i) => (
             <button
               key={tab.label}
               onClick={() => setActiveTab(i)}
-              className={`py-5 px-6 text-center border-r border-[#e8e8e8] last:border-0 transition-colors ${activeTab === i ? "bg-white" : "hover:bg-white/60"}`}
+              className={`py-5 px-4 md:px-6 text-center border-[#e8e8e8] transition-colors
+                ${i % 2 === 0 ? 'border-r' : ''}
+                ${i < 2 ? 'border-b md:border-b-0' : ''}
+                ${i < 3 ? 'md:border-r' : ''}
+                ${activeTab === i ? "bg-white" : "hover:bg-white/60"}`}
             >
               <p className="font-extrabold text-[#1c1c1c] text-sm">{tab.value}</p>
               <p className="text-[#888] text-xs mt-0.5">{tab.label}</p>
@@ -362,7 +371,7 @@ export function Home() {
       </section>
       {/* ── TEAM PHOTO ───────────────────────────────────────── */}
       <section className="bg-white overflow-hidden">
-        <div className="w-full h-[420px] md:h-[520px]">
+        <div className="w-full h-[220px] sm:h-[320px] md:h-[520px]">
           <img src={IMG.team} alt="Textile care professionals" className="w-full h-full object-cover" />
         </div>
       </section>
@@ -376,17 +385,17 @@ export function Home() {
             { n: "12k+", l: "Professionals" },
           ].map((s) => (
             <div key={s.l} className="text-center">
-              <p className="font-extrabold text-[1.9rem] text-[#1c1c1c] leading-none">{s.n}</p>
+              <p className="font-extrabold text-[1.5rem] md:text-[1.9rem] text-[#1c1c1c] leading-none">{s.n}</p>
               <p className="text-[#888] text-xs mt-1.5 uppercase tracking-wider font-semibold">{s.l}</p>
             </div>
           ))}
         </div>
       </section>
       {/* ── FEATURE SPLIT ────────────────────────────────────── */}
-      <section className="bg-[#f5f5f2] py-20 px-6">
-        <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-14 items-center">
+      <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
+        <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
           {/* Left: stacked photos */}
-          <div className="relative h-[440px]">
+          <div className="relative h-[280px] sm:h-[360px] md:h-[440px]">
             <div className="absolute left-0 top-0 w-[72%] h-[68%] rounded-[12px] overflow-hidden shadow-lg">
               <img src={IMG.feature1} alt="Laboratory" className="w-full h-full object-cover" />
             </div>
@@ -415,7 +424,7 @@ export function Home() {
         </div>
       </section>
       {/* ── DETAILS / ARTICLES ───────────────────────────────── */}
-      <section className="bg-white py-20 px-6">
+      <section className="bg-white py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
           <div className="text-center mb-12">
             <span className="label-tag">Latest Knowledge</span>
