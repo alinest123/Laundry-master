@@ -229,7 +229,7 @@ export function Home() {
         </div>
 
         {/* Text caption box — overlaps bottom-right corner of image */}
-        <div className="absolute bottom-0 right-0 md:left-1/2 md:translate-x-[-30%] bg-[#1c1c1c] px-8 py-7 max-w-[280px] z-10">
+        <div className="absolute bottom-0 right-0 md:left-1/2 md:translate-x-[-30%] bg-[#1c1c1c] px-8 py-7 max-w-[280px] z-10 rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[20px]">
           <p className="text-white font-bold text-[1.2rem] leading-snug">
             Science & support<br />for your textile<br />care operations
           </p>
