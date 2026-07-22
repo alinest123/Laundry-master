@@ -90,21 +90,23 @@ export function Footer() {
           )}
         </div>
 
-        {/* Link columns */}
-        {COLS.map((col) => (
-          <div key={col.title}>
-            <p className="text-[0.7rem] font-bold uppercase tracking-widest text-[#555] mb-4">{col.title}</p>
-            <ul className="space-y-2.5">
-              {col.links.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-[#888] hover:text-white text-sm transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {/* Link columns — 2-col grid on mobile (Services on right), flat into parent grid on desktop */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:contents">
+          {COLS.map((col) => (
+            <div key={col.title}>
+              <p className="text-[0.7rem] font-bold uppercase tracking-widest text-[#555] mb-4">{col.title}</p>
+              <ul className="space-y-2.5">
+                {col.links.map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href} className="text-[#888] hover:text-white text-sm transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
       {/* Bottom bar */}
       <div className="border-t border-[#2a2a2a]">
