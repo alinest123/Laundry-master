@@ -172,7 +172,7 @@ export function Home() {
             <p className="text-[#555] text-[1rem] leading-relaxed mb-8 max-w-md">
               World-class knowledge, research, and consultations for laundry, dry cleaning, and fabric science professionals across 94 countries.
             </p>
-            <Link href="/consultations/book" className="btn-dark inline-flex items-center gap-2">
+            <Link href="/consultations/book" className="btn-dark inline-flex items-center gap-2 rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]">
               Book a Consultation <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
