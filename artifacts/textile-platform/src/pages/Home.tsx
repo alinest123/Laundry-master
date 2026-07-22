@@ -233,75 +233,78 @@ export function Home() {
           {/* Right – 8-element photo collage
                Grid logic (% of container W × H):
                ┌─────────────┬──────────────────────┬──────────────────┐
-               │ Col-L 2–24% │  Col-C 26–69%        │ Col-R 71–98%     │
+               │ Col-L 2–24% │  Col-C 26–68%        │ Col-R 70–98%     │
+               ├─────────────┤──────────────────────┤──────────────────┤
+               │ ① photo     │  ③ landscape strip   │ ⑥ beige rect    │
+               │  2–52%      │   2–22%              │  2–19%           │
+               ├─────────────┤──────────────────────┤──────────────────┤
+               │ ② beige●    │  ④ main tall photo   │ ⑦ portrait      │
+               │  54–76%     │   24–98%             │  21–72%          │
                ├─────────────┤                      ├──────────────────┤
-               │ ① top 2–42% │  ④ top  2–77%        │ ⑥ top 2–19%     │
-               ├─────────────┤                      ├──────────────────┤
-               │ ② mid 44–68%│  ─────────────────── │ ⑦ top 21–72%    │
-               ├─────────────┤  ⑤ bot 79–98%        ├──────────────────┤
-               │ ③ bot 70–98%│                      │ ⑧ bot 74–98%    │
+               │ ③ green■    │                      │ ⑧ circle photo  │
+               │  78–98%     │                      │  74–98%          │
                └─────────────┴──────────────────────┴──────────────────┘
-               2% gaps between every col and every row pair — no overlaps.
+               2% gutters between every pair — zero overlaps.
           */}
           <div className="relative h-[360px] sm:h-[440px] md:h-[540px] select-none">
 
-            {/* ① Col-L top: woman presenting — rows 2%→42% */}
+            {/* ① Col-L top: portrait photo — rows 2%→52% */}
             <motion.div
-              className="absolute top-[2%] left-[2%] w-[22%] h-[40%] rounded-[22px] overflow-hidden"
+              className="absolute top-[2%] left-[2%] w-[22%] h-[50%] rounded-[22px] overflow-hidden"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0 }}
             >
-              <img src={IMG.collage1} alt="Consultant presenting" className="w-full h-full object-cover object-center" />
+              <img src={IMG.collage1} alt="Consultant" className="w-full h-full object-cover object-center" />
             </motion.div>
 
-            {/* ② Col-L mid: beige plain circle — rows 44%→68% */}
+            {/* ② Col-L mid: beige circle accent — rows 54%→76% */}
             <motion.div
-              className="absolute left-[2%] top-[44%] w-[22%] h-[24%] rounded-full bg-[#C4A07C]"
+              className="absolute top-[54%] left-[2%] w-[22%] h-[22%] rounded-full bg-[#C4A07C]"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.7, ease: [0.25,0.46,0.45,0.94], delay: 0.1 }}
             />
 
-            {/* ③ Col-L bot: group meeting — rows 70%→98% */}
+            {/* ③ Col-L bot: green rounded rect accent — rows 78%→98% */}
             <motion.div
-              className="absolute top-[70%] left-[2%] w-[22%] h-[28%] rounded-[20px] overflow-hidden"
+              className="absolute top-[78%] left-[2%] w-[22%] h-[20%] rounded-[18px] bg-[#4DB86A]"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.2 }}
+              transition={{ duration: 0.65, ease: [0.25,0.46,0.45,0.94], delay: 0.2 }}
+            />
+
+            {/* ④ Col-C top: wide landscape strip — rows 2%→22% */}
+            <motion.div
+              className="absolute top-[2%] left-[26%] w-[42%] h-[20%] rounded-[20px] overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }}
+              animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.15 }}
             >
-              <img src={IMG.collage3} alt="Team meeting" className="w-full h-full object-cover object-top" />
+              <img src={IMG.collage3} alt="Team meeting" className="w-full h-full object-cover object-center" />
             </motion.div>
 
-            {/* ④ Col-C main: tall photo — rows 2%→77% */}
+            {/* ⑤ Col-C main: tall photo — rows 24%→98% */}
             <motion.div
-              className="absolute top-[2%] left-[26%] w-[43%] h-[75%] rounded-[28px] overflow-hidden shadow-md"
+              className="absolute top-[24%] left-[26%] w-[42%] h-[74%] rounded-[28px] overflow-hidden shadow-md"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.9, ease: [0.25,0.46,0.45,0.94], delay: 0.3 }}
             >
-              <img src={IMG.collageMain} alt="Expert consultant on phone" className="w-full h-full object-cover object-top" />
+              <img src={IMG.collageMain} alt="Expert consultant" className="w-full h-full object-cover object-top" />
             </motion.div>
 
-            {/* ⑤ Col-C bot: green plain rounded square — rows 79%→98% */}
+            {/* ⑥ Col-R top: beige rect accent — rows 2%→19% */}
             <motion.div
-              className="absolute top-[79%] left-[26%] w-[17%] h-[19%] rounded-[18px] bg-[#4DB86A]"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.15 }}
-            />
-
-            {/* ⑥ Col-R top: beige decorative square — rows 2%→19% */}
-            <motion.div
-              className="absolute top-[2%] left-[71%] w-[27%] h-[17%] rounded-[18px] bg-[#C4A07C]"
+              className="absolute top-[2%] left-[70%] w-[28%] h-[17%] rounded-[18px] bg-[#C4A07C]"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.05 }}
             />
 
-            {/* ⑦ Col-R mid: man in suit — rows 21%→72% */}
+            {/* ⑦ Col-R mid: portrait photo — rows 21%→72% */}
             <motion.div
-              className="absolute top-[21%] left-[71%] w-[27%] h-[51%] rounded-[22px] overflow-hidden"
+              className="absolute top-[21%] left-[70%] w-[28%] h-[51%] rounded-[22px] overflow-hidden"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.25 }}
@@ -309,14 +312,14 @@ export function Home() {
               <img src={IMG.collage7} alt="Business consultant" className="w-full h-full object-cover object-top" />
             </motion.div>
 
-            {/* ⑧ Col-R bot: circle duo — rows 74%→98%, centered in col */}
+            {/* ⑧ Col-R bot: circle photo — rows 74%→98%, centered in col */}
             <motion.div
-              className="absolute top-[74%] left-[74%] w-[22%] h-[24%] rounded-full overflow-hidden"
+              className="absolute top-[74%] left-[73%] w-[22%] h-[24%] rounded-full overflow-hidden"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.35 }}
             >
-              <img src={IMG.collage8} alt="Professionals talking" className="w-full h-full object-cover object-center" />
+              <img src={IMG.collage8} alt="Professionals" className="w-full h-full object-cover object-center" />
             </motion.div>
 
           </div>
