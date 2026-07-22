@@ -21,13 +21,17 @@ const AuthContext = createContext<AuthState>({
   logout: async () => {},
 });
 
+// When deployed to Vercel the API lives on a different origin.
+// Set VITE_API_URL (e.g. https://your-api.replit.app) in Vercel env vars.
+const API_ORIGIN = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
     try {
-      const res = await fetch("/api/auth/me", { credentials: "include" });
+      const res = await fetch(`${API_ORIGIN}/api/auth/me`, { credentials: "include" });
       if (res.ok) setUser(await res.json());
       else setUser(null);
     } catch {
@@ -40,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => { fetchMe(); }, [fetchMe]);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${API_ORIGIN}/api/auth/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -55,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    await fetch(`${API_ORIGIN}/api/auth/logout`, { method: "POST", credentials: "include" });
     setUser(null);
   }, []);
 

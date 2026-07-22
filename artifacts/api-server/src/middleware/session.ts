@@ -19,7 +19,9 @@ export const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    // "none" is required when frontend and API are on different origins (e.g. Vercel + Replit).
+    // SameSite=None must be paired with Secure=true (enforced above).
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   },
 });

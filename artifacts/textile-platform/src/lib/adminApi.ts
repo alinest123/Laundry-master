@@ -1,4 +1,5 @@
-const BASE = "/api/admin";
+const API_ORIGIN = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+const BASE = `${API_ORIGIN}/api/admin`;
 
 async function req<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
