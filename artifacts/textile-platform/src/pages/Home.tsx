@@ -188,46 +188,28 @@ const SERVICES = [
 ];
 
 const SERVICE_PHOTOS = [
-  { img: IMG.service1, label: "Dry Cleaning Science" },
-  { img: IMG.service2, label: "Fabric Research" },
-  { img: IMG.service3, label: "Garment Analysis" },
-  { img: IMG.service4, label: "Textile Testing" },
-  { img: IMG.service5, label: "Water Quality" },
+  { img: IMG.service1, label: "Dry Cleaning Science", desc: "Solvent chemistry and equipment behind professional dry cleaning" },
+  { img: IMG.service2, label: "Fabric Research", desc: "Material science studies on fiber behavior under care" },
+  { img: IMG.service3, label: "Garment Analysis", desc: "Construction, finishing, and care-label assessment" },
+  { img: IMG.service4, label: "Textile Testing", desc: "Lab methods used to evaluate fabric performance" },
+  { img: IMG.service5, label: "Water Quality", desc: "How water chemistry affects wash results and equipment" },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote: "The consulting session with Dr. Marchetti resolved a persistent re-soiling issue that had cost us thousands in chemical waste. Her understanding of water chemistry and surfactant interaction is exceptional. This platform is now mandatory reading for all our supervisors.",
-    name: "Stefan Kirchner",
-    role: "Plant Manager, Elis Group — Germany",
-    avatar: "https://i.pravatar.cc/80?img=11",
-  },
-  {
-    quote: "Prof. Okafor identified the root cause of our solvent balance issues within the first session. His depth of knowledge across both traditional and modern dry cleaning chemistry is unmatched. The articles on this platform are the most authoritative I have encountered in 15 years in the industry.",
-    name: "Amina Osei-Bonsu",
-    role: "Quality Director, Berendsen Textile Service — Denmark",
-    avatar: "https://i.pravatar.cc/80?img=47",
-  },
-  {
-    quote: "Dr. Andersson helped us reformulate our chemical program from scratch. Our water consumption dropped 23% and our repeat customer rate is up 18%. Worth every euro. The knowledge hub has become our technical reference library.",
-    name: "Carlos Mendez",
-    role: "Owner, Tintorería Excellence — Madrid",
-    avatar: "https://i.pravatar.cc/80?img=33",
-  },
-];
+// Testimonials placeholder — replace with real, verified client quotes before publishing.
+// Do not use invented names, companies, or statistics here; unverifiable claims
+// are a credibility and EEAT liability for an authority-focused platform.
+const TESTIMONIALS: { quote: string; name: string; role: string }[] = [];
 
 export function Home() {
   const { data: stats } = useGetPlatformStats();
   const { data: featuredArticles } = useGetFeaturedArticles({ limit: 3 });
   const [testimonialIdx, setTestimonialIdx] = useState(0);
 
-  const t = TESTIMONIALS[testimonialIdx];
-
   const STAT_TABS = [
-    { label: "Articles", value: stats?.totalArticles?.toString() || "500+" },
-    { label: "Experts", value: stats?.totalExperts?.toString() || "25" },
-    { label: "Topics", value: stats?.totalCategories?.toString() || "20" },
-    { label: "Countries", value: stats?.countriesReached?.toString() || "94" },
+    { label: "Published Articles", value: stats?.totalArticles?.toString() ?? "—" },
+    { label: "Topic Areas", value: stats?.totalCategories?.toString() ?? "—" },
+    { label: "Expert Authors", value: stats?.totalExperts?.toString() ?? "—" },
+    { label: "Consultations", value: stats?.totalAppointments?.toString() ?? "—" },
   ];
 
   return (
@@ -251,7 +233,7 @@ export function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.1 }}
             >
-              Professional<br />Textile Care<br />Experts
+              The Science Behind<br />Professional<br />Textile Care
             </motion.h1>
             <motion.p
               className="text-[#555] text-[1rem] leading-relaxed mb-8 max-w-md"
@@ -259,15 +241,19 @@ export function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.22 }}
             >
-              World-class knowledge, research, and consultations for laundry, dry cleaning, and fabric science professionals across 94 countries.
+              Evidence-based research, fiber science, and professional standards for laundry, dry cleaning, and textile care professionals — built on chemistry and testing, not guesswork.
             </motion.p>
             <motion.div
+              className="flex flex-wrap items-center gap-3"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.34 }}
             >
-              <Link href="/consultations/book" className="btn-dark inline-flex items-center gap-2 rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]">
-                Book a Consultation <ArrowRight className="w-4 h-4" />
+              <Link href="/knowledge" className="btn-dark inline-flex items-center gap-2 rounded-[10px]">
+                Explore the Knowledge Hub <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link href="/consultations/book" className="inline-flex items-center gap-2 text-[#555] text-sm font-medium hover:text-[#1c1c1c] transition-colors">
+                Book a Consultation <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </motion.div>
           </div>
@@ -390,14 +376,19 @@ export function Home() {
         <div className="bg-white px-6 py-10 md:px-10 md:py-14 flex flex-col justify-center">
           <RiseUp delay={0}><span className="label-tag">Our expertise</span></RiseUp>
           <RiseUp delay={0.1}>
-            <h2 className="heading-md text-[#1c1c1c] mb-8">
-              We help textile care<br />businesses grow
+            <h2 className="heading-md text-[#1c1c1c] mb-4">
+              Built on Fiber Science and<br />Wet Processing Chemistry
             </h2>
+          </RiseUp>
+          <RiseUp delay={0.15}>
+            <p className="text-[#777] text-xs leading-relaxed mb-6 max-w-sm">
+              Every resource on this platform starts with the underlying chemistry and material science — not marketing claims about what "works."
+            </p>
           </RiseUp>
           <div className="space-y-4">
             {[
-              { title: "Fabric & fiber science", desc: "Evidence-based knowledge for all fiber types and fabric constructions." },
-              { title: "Wet processing & chemistry", desc: "Detergents, solvents, water quality, and cleaning chemistry." },
+              { title: "Fabric & fiber science", desc: "How fiber structure, weave, and construction determine care requirements — the foundation for every recommendation on this site." },
+              { title: "Wet processing & chemistry", desc: "Detergent chemistry, solvent behavior, water hardness, and the mechanics of soil removal, explained at a level professionals can apply." },
             ].map((item, i) => (
               <RiseUp key={item.title} delay={0.2 + i * 0.1}>
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#f0f0f0] last:border-0">
@@ -423,7 +414,7 @@ export function Home() {
             </RiseUp>
             <RiseUp delay={0.12} className="flex flex-col justify-end">
               <p className="text-[#666] text-sm leading-relaxed mb-4 max-w-sm">
-                From fiber science fundamentals to advanced plant operations — expert-authored resources trusted by textile care professionals worldwide.
+                From fiber science fundamentals to advanced plant operations — resources built for textile care professionals who want to understand the <em>why</em>, not just follow a checklist.
               </p>
               <Link href="/articles" className="inline-flex items-center gap-1.5 text-[#1c1c1c] text-sm font-bold hover:text-[#4a7c59] transition-colors">
                 Browse all articles <ArrowRight className="w-3.5 h-3.5" />
@@ -459,60 +450,41 @@ export function Home() {
               <img src={p.img} alt={p.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-bold text-xs leading-tight">{p.label}</p>
+                <p className="text-white font-bold text-xs leading-tight mb-0.5">{p.label}</p>
+                <p className="text-white/70 text-[10px] leading-snug hidden sm:block">{p.desc}</p>
               </div>
             </motion.div>
           ))}
         </div>
       </section>
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="bg-white py-12 md:py-20 px-6">
-        <div className="max-w-[780px] mx-auto text-center">
-          <RiseUp delay={0}><span className="label-tag">Client feedback</span></RiseUp>
-          <RiseUp delay={0.1}>
-            <h2 className="heading-md text-[#1c1c1c] mb-8 md:mb-10">Our customer reviews</h2>
-          </RiseUp>
-
-          <RiseUp delay={0.18}>
-            <div className="relative min-h-[200px]">
-              <div className="text-[3rem] leading-none text-[#4a7c59] font-serif mb-3">"</div>
-              <p className="text-[#444] text-[0.95rem] leading-relaxed italic mb-8">{t.quote}</p>
-              <p className="font-bold text-[#1c1c1c] text-sm">{t.name}</p>
-              <p className="text-[#888] text-xs mt-0.5">{t.role}</p>
+      {TESTIMONIALS.length > 0 ? (
+        <section className="bg-white py-12 md:py-20 px-6">
+          <div className="max-w-[780px] mx-auto text-center">
+            <RiseUp delay={0}><span className="label-tag">Client feedback</span></RiseUp>
+            <RiseUp delay={0.1}>
+              <h2 className="heading-md text-[#1c1c1c] mb-8 md:mb-10">What professionals say</h2>
+            </RiseUp>
+            <RiseUp delay={0.18}>
+              <div className="relative min-h-[200px]">
+                <div className="text-[3rem] leading-none text-[#4a7c59] font-serif mb-3">"</div>
+                <p className="text-[#444] text-[0.95rem] leading-relaxed italic mb-8">{TESTIMONIALS[testimonialIdx].quote}</p>
+                <p className="font-bold text-[#1c1c1c] text-sm">{TESTIMONIALS[testimonialIdx].name}</p>
+                <p className="text-[#888] text-xs mt-0.5">{TESTIMONIALS[testimonialIdx].role}</p>
+              </div>
+            </RiseUp>
+            <div className="flex justify-center items-center gap-4 mt-10">
+              <button onClick={() => setTestimonialIdx((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)} className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all"><ChevronLeft className="w-4 h-4" /></button>
+              <div className="flex gap-2">
+                {TESTIMONIALS.map((_, i) => (
+                  <button key={i} onClick={() => setTestimonialIdx(i)} className={`w-2 h-2 rounded-full transition-all ${i === testimonialIdx ? "bg-[#4a7c59]" : "bg-[#e0e0e0]"}`} />
+                ))}
+              </div>
+              <button onClick={() => setTestimonialIdx((i) => (i + 1) % TESTIMONIALS.length)} className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all"><ChevronRight className="w-4 h-4" /></button>
             </div>
-          </RiseUp>
-
-          <div className="flex justify-center items-center gap-4 mt-10">
-            <button
-              onClick={() => setTestimonialIdx((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-              className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <div className="flex gap-2">
-              {TESTIMONIALS.map((item, i) => (
-                <button
-                  key={i}
-                  onClick={() => setTestimonialIdx(i)}
-                  className="group"
-                >
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className={`w-9 h-9 rounded-full object-cover border-2 transition-all ${i === testimonialIdx ? "border-[#4a7c59] opacity-100" : "border-transparent opacity-50 hover:opacity-75"}`}
-                  />
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setTestimonialIdx((i) => (i + 1) % TESTIMONIALS.length)}
-              className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
       {/* ── TEAM PHOTO ───────────────────────────────────────── */}
       <section className="bg-white overflow-hidden">
         <div className="w-full h-[220px] sm:h-[320px] md:h-[520px]">
@@ -554,12 +526,12 @@ export function Home() {
             <RiseUp delay={0.1}><span className="label-tag">Professional impact</span></RiseUp>
             <RiseUp delay={0.18}>
               <h2 className="heading-lg text-[#1c1c1c] mb-5">
-                Cut your costs by<br />up to 60%
+                Precision Beats<br />Guesswork
               </h2>
             </RiseUp>
             <RiseUp delay={0.26}>
               <p className="text-[#666] text-sm leading-relaxed mb-8 max-w-md">
-                Applying the science in our knowledge base, professionals have reduced chemical spend by 30–60%, cut water usage by 20–40%, and dramatically reduced garment damage claims. Precision beats guesswork every time.
+                Applying evidence-based fiber and chemistry knowledge helps professionals reduce chemical waste, water use, and garment damage claims — without relying on trial and error.
               </p>
             </RiseUp>
             <RiseUp delay={0.34}>

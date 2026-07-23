@@ -1,0 +1,188 @@
+# Homepage Content — The Science of Professional Textile Care
+
+> **Before you publish:** every `[VERIFY]` tag below marks a claim, stat, or quote that must be replaced with something real and sourced. Nothing invented is left in as if it were fact — per your own content standard, I'm not fabricating numbers or testimonials to make the page look more impressive than it is.
+
+---
+
+## 1. Header / Brand
+
+**Site name:** The Science of Professional Textile Care
+*(Resolve this before anything else — the current live site says "Laundry Master" in the header. Every piece of copy below assumes the educational-platform name. If you're keeping "Laundry Master" as a legal/business name and using "The Science of Professional Textile Care" as the editorial brand, that's workable, but it needs to be a deliberate, explained relationship — e.g. "Laundry Master" as publisher, the platform name as the masthead — not left ambiguous.)*
+
+**Nav (keep, it's solid):**
+Knowledge Hub · Categories · Consultations · About · Contact
+
+---
+
+## 2. Hero Section
+
+**Eyebrow:**
+SCIENCE-FIRST TEXTILE CARE KNOWLEDGE
+
+**H1:**
+The Science Behind Professional Textile Care
+
+**Subhead:**
+Evidence-based research, fiber science, and professional standards for laundry, dry cleaning, and textile care professionals — built on chemistry and testing, not guesswork.
+
+**Primary CTA:** Explore the Knowledge Hub →
+**Secondary CTA (smaller, less visual weight):** Book a Consultation
+
+*Why the swap: your mission statement is explicit that this isn't a laundry business site. A hero that leads with "Book a Consultation" tells Google and readers otherwise. Knowledge-first CTA reinforces EEAT and matches search intent for people arriving via educational queries (which is most of your organic traffic).*
+
+*[VERIFY] Drop the "94 countries" claim from the hero eyebrow area unless you have actual traffic/audience data supporting it. If you do, keep it — reachable, verifiable claims build trust; unverifiable global-reach claims read as inflated.*
+
+---
+
+## 3. "We Help Textile Care Professionals" → Reframed as Expertise Section
+
+**Eyebrow:** OUR EXPERTISE
+
+**H2:** Built on Fiber Science and Wet Processing Chemistry
+
+**Intro line:**
+Every resource on this platform starts with the underlying chemistry and material science — not marketing claims about what "works."
+
+**Two expertise blocks (keep structure, tighten copy):**
+
+**Fabric & Fiber Science**
+How fiber structure, weave, and construction determine care requirements — the foundation for every recommendation on this site.
+
+**Wet Processing & Chemistry**
+Detergent chemistry, solvent behavior, water hardness, and the mechanics of soil removal, explained at a level professionals can actually apply.
+
+*[VERIFY] If there's a named expert, chemist, or credentialed author behind this content, name them here with a real credential — this is exactly the kind of specific authorship signal Google's Helpful Content system and human readers both weight heavily. A generic "our experts" claim without a named person is weak EEAT.*
+
+---
+
+## 4. "Your Knowledge Goals Are Our Priority" Section
+
+**H2:** Your Knowledge Goals Are Our Priority
+
+**Intro:**
+From fiber science fundamentals to advanced plant operations — resources built for textile care professionals who want to understand the *why*, not just follow a checklist.
+
+**Link:** Browse all articles →
+
+**Four category cards (keep, copy tightened):**
+
+| Card | Description |
+|---|---|
+| **Fabric Analysis** | Fiber identification, construction analysis, and professional care assessment for any textile. |
+| **Stain Removal** | Evidence-based stain identification and treatment protocols across fiber types and substrates. |
+| **Plant Consulting** | Workflow optimization, equipment selection, and quality systems for commercial laundry operations. |
+| **Compliance & Standards** | ISO care labeling, GINETEX standards, and regulatory guidance for global markets. |
+
+*[VERIFY] "Compliance & Standards" naming ISO and GINETEX is good and specific — but confirm the content actually covers current versions of these standards accurately before publishing under these names. Standards get revised; citing an outdated version under an authority-building banner is a credibility risk.*
+
+---
+
+## 5. Category Gallery (Dry Cleaning Science / Fabric Research / Garment Analysis / Textile Testing / Water Quality)
+
+Keep the five-tile structure — it's a reasonable visual topic map. Suggested captions if not already set:
+
+- **Dry Cleaning Science** — Solvent chemistry and equipment behind professional dry cleaning
+- **Fabric Research** — Material science studies on fiber behavior under care
+- **Garment Analysis** — Construction, finishing, and care-label assessment
+- **Textile Testing** — Lab methods used to evaluate fabric performance
+- **Water Quality** — How water chemistry affects wash results and equipment
+
+*These five map directly to future pillar pages — good long-term topic-cluster scaffolding once you have 15-20 articles per cluster rather than 8 total.*
+
+---
+
+## 6. Testimonial / Social Proof
+
+**Do not publish an invented client quote.** The current "Dr. Marchetti / Stefan Kirchner, Ella Group — Germany" testimonial needs to be:
+
+- A real client, with permission to use their name and title, **or**
+- Replaced with a general, unattributed statement of value until real testimonials exist, **or**
+- Removed entirely until you have 2-3 genuine ones — a single testimonial for a "world's leading" authority platform reads as sparse, and a fabricated one is a real EEAT and trust liability if it's ever traced back.
+
+*If you have real client relationships from the consulting side, this is the moment to ask 2-3 of them for a quote — that's a stronger trust signal than any copy I can write.*
+
+---
+
+## 7. Stats Bar (8 Articles / 5 Experts / 20 Topics / 94 Countries)
+
+**[VERIFY] every number here.** Recommended honest alternatives depending on what's true:
+
+- If article count is genuinely low right now, don't foreground it — a "20 topics, growing weekly" framing is more honest and more encouraging than a static "8 articles" that reads as thin.
+- "5 experts" — only keep if 5 named, credentialed people are actually attached to the platform's content. Otherwise this is a specific factual claim you can't support.
+- "94 countries" — only keep if backed by real analytics data (e.g., GA4 geography report). If it's aspirational, cut it or reframe as "serving textile care professionals worldwide" without a number.
+
+---
+
+## 8. Impact / "Cut Your Costs by up to 60%" Section
+
+This is the section most at odds with your own content standards. A specific percentage claim ("reduced chemical spend by 30-60%, cut water usage by 20-40%") needs either:
+
+- A citation to a real study or aggregated client outcome data, **or**
+- A rewrite without invented figures.
+
+**Suggested rewrite without fabricated numbers:**
+
+**Eyebrow:** PROFESSIONAL IMPACT
+**H2:** Precision Beats Guesswork
+**Body:** Applying evidence-based fiber and chemistry knowledge helps professionals reduce chemical waste, water use, and garment damage claims — without relying on trial and error. *[VERIFY: if you have real client outcome data, add specific verified figures here with a source note.]*
+
+**CTA:** Book a Consultation
+
+---
+
+## 9. "Details About Our Research" / Latest Articles Section
+
+**H2:** Details About Our Research
+
+Keep the three-column article preview format — it's functionally sound for a knowledge hub homepage. Suggested title/meta pattern for each (apply this pattern platform-wide):
+
+**Example — Fabric Science article:**
+- **Title:** Understanding Cotton Fiber Structure and Wet Processing Behavior
+- **Meta description:** How cotton's crystalline cellulose structure affects swelling, shrinkage, and detergent penetration during professional wet processing. (148 characters)
+- **Slug:** /fabric-science/cotton-fiber-structure-wet-processing
+
+**Example — Stain Removal article:**
+- **Title:** Enzyme Detergents: The Science of Biological Stain Removal
+- **Meta description:** How protease, lipase, and amylase enzymes break down protein, fat, and starch-based stains at the molecular level. (129 characters)
+- **Slug:** /stain-removal/enzyme-detergents-biological-stain-removal
+
+**Example — Sustainability article:**
+- **Title:** Reducing Water Consumption in Commercial Laundry by 40%
+- **Meta description:** [VERIFY the 40% figure against your actual source study before using this title — a number in an H1/title tag is a factual claim Google and readers will hold you to.]
+
+**CTA:** See All Articles →
+
+---
+
+## 10. Footer
+
+Keep structure (Company blurb / Newsletter / Knowledge / Resources / Keywords columns) — it's reasonable. Suggested company blurb:
+
+> The Science of Professional Textile Care is an independent educational resource for laundry, dry cleaning, and textile care professionals — built on fiber science, wet processing chemistry, and evidence-based practice.
+
+Newsletter CTA: **Get new research in your inbox** (more specific than generic "Newsletter Sign-Up," and sets accurate expectations for what subscribers get).
+
+---
+
+## What I didn't write
+
+I didn't invent expert bios, client names, testimonials, or outcome statistics anywhere in this draft — those need real inputs from you. Where I flagged `[VERIFY]`, that's the line between "content that builds real authority" and "content that looks like authority until someone checks."
+
+## Suggested next step
+
+Once the brand-name question (Laundry Master vs. The Science of Professional Textile Care) is resolved, the highest-leverage next move is a **topic cluster map** — a plan for which pillar pages and supporting articles you need to actually support the "Compliance & Standards," "Plant Consulting," etc. categories with real depth, rather than writing more homepage copy around an 8-article knowledge base.
+
+---
+
+## On Google search visibility (your technical SEO note)
+
+Agreed on the framing — no developer or writer can guarantee first-page rankings, and any claim otherwise is a red flag. What actually moves the needle, in priority order for a site at your current stage:
+
+1. **Fix the content-depth gap first.** Eight articles can't support 20 topics or real topical authority. This matters more than any technical fix right now.
+2. **Structured data** — Article schema on every post, Organization schema sitewide, FAQ schema where genuinely relevant (not stuffed in for the sake of it).
+3. **Internal linking** — every article should link to its pillar page and 2-3 related articles; right now with 8 articles this is thin by necessity, but the pattern should be set from article #1.
+4. **Core Web Vitals / mobile performance** — verify with PageSpeed Insights once the site is live; the placeholder image blocks in the hero suggest some pages may not be final.
+5. **Google Search Console + Bing Webmaster Tools** — submit sitemap as soon as the brand/URL structure is finalized, not before, since changing slugs after indexing costs you.
+6. **Backlinks** — will come naturally from genuinely original research (e.g., real fabric testing data, real case studies) faster than any outreach campaign will get you there artificially.
+
+No individual technical fix will outrun the content-depth problem. That's the real bottleneck right now.
