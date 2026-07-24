@@ -191,7 +191,7 @@ export function BookConsultation() {
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-3 text-xs font-bold uppercase tracking-widest text-white/50">
+          <div className="flex justify-between mt-3 text-[0.6rem] sm:text-xs font-bold uppercase tracking-tight sm:tracking-widest text-white/50">
             <span className={step >= 1 ? "text-accent" : ""}>Service</span>
             <span className={step >= 2 ? "text-accent" : ""}>Expert</span>
             <span className={step >= 3 ? "text-accent" : ""}>Schedule</span>
@@ -315,7 +315,7 @@ export function BookConsultation() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-base">Time (Your Local Time)</FormLabel>
-                        <div className="grid grid-cols-3 gap-2 mt-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
                           {timeSlots.map(time => (
                             <div 
                               key={time}
@@ -392,7 +392,7 @@ export function BookConsultation() {
               {/* Summary Box */}
               <div className="mt-8 bg-primary text-white p-6 border-l-4 border-accent">
                 <h3 className="font-serif font-bold text-lg mb-4">Session Summary</h3>
-                <div className="flex flex-wrap gap-x-8 gap-y-4 text-sm text-white/80">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-y-3 sm:gap-y-4 sm:gap-x-8 text-sm text-white/80">
                   <div><strong className="text-white">Service:</strong> {selectedService?.name}</div>
                   <div><strong className="text-white">Expert:</strong> {selectedExpert?.name}</div>
                   {form.getValues("date") && form.getValues("time") && (

@@ -21,7 +21,7 @@ export function ConsultationsList() {
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMTBoNDBNMCAzMGg0ME0xMCAwdjQwTTMwIDB2NDAiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9zdmc+')] mix-blend-overlay"></div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">Expert Consultations</h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">Expert Consultations</h1>
             <p className="text-xl text-white/80 font-light leading-relaxed mb-10">
               Access the world's leading minds in textile science, commercial laundry operations, and fabric care. Direct 1-on-1 guidance for your most complex challenges.
             </p>
@@ -56,7 +56,7 @@ export function ConsultationsList() {
                   <h3 className="text-xl font-serif font-bold text-primary mb-3">{service.name}</h3>
                   <p className="text-muted-foreground text-sm mb-6 flex-1">{service.description}</p>
                   
-                  <div className="pt-6 border-t border-border flex items-center justify-between mb-6">
+                  <div className="pt-6 border-t border-border flex items-center justify-between gap-3 flex-wrap mb-6">
                     <div className="flex items-center gap-2 text-sm font-bold text-primary">
                       <Clock className="w-4 h-4 text-secondary" />
                       {service.duration} mins

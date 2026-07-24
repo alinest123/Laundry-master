@@ -51,7 +51,7 @@ export function CategoryList() {
                     />
                     <div className="absolute inset-0 bg-primary/20 group-hover:bg-transparent transition-colors duration-500" />
                   </div>
-                  <div className="p-8 flex flex-col flex-1">
+                  <div className="p-5 md:p-8 flex flex-col flex-1">
                     <h2 className="text-2xl font-serif font-bold text-primary mb-4 group-hover:text-secondary transition-colors">
                       {category.name}
                     </h2>

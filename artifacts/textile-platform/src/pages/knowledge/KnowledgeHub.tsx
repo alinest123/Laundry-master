@@ -41,7 +41,7 @@ export function KnowledgeHub() {
     <Shell>
       <div className="bg-primary text-white py-20">
         <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl">
-          <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">The Knowledge Hub</h1>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">The Knowledge Hub</h1>
           <p className="text-xl text-white/80 font-light leading-relaxed">
             The central repository for all professional guides, research papers, and structured learning resources.
           </p>
@@ -65,13 +65,13 @@ export function KnowledgeHub() {
           <div className="space-y-24">
             {sections.map(section => (
               <section key={section.id}>
-                <div className="flex items-start gap-6 mb-10 pb-4 border-b border-border">
-                  <div className="bg-muted p-4">
+                <div className="flex items-start gap-4 mb-10 pb-4 border-b border-border">
+                  <div className="bg-muted p-3 md:p-4 shrink-0">
                     {section.icon}
                   </div>
                   <div>
-                    <h2 className="text-3xl font-serif font-bold text-primary mb-2">{section.title}</h2>
-                    <p className="text-muted-foreground text-lg">{section.description}</p>
+                    <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary mb-2">{section.title}</h2>
+                    <p className="text-muted-foreground text-sm md:text-lg">{section.description}</p>
                   </div>
                 </div>
 
@@ -81,7 +81,7 @@ export function KnowledgeHub() {
                       <Link 
                         key={item.slug} 
                         href={`/articles?category=${item.slug}`}
-                        className="group bg-background border border-border p-8 hover:border-secondary transition-all flex flex-col justify-between"
+                        className="group bg-background border border-border p-5 md:p-8 hover:border-secondary transition-all flex flex-col justify-between"
                       >
                         <div>
                           <h3 className="text-xl font-bold text-primary mb-3 group-hover:text-secondary transition-colors">{item.title}</h3>

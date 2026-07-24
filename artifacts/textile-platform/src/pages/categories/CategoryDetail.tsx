@@ -62,7 +62,7 @@ export function CategoryDetail() {
               <ChevronRight className="w-4 h-4" />
               <span>{category.name}</span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">{category.name}</h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">{category.name}</h1>
             {category.description && (
               <p className="text-xl text-white/80 font-light leading-relaxed">
                 {category.description}

@@ -11,7 +11,7 @@ export function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
           <div>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-6">Contact Us</h1>
+            <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary mb-6">Contact Us</h1>
             <p className="text-xl text-muted-foreground font-light mb-10 leading-relaxed">
               Whether you are looking to contribute research, inquire about corporate access, or need support with an existing consultation.
             </p>
@@ -54,7 +54,7 @@ export function Contact() {
             </div>
           </div>
 
-          <div className="bg-muted/30 border border-border p-8 md:p-10">
+          <div className="bg-muted/30 border border-border p-5 md:p-10">
             <h2 className="text-2xl font-serif font-bold text-primary mb-6">Send a Message</h2>
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

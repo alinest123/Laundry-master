@@ -20,7 +20,7 @@ export function About() {
               <span>INDEPENDENT AUTHORITY</span>
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight mb-6">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
               Advancing the Science of Textile Care
             </h1>
             
@@ -44,18 +44,18 @@ export function About() {
                 By aggregating rigorous research, standardizing operational procedures, and providing direct access to leading experts, we empower facilities worldwide to improve quality, efficiency, and sustainability.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-muted p-8 text-center border border-border">
+            <div className="grid grid-cols-2 gap-4 md:gap-6">
+              <div className="bg-muted p-5 sm:p-8 text-center border border-border">
                 <BookOpen className="w-8 h-8 mx-auto text-secondary mb-4" />
                 <div className="text-3xl font-serif font-bold text-primary mb-2">500+</div>
                 <div className="text-sm text-muted-foreground font-bold uppercase tracking-wider">Research Papers</div>
               </div>
-              <div className="bg-muted p-8 text-center border border-border mt-8">
+              <div className="bg-muted p-5 sm:p-8 text-center border border-border sm:mt-8">
                 <Users className="w-8 h-8 mx-auto text-secondary mb-4" />
                 <div className="text-3xl font-serif font-bold text-primary mb-2">25</div>
                 <div className="text-sm text-muted-foreground font-bold uppercase tracking-wider">Global Experts</div>
               </div>
-              <div className="bg-muted p-8 text-center border border-border">
+              <div className="bg-muted p-5 sm:p-8 text-center border border-border">
                 <Globe className="w-8 h-8 mx-auto text-secondary mb-4" />
                 <div className="text-3xl font-serif font-bold text-primary mb-2">40</div>
                 <div className="text-sm text-muted-foreground font-bold uppercase tracking-wider">Countries Reached</div>

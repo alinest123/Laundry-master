@@ -29,17 +29,17 @@ export function SearchResults() {
       <div className="bg-muted/30 border-b border-border py-16">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl text-center">
           <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary mb-8">Search the Platform</h1>
-          <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto flex gap-2">
+          <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
               <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input 
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search for articles, guides, experts..." 
-                className="pl-12 h-14 text-lg bg-background border-primary/20 focus-visible:ring-primary" 
+                className="pl-12 h-14 text-base bg-background border-primary/20 focus-visible:ring-primary" 
               />
             </div>
-            <Button type="submit" className="h-14 px-8 text-base font-bold bg-primary hover:bg-primary/90 text-white">
+            <Button type="submit" className="h-14 w-full sm:w-auto px-8 text-base font-bold bg-primary hover:bg-primary/90 text-white">
               Search
             </Button>
           </form>
@@ -123,7 +123,7 @@ export function SearchResults() {
                             {result.type}
                           </span>
                         </div>
-                        <h3 className="text-xl font-serif font-bold text-primary mb-2 group-hover:text-secondary transition-colors">
+                        <h3 className="text-base md:text-xl font-serif font-bold text-primary mb-2 group-hover:text-secondary transition-colors">
                           {result.title}
                         </h3>
                         {result.excerpt && (
