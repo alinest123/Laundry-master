@@ -178,19 +178,6 @@ export function Navbar() {
             </div>
           )}
 
-          {/* Mobile: show user icon or login */}
-          <div className="md:hidden">
-            {user ? (
-              <Link href="/dashboard" className="p-2 text-[#666] hover:text-[#1c1c1c] transition-colors">
-                <User className="w-[18px] h-[18px]" strokeWidth={2} />
-              </Link>
-            ) : (
-              <Link href="/login" className="p-2 text-[#666] hover:text-[#1c1c1c] transition-colors">
-                <User className="w-[18px] h-[18px]" strokeWidth={2} />
-              </Link>
-            )}
-          </div>
-
           <button className="md:hidden p-2 text-[#666] hover:text-[#1c1c1c]" onClick={() => setOpen(!open)}>
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
