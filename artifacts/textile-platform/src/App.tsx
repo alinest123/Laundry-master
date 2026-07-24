@@ -20,6 +20,13 @@ import { UserDashboard } from "@/pages/dashboard/UserDashboard";
 import { About } from "@/pages/about/About";
 import { Contact } from "@/pages/contact/Contact";
 
+// Auth pages
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { RegisterPage } from "@/pages/auth/RegisterPage";
+import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
+import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage";
+
 // Admin CMS
 import { Login } from "@/pages/admin/Login";
 import { Dashboard } from "@/pages/admin/Dashboard";
@@ -58,6 +65,13 @@ function AdminRoute({ path, component: Component }: { path: string; component: R
 function Router() {
   return (
     <Switch>
+      {/* User auth pages */}
+      <Route path="/login" component={LoginPage} />
+      <Route path="/register" component={RegisterPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
+      <Route path="/verify-email" component={VerifyEmailPage} />
+
       {/* Admin login — unprotected */}
       <Route path="/admin/login" component={Login} />
 

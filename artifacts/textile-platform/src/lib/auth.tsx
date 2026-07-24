@@ -1,32 +1,37 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { API_ORIGIN } from "./api";
 
-export type AdminUser = {
+export type AuthUser = {
   id: number;
   name: string;
   email: string;
   role: "super_admin" | "administrator" | "editor" | "author" | "consultant" | "user";
+  avatarUrl?: string | null;
 };
 
+/** @deprecated Use AuthUser */
+export type AdminUser = AuthUser;
+
 type AuthState = {
-  user: AdminUser | null;
+  user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, captcha?: { token: string; answer: string }) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState>({
   user: null,
   loading: true,
   login: async () => {},
+  register: async () => {},
   logout: async () => {},
+  refreshUser: async () => {},
 });
 
-// When deployed to Vercel the API lives on a different origin.
-// Set VITE_API_URL (e.g. https://your-api.replit.app) in Vercel env vars.
-const API_ORIGIN = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AdminUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
@@ -43,19 +48,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { fetchMe(); }, [fetchMe]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (
+    email: string,
+    password: string,
+    captcha?: { token: string; answer: string },
+  ) => {
+    const body: Record<string, string> = { email, password };
+    if (captcha) {
+      body.captchaToken = captcha.token;
+      body.captchaAnswer = captcha.answer;
+    }
     const res = await fetch(`${API_ORIGIN}/api/auth/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error((err as any).error || "Login failed");
     }
-    const data = await res.json();
-    setUser(data);
+    setUser(await res.json());
+  }, []);
+
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    const res = await fetch(`${API_ORIGIN}/api/auth/register`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as any).error || "Registration failed");
+    }
   }, []);
 
   const logout = useCallback(async () => {
@@ -63,8 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    await fetchMe();
+  }, [fetchMe]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -84,7 +114,7 @@ const PERMS: Record<string, Record<string, string[]>> = {
   user:          { payments:["view"] },
 };
 
-export function can(role: AdminUser["role"] | undefined, resource: string, action: string): boolean {
+export function can(role: AuthUser["role"] | undefined, resource: string, action: string): boolean {
   if (!role) return false;
   return PERMS[role]?.[resource]?.includes(action) ?? false;
 }

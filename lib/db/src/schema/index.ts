@@ -24,3 +24,4 @@ export * from "./redirects";
 export * from "./siteSettings";
 export * from "./securityLogs";
 export * from "./auditLogs";
+export * from "./savedArticles";

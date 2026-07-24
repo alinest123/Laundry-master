@@ -1,9 +1,66 @@
+import { useState, useEffect } from "react";
 import { Shell } from "@/components/layout/Shell";
-import { useRoute, Link } from "wouter";
-import { ChevronRight, Clock, User, Share2, BookmarkPlus, ArrowLeft } from "lucide-react";
+import { useRoute, Link, useLocation } from "wouter";
+import { ChevronRight, Clock, User, Share2, Bookmark, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetArticle, getGetArticleQueryKey } from "@workspace/api-client-react";
 import { ArticleCard } from "@/components/articles/ArticleCard";
+import { useAuth } from "@/lib/auth";
+import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+
+// ── Bookmark button ───────────────────────────────────────────────────────────
+
+function BookmarkButton({ articleId }: { articleId: number }) {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) { setLoading(false); return; }
+    apiGet<number[]>("/api/user/saved-article-ids")
+      .then(ids => setSaved(ids.includes(articleId)))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user, articleId]);
+
+  const toggle = async () => {
+    if (!user) {
+      setLocation("/login");
+      return;
+    }
+    try {
+      if (saved) {
+        await apiDelete(`/api/user/saved-articles/${articleId}`);
+        setSaved(false);
+        toast({ title: "Removed from saved articles" });
+      } else {
+        await apiPost(`/api/user/saved-articles/${articleId}`);
+        setSaved(true);
+        toast({ title: "Article saved", description: "Find it in your dashboard." });
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className={`h-8 w-8 transition-colors ${saved ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+      onClick={toggle}
+      disabled={loading}
+      title={saved ? "Remove bookmark" : "Save article"}
+    >
+      <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
+    </Button>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function ArticleDetail() {
   const [, params] = useRoute("/articles/:slug");
@@ -62,7 +119,7 @@ export function ArticleDetail() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary leading-[1.1] mb-6">
               {article.title}
             </h1>
-            
+
             {article.excerpt && (
               <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed mb-10">
                 {article.excerpt}
@@ -90,13 +147,16 @@ export function ArticleDetail() {
                   <span>{article.readingTime} min read</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="uppercase tracking-widest text-xs font-bold">{article.publishedAt ? new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}</span>
+                  <span className="uppercase tracking-widest text-xs font-bold">
+                    {article.publishedAt
+                      ? new Date(article.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                      : ""}
+                  </span>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                    <BookmarkPlus className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                  <BookmarkButton articleId={article.id} />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary"
+                    onClick={() => navigator.share?.({ title: article.title, url: window.location.href }).catch(() => {})}>
                     <Share2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -108,9 +168,9 @@ export function ArticleDetail() {
         {/* Featured Image */}
         {article.featuredImage && (
           <div className="container mx-auto px-4 md:px-8 py-10 max-w-5xl">
-            <img 
-              src={article.featuredImage} 
-              alt={article.title} 
+            <img
+              src={article.featuredImage}
+              alt={article.title}
               className="w-full aspect-[21/9] object-cover bg-muted"
             />
           </div>
@@ -119,8 +179,8 @@ export function ArticleDetail() {
         {/* Content & Sidebar */}
         <div className="container mx-auto px-4 md:px-8 max-w-6xl py-12">
           <div className="flex flex-col lg:flex-row gap-16">
-            
-            {/* Table of Contents - Sticky Sidebar */}
+
+            {/* Table of Contents */}
             <aside className="lg:w-1/4 order-2 lg:order-1">
               <div className="sticky top-24">
                 <h3 className="font-serif font-bold text-lg mb-6 text-primary border-b border-border pb-2">Contents</h3>
@@ -137,7 +197,7 @@ export function ArticleDetail() {
                 ) : (
                   <p className="text-sm text-muted-foreground italic">No index available.</p>
                 )}
-                
+
                 <div className="mt-12 bg-muted/30 p-6 border border-border">
                   <h4 className="font-bold text-sm uppercase tracking-wider text-primary mb-3">Tags</h4>
                   <div className="flex flex-wrap gap-2">
@@ -153,15 +213,15 @@ export function ArticleDetail() {
 
             {/* Main Content */}
             <div className="lg:w-3/4 order-1 lg:order-2">
-              <div 
-                className="prose prose-lg prose-slate max-w-none 
+              <div
+                className="prose prose-lg prose-slate max-w-none
                            prose-headings:font-serif prose-headings:text-primary prose-headings:font-bold
                            prose-a:text-secondary prose-a:no-underline hover:prose-a:underline
                            prose-img:bg-muted"
                 dangerouslySetInnerHTML={{ __html: article.content }}
               />
-              
-              {/* Author Bio Box */}
+
+              {/* Author Bio */}
               <div className="mt-20 p-8 bg-muted/30 border border-border flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                 {article.author?.avatar ? (
                   <img src={article.author.avatar} alt={article.author.name} className="w-24 h-24 grayscale" />

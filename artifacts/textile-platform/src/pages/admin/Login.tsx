@@ -1,10 +1,11 @@
 import { useState, FormEvent } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
+import { apiPost } from "@/lib/api";
 import { Microscope, Eye, EyeOff } from "lucide-react";
 
 export function Login() {
-  const { login, user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +24,9 @@ export function Login() {
     setError("");
     setSubmitting(true);
     try {
-      await login(email.trim(), password);
+      // Uses a dedicated admin endpoint — no captcha required, role enforced server-side
+      await apiPost("/api/admin/auth/login", { email: email.trim(), password });
+      await refreshUser();
       setLocation("/admin");
     } catch (err: any) {
       setError(err.message || "Login failed");
