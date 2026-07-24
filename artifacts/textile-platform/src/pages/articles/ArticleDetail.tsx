@@ -139,7 +139,7 @@ function CommentsSection({ slug }: { slug: string }) {
       {loading ? (
         <div className="space-y-4 mb-12">
           {[1, 2].map((i) => (
-            <div key={i} className="animate-pulse p-5 border border-border bg-muted/30">
+            <div key={i} className="animate-pulse p-5 border border-border bg-muted/30 rounded-xl">
               <div className="h-4 bg-muted w-1/4 rounded mb-2" />
               <div className="h-3 bg-muted w-full rounded mb-1" />
               <div className="h-3 bg-muted w-3/4 rounded" />
@@ -149,7 +149,7 @@ function CommentsSection({ slug }: { slug: string }) {
       ) : comments.length > 0 ? (
         <div className="space-y-5 mb-12">
           {comments.map((comment) => (
-            <div key={comment.id} className="p-5 border border-border bg-muted/20">
+            <div key={comment.id} className="p-5 border border-border bg-muted/20 rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
@@ -170,11 +170,11 @@ function CommentsSection({ slug }: { slug: string }) {
       )}
 
       {/* ── Comment form ── */}
-      <div className="bg-muted/20 border border-border p-6 md:p-8">
+      <div className="bg-muted/20 border border-border rounded-xl p-6 md:p-8">
         <h4 className="font-serif font-bold text-xl text-primary mb-6">Leave a Comment</h4>
 
         {submitted ? (
-          <div className="flex items-start gap-3 p-4 bg-secondary/10 border border-secondary/20 text-secondary">
+          <div className="flex items-start gap-3 p-4 bg-secondary/10 border border-secondary/20 rounded-lg text-secondary">
             <CheckCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
               <p className="font-semibold text-sm">Thank you for your comment!</p>
@@ -370,7 +370,7 @@ export function ArticleDetail() {
           <img
             src={heroImage}
             alt={article.title}
-            className="w-full aspect-[21/9] object-cover bg-muted"
+            className="w-full aspect-[21/9] object-cover bg-muted rounded-2xl"
           />
         </div>
 
@@ -400,13 +400,13 @@ export function ArticleDetail() {
                   <p className="text-sm text-muted-foreground italic">No index available.</p>
                 )}
 
-                <div className="mt-12 bg-muted/30 p-6 border border-border">
+                <div className="mt-12 bg-muted/30 p-6 border border-border rounded-xl">
                   <h4 className="font-bold text-sm uppercase tracking-wider text-primary mb-3">Tags</h4>
                   <div className="flex flex-wrap gap-2">
                     {article.tags?.map((tag) => (
                       <span
                         key={tag.id}
-                        className="text-xs bg-white px-2 py-1 text-muted-foreground border border-border"
+                        className="text-xs bg-white px-2 py-1 text-muted-foreground border border-border rounded"
                       >
                         {tag.name}
                       </span>
@@ -427,7 +427,7 @@ export function ArticleDetail() {
               />
 
               {/* Author Bio */}
-              <div className="mt-20 p-8 bg-muted/30 border border-border flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+              <div className="mt-20 p-8 bg-muted/30 border border-border rounded-xl flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                 {article.author?.avatar ? (
                   <img
                     src={article.author.avatar}

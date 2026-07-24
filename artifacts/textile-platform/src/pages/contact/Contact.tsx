@@ -68,7 +68,7 @@ export function Contact() {
             </div>
           </div>
 
-          <div className="bg-muted/30 border border-border p-5 md:p-10">
+          <div className="bg-muted/30 border border-border rounded-xl p-5 md:p-10">
             <h2 className="text-2xl font-serif font-bold text-primary mb-6">
               {c("form_heading", "Send a Message")}
             </h2>

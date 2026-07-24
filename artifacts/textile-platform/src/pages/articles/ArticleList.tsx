@@ -22,7 +22,7 @@ function BlogPostItem({ article }: { article: ArticleSummary }) {
   return (
     <article className="pb-10 mb-10 border-b border-gray-200 last:border-0 last:pb-0 last:mb-0">
       {/* Image */}
-      <Link href={`/articles/${article.slug}`} className="block overflow-hidden group mb-5">
+      <Link href={`/articles/${article.slug}`} className="block overflow-hidden rounded-xl group mb-5">
         <img
           src={imageUrl}
           alt={article.title}
@@ -82,7 +82,7 @@ function RecentPostItem({ article }: { article: ArticleSummary }) {
       <img
         src={imageUrl}
         alt={article.title}
-        className="w-[68px] h-[68px] object-cover shrink-0 bg-gray-100"
+        className="w-[68px] h-[68px] object-cover shrink-0 bg-gray-100 rounded-lg"
       />
       <div className="flex-1 min-w-0">
         <h4 className="text-xs font-semibold text-gray-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug mb-1">
@@ -157,7 +157,7 @@ export function ArticleList() {
                       <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
-                        className="w-10 h-10 flex items-center justify-center border border-gray-300 bg-white text-gray-600 disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 bg-white rounded-md text-gray-600 disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
                         aria-label="Previous page"
                       >
                         <ChevronLeft className="w-4 h-4" />
@@ -168,7 +168,7 @@ export function ArticleList() {
                           <button
                             key={n}
                             onClick={() => setPage(n)}
-                            className={`w-10 h-10 text-sm font-semibold border transition-colors ${
+                            className={`w-10 h-10 text-sm font-semibold border rounded-md transition-colors ${
                               n === page
                                 ? "bg-primary text-white border-primary"
                                 : "bg-white border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
@@ -184,7 +184,7 @@ export function ArticleList() {
                           setPage((p) => Math.min(totalPages, p + 1))
                         }
                         disabled={page === totalPages}
-                        className="w-10 h-10 flex items-center justify-center border border-gray-300 bg-white text-gray-600 disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 bg-white rounded-md text-gray-600 disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
                         aria-label="Next page"
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -202,7 +202,7 @@ export function ArticleList() {
             {/* ── Sidebar ── */}
             <aside className="w-full lg:w-[36%] space-y-8">
               {/* Search */}
-              <div className="bg-white border border-gray-200 p-6">
+              <div className="bg-white border border-gray-200 p-6 rounded-xl">
                 <h3 className="font-serif font-bold text-lg text-gray-900 mb-4 pb-3 border-b border-gray-100">
                   Search
                 </h3>
@@ -216,7 +216,7 @@ export function ArticleList() {
               </div>
 
               {/* Recent Posts */}
-              <div className="bg-white border border-gray-200 p-6">
+              <div className="bg-white border border-gray-200 p-6 rounded-xl">
                 <h3 className="font-serif font-bold text-lg text-gray-900 mb-5 pb-3 border-b border-gray-100">
                   Recent Posts
                 </h3>

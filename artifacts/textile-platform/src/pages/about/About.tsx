@@ -49,17 +49,17 @@ export function About() {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4 md:gap-6">
-              <div className="bg-muted p-5 sm:p-8 text-center border border-border">
+              <div className="bg-muted p-5 sm:p-8 text-center border border-border rounded-xl">
                 <BookOpen className="w-8 h-8 mx-auto text-secondary mb-4" />
                 <div className="text-3xl font-serif font-bold text-primary mb-2">{c("stat1_value", "500+")}</div>
                 <div className="text-sm text-muted-foreground font-bold uppercase tracking-wider">{c("stat1_label", "Research Papers")}</div>
               </div>
-              <div className="bg-muted p-5 sm:p-8 text-center border border-border sm:mt-8">
+              <div className="bg-muted p-5 sm:p-8 text-center border border-border rounded-xl sm:mt-8">
                 <Users className="w-8 h-8 mx-auto text-secondary mb-4" />
                 <div className="text-3xl font-serif font-bold text-primary mb-2">{c("stat2_value", "25")}</div>
                 <div className="text-sm text-muted-foreground font-bold uppercase tracking-wider">{c("stat2_label", "Global Experts")}</div>
               </div>
-              <div className="bg-muted p-5 sm:p-8 text-center border border-border">
+              <div className="bg-muted p-5 sm:p-8 text-center border border-border rounded-xl">
                 <Globe className="w-8 h-8 mx-auto text-secondary mb-4" />
                 <div className="text-3xl font-serif font-bold text-primary mb-2">{c("stat3_value", "40")}</div>
                 <div className="text-sm text-muted-foreground font-bold uppercase tracking-wider">{c("stat3_label", "Countries Reached")}</div>
@@ -80,15 +80,15 @@ export function About() {
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            <div className="bg-background p-8 border border-border">
+            <div className="bg-background p-8 border border-border rounded-xl">
               <h3 className="font-serif font-bold text-xl text-primary mb-4">{c("editorial_card1_title", "Empirical Focus")}</h3>
               <p className="text-muted-foreground text-sm">{c("editorial_card1_body", "We prioritize data, chemical analysis, and measured outcomes over anecdotal claims.")}</p>
             </div>
-            <div className="bg-background p-8 border border-border">
+            <div className="bg-background p-8 border border-border rounded-xl">
               <h3 className="font-serif font-bold text-xl text-primary mb-4">{c("editorial_card2_title", "Independence")}</h3>
               <p className="text-muted-foreground text-sm">{c("editorial_card2_body", "We operate independently of any chemical manufacturer or equipment brand.")}</p>
             </div>
-            <div className="bg-background p-8 border border-border">
+            <div className="bg-background p-8 border border-border rounded-xl">
               <h3 className="font-serif font-bold text-xl text-primary mb-4">{c("editorial_card3_title", "Practicality")}</h3>
               <p className="text-muted-foreground text-sm">{c("editorial_card3_body", "Our scientific insights must translate into actionable procedures for plant operations.")}</p>
             </div>

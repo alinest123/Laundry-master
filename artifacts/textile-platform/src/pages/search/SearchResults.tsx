@@ -109,7 +109,7 @@ export function SearchResults() {
                   <Link 
                     key={`${result.type}-${result.id}`} 
                     href={href}
-                    className="group block bg-background border border-border p-6 hover:border-secondary transition-colors"
+                    className="group block bg-background border border-border rounded-xl p-6 hover:border-secondary transition-colors"
                   >
                     <div className="flex items-start gap-6">
                       <div className="bg-muted p-3 hidden sm:block">
@@ -142,7 +142,7 @@ export function SearchResults() {
             </div>
           </div>
         ) : (
-          <div className="text-center py-20 bg-muted/30 border border-border">
+          <div className="text-center py-20 bg-muted/30 border border-border rounded-xl">
             <p className="text-xl text-primary font-bold mb-2">No results found</p>
             <p className="text-muted-foreground">We couldn't find any matches for "{query}". Try adjusting your search terms or filters.</p>
           </div>

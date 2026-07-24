@@ -85,7 +85,7 @@ export function KnowledgeHub() {
                       <Link 
                         key={item.slug} 
                         href={`/articles?category=${item.slug}`}
-                        className="group bg-background border border-border p-5 md:p-8 hover:border-secondary transition-all flex flex-col justify-between"
+                        className="group bg-background border border-border rounded-xl p-5 md:p-8 hover:border-secondary transition-all flex flex-col justify-between"
                       >
                         <div>
                           <h3 className="text-xl font-bold text-primary mb-3 group-hover:text-secondary transition-colors">{item.title}</h3>
@@ -103,7 +103,7 @@ export function KnowledgeHub() {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-8 bg-muted/30 border border-border text-center text-muted-foreground">
+                  <div className="p-8 bg-muted/30 border border-border rounded-xl text-center text-muted-foreground">
                     Resources in this section are currently being updated.
                   </div>
                 )}

@@ -24,7 +24,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
     return (
       <Link
         href={`/articles/${article.slug}`}
-        className="group relative block h-[400px] overflow-hidden bg-muted"
+        className="group relative block h-[400px] overflow-hidden rounded-2xl bg-muted"
       >
         <img
           src={imageUrl}
@@ -71,7 +71,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
   return (
     <Link
       href={`/articles/${article.slug}`}
-      className="group flex flex-col h-full bg-card hover:bg-accent/30 transition-colors border border-border/50"
+      className="group flex flex-col h-full bg-card hover:bg-accent/30 transition-colors border border-border/50 rounded-xl overflow-hidden"
     >
       <div className="aspect-[16/10] overflow-hidden bg-muted relative">
         <img
@@ -101,7 +101,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
               <img
                 src={article.author.avatar}
                 alt={article.author.name}
-                className="w-6 h-6 rounded-none grayscale object-cover"
+                className="w-6 h-6 rounded-md grayscale object-cover"
               />
             ) : (
               <User className="w-4 h-4" />

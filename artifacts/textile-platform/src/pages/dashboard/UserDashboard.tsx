@@ -124,7 +124,7 @@ function AppointmentsTab() {
       </div>
 
       {data.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 border border-border">
+        <div className="text-center py-16 bg-muted/30 border border-border rounded-xl">
           <Calendar className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-primary font-bold mb-2">No appointments yet</p>
           <p className="text-muted-foreground mb-6">Book a session with one of our experts.</p>
@@ -133,7 +133,7 @@ function AppointmentsTab() {
       ) : (
         <div className="space-y-4">
           {data.map((apt: any) => (
-            <div key={apt.id} className="bg-background border border-border p-5 flex flex-col md:flex-row gap-5 items-start md:items-center justify-between">
+            <div key={apt.id} className="bg-background border border-border rounded-xl p-5 flex flex-col md:flex-row gap-5 items-start md:items-center justify-between">
               <div className="flex items-start gap-5">
                 <div className="bg-muted p-3 text-center min-w-[72px]">
                   <div className="text-[0.65rem] font-bold text-primary uppercase">
@@ -200,7 +200,7 @@ function ZoomTab() {
     <div>
       <h2 className="text-xl font-serif font-bold text-primary mb-6">Zoom Meetings</h2>
       {all.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 border border-border">
+        <div className="text-center py-16 bg-muted/30 border border-border rounded-xl">
           <Video className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-primary font-bold mb-2">No upcoming video calls</p>
           <p className="text-muted-foreground">Confirmed consultations with video links appear here.</p>
@@ -214,7 +214,7 @@ function ZoomTab() {
             const title = isAppt ? (item.service?.name ?? "Consultation") : item.title;
             return (
               <div key={`${isAppt ? "a" : "m"}-${item.id}`}
-                className="bg-background border border-border p-5 flex items-center justify-between gap-4">
+                className="bg-background border border-border rounded-xl p-5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
                     <Video className="w-5 h-5 text-blue-600" />
@@ -262,13 +262,13 @@ function InvoicesTab() {
     <div>
       <h2 className="text-xl font-serif font-bold text-primary mb-6">Invoices & Payments</h2>
       {data.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 border border-border">
+        <div className="text-center py-16 bg-muted/30 border border-border rounded-xl">
           <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-primary font-bold mb-2">No invoices yet</p>
           <p className="text-muted-foreground">Payment history will appear here.</p>
         </div>
       ) : (
-        <div className="border border-border divide-y divide-border">
+        <div className="border border-border rounded-xl overflow-hidden divide-y divide-border">
           {data.map((p: any) => (
             <div key={p.id} className="flex items-center justify-between px-5 py-4">
               <div>
@@ -320,7 +320,7 @@ function SavedArticlesTab() {
     <div>
       <h2 className="text-xl font-serif font-bold text-primary mb-6">Saved Articles</h2>
       {data.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 border border-border">
+        <div className="text-center py-16 bg-muted/30 border border-border rounded-xl">
           <Bookmark className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-primary font-bold mb-2">No saved articles</p>
           <p className="text-muted-foreground mb-6">Bookmark articles to read them later.</p>
@@ -329,7 +329,7 @@ function SavedArticlesTab() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.map((item: any) => (
-            <div key={item.savedId} className="border border-border bg-background flex flex-col group">
+            <div key={item.savedId} className="border border-border rounded-xl overflow-hidden bg-background flex flex-col group">
               {item.article.featuredImage && (
                 <div className="aspect-[16/9] overflow-hidden">
                   <img

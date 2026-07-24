@@ -45,7 +45,7 @@ function CommentCard({
   });
 
   return (
-    <div className="bg-white border border-border rounded-none p-5 flex flex-col gap-3">
+    <div className="bg-white border border-border rounded-xl p-5 flex flex-col gap-3">
       {/* Top row */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -53,7 +53,7 @@ function CommentCard({
           <p className="text-xs text-muted-foreground">{comment.authorEmail}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={`text-[11px] font-semibold px-2 py-0.5 border rounded-none ${cls}`}>
+          <span className={`text-[11px] font-semibold px-2 py-0.5 border rounded ${cls}`}>
             {text}
           </span>
           <span className="text-[11px] text-muted-foreground flex items-center gap-1">

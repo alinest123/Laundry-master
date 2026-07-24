@@ -95,7 +95,7 @@
 
   --input: 0 0% 89%;
   --ring: 138 33% 38%;
-  --radius: 6px;
+  --radius: 10px;
 
   --app-font-sans: 'Manrope', 'Inter', system-ui, sans-serif;
   --app-font-serif: 'Manrope', 'Inter', system-ui, sans-serif;
@@ -130,7 +130,7 @@ body { font-family: var(--app-font-sans); background: hsl(var(--background)); co
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.65rem 1.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
 }
@@ -145,7 +145,7 @@ body { font-family: var(--app-font-sans); background: hsl(var(--background)); co
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.65rem 1.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   transition: background 0.2s, transform 0.15s;
 }

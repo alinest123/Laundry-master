@@ -57,7 +57,7 @@ export function ConsultationsList() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services?.map(service => (
-                <div key={service.id} className="bg-muted/30 border border-border p-8 flex flex-col hover:border-primary transition-colors">
+                <div key={service.id} className="bg-muted/30 border border-border rounded-xl p-8 flex flex-col hover:border-primary transition-colors">
                   <div className="w-12 h-12 bg-primary text-white flex items-center justify-center mb-6">
                     <Microscope className="w-6 h-6" />
                   </div>
@@ -131,7 +131,7 @@ export function ConsultationsList() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {experts?.map((expert, idx) => (
-                <div key={expert.id} className="group border border-border hover:border-secondary transition-colors">
+                <div key={expert.id} className="group border border-border rounded-xl overflow-hidden hover:border-secondary transition-colors">
                   <div className="aspect-[4/5] relative overflow-hidden bg-muted">
                     <img 
                       src={expert.avatar || expertImages[idx % expertImages.length]} 
