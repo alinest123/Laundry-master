@@ -14,6 +14,7 @@ import knowledgeRouter from "./knowledge";
 import adminRouter from "./admin";
 import userRouter from "./user";
 import pageContentRouter from "./page-content";
+import commentsRouter from "./comments";
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use(testimonialsRouter);
 router.use(statsRouter);
 router.use(knowledgeRouter);
 router.use(pageContentRouter);
+router.use(commentsRouter);
 
 export default router;

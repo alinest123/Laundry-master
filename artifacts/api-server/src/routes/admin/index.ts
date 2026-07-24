@@ -23,6 +23,7 @@ import auditLogsRouter from "./audit-logs";
 import expertsRouter from "./experts";
 import appointmentsRouter from "./appointments";
 import pageContentRouter from "./page-content";
+import commentsAdminRouter from "./comments";
 
 const router = Router();
 
@@ -51,5 +52,6 @@ router.use("/admin", auditLogsRouter);
 router.use("/admin", expertsRouter);
 router.use("/admin", appointmentsRouter);
 router.use("/admin", pageContentRouter);
+router.use("/admin", commentsAdminRouter);
 
 export default router;

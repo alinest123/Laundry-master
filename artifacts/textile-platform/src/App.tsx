@@ -48,6 +48,7 @@ import { SeoManagement } from "@/pages/admin/SeoManagement";
 import { Redirects } from "@/pages/admin/Redirects";
 import { SiteSettings } from "@/pages/admin/SiteSettings";
 import { PageContent } from "@/pages/admin/PageContent";
+import { Comments } from "@/pages/admin/Comments";
 import { AuditLogs } from "@/pages/admin/AuditLogs";
 import { SecurityLogs } from "@/pages/admin/SecurityLogs";
 
@@ -97,6 +98,7 @@ function Router() {
       <AdminRoute path="/admin/redirects" component={Redirects} />
       <AdminRoute path="/admin/settings" component={SiteSettings} />
       <AdminRoute path="/admin/page-content" component={PageContent} />
+      <AdminRoute path="/admin/comments" component={Comments} />
       <AdminRoute path="/admin/audit-logs" component={AuditLogs} />
       <AdminRoute path="/admin/security-logs" component={SecurityLogs} />
 

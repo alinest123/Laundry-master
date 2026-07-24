@@ -1,164 +1,231 @@
 import { Shell } from "@/components/layout/Shell";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ArticleCard } from "@/components/articles/ArticleCard";
-import { Search, Filter, ChevronRight, BookOpen } from "lucide-react";
-import { 
-  useListArticles, 
-  useListCategories,
-  useListTags 
-} from "@workspace/api-client-react";
+import { Search, ChevronRight, ChevronLeft } from "lucide-react";
+import { useListArticles } from "@workspace/api-client-react";
+import { getArticleImage } from "@/lib/articleImages";
+import type { ArticleSummary } from "@workspace/api-client-react";
 
+/* ── Blog-standard article row in main column ──────────────────────────────── */
+function BlogPostItem({ article }: { article: ArticleSummary }) {
+  const date = article.publishedAt
+    ? new Date(article.publishedAt).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "";
+  const category = article.categories?.[0]?.name ?? "Article";
+  const imageUrl = article.featuredImage || getArticleImage(article.id);
+
+  return (
+    <article className="pb-10 mb-10 border-b border-gray-200 last:border-0 last:pb-0 last:mb-0">
+      {/* Image */}
+      <Link href={`/articles/${article.slug}`} className="block overflow-hidden group mb-5">
+        <img
+          src={imageUrl}
+          alt={article.title}
+          className="w-full aspect-[16/9] object-cover transition-transform duration-500 group-hover:scale-105 bg-gray-100"
+        />
+      </Link>
+
+      {/* Meta */}
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        {category} / {date}
+      </p>
+
+      {/* Title */}
+      <h2 className="font-serif text-[1.55rem] font-bold text-gray-900 leading-snug mb-3">
+        <Link
+          href={`/articles/${article.slug}`}
+          className="hover:text-primary transition-colors"
+        >
+          {article.title}
+        </Link>
+      </h2>
+
+      {/* Excerpt */}
+      {article.excerpt && (
+        <p className="text-gray-500 text-sm leading-relaxed mb-5 line-clamp-3">
+          {article.excerpt}
+        </p>
+      )}
+
+      {/* Read more */}
+      <Link
+        href={`/articles/${article.slug}`}
+        className="inline-flex items-center gap-1 text-[13px] font-semibold text-gray-800 border-b border-gray-800 pb-px hover:text-primary hover:border-primary transition-colors"
+      >
+        — Read More
+      </Link>
+    </article>
+  );
+}
+
+/* ── Sidebar: compact recent-post thumbnail row ─────────────────────────────── */
+function RecentPostItem({ article }: { article: ArticleSummary }) {
+  const date = article.publishedAt
+    ? new Date(article.publishedAt).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "";
+  const imageUrl = article.featuredImage || getArticleImage(article.id);
+
+  return (
+    <Link
+      href={`/articles/${article.slug}`}
+      className="flex gap-3 group mb-4 last:mb-0"
+    >
+      <img
+        src={imageUrl}
+        alt={article.title}
+        className="w-[68px] h-[68px] object-cover shrink-0 bg-gray-100"
+      />
+      <div className="flex-1 min-w-0">
+        <h4 className="text-xs font-semibold text-gray-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug mb-1">
+          {article.title}
+        </h4>
+        <p className="text-[11px] text-gray-400">{date}</p>
+      </div>
+    </Link>
+  );
+}
+
+/* ── Main page ──────────────────────────────────────────────────────────────── */
 export function ArticleList() {
   const [page, setPage] = useState(1);
-  const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
-  
-  const { data: articleData, isLoading } = useListArticles({ 
-    page, 
-    limit: 12, 
-    category: activeCategory 
-  });
-  
-  const { data: categories } = useListCategories();
-  const { data: tags } = useListTags();
+  const LIMIT = 5;
+
+  const { data: articleData, isLoading } = useListArticles({ page, limit: LIMIT });
+  const { data: recentData } = useListArticles({ page: 1, limit: 4 });
+
+  const totalPages = articleData?.totalPages ?? 1;
 
   return (
     <Shell>
-      <div className="bg-primary text-white py-16">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-accent/80 text-sm mb-6 font-bold uppercase tracking-wider">
-              <Link href="/">Home</Link>
-              <ChevronRight className="w-4 h-4" />
-              <span>Knowledge Hub</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">Knowledge Hub</h1>
-            <p className="text-xl text-white/80 font-light">
-              The world's most comprehensive library of textile care science, research, and technical guides.
-            </p>
-          </div>
+      {/* ── Page header ── */}
+      <div className="bg-white border-b border-gray-100 py-10 md:py-14 text-center">
+        <nav className="flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-5">
+          <Link href="/" className="hover:text-primary transition-colors">
+            Home
+          </Link>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-gray-600">Articles</span>
+        </nav>
+        <h1 className="font-serif text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          Knowledge Hub
+        </h1>
+        {/* decorative separator */}
+        <div className="flex items-center justify-center gap-2 mt-3">
+          <span className="block w-10 h-px bg-gray-300" />
+          <span className="block w-[6px] h-[6px] rotate-45 bg-gray-400" />
+          <span className="block w-10 h-px bg-gray-300" />
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-8 py-12">
-        <div className="flex flex-col lg:flex-row gap-12">
-          {/* Sidebar Filters */}
-          <aside className="lg:w-1/4 flex-shrink-0">
-            <div className="sticky top-24 space-y-10">
-              <div>
-                <h3 className="font-serif font-bold text-lg mb-4 text-primary border-b border-border pb-2">Search</h3>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Search articles..." className="pl-9 bg-muted/50" />
-                </div>
-              </div>
+      {/* ── Content area ── */}
+      <div className="bg-[#f7f7f7] min-h-screen">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8 py-10 md:py-14 max-w-6xl">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-14">
 
-              <div>
-                <h3 className="font-serif font-bold text-lg mb-4 text-primary border-b border-border pb-2">Categories</h3>
-                <ul className="space-y-3">
-                  <li>
-                    <button 
-                      onClick={() => { setActiveCategory(undefined); setPage(1); }}
-                      className={`text-sm w-full text-left transition-colors ${!activeCategory ? "text-secondary font-bold" : "text-muted-foreground hover:text-primary"}`}
-                    >
-                      All Categories
-                    </button>
-                  </li>
-                  {categories?.map(category => (
-                    <li key={category.id}>
-                      <button 
-                        onClick={() => { setActiveCategory(category.slug); setPage(1); }}
-                        className={`text-sm w-full flex items-center justify-between transition-colors ${activeCategory === category.slug ? "text-secondary font-bold" : "text-muted-foreground hover:text-primary"}`}
+            {/* ── Main column ── */}
+            <main className="w-full lg:w-[64%]">
+              {isLoading ? (
+                <div className="space-y-10">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="animate-pulse pb-10 border-b border-gray-200">
+                      <div className="w-full aspect-[16/9] bg-gray-200 mb-5" />
+                      <div className="h-3 bg-gray-200 w-1/3 mb-3 rounded" />
+                      <div className="h-7 bg-gray-200 w-3/4 mb-3 rounded" />
+                      <div className="h-4 bg-gray-200 w-full mb-2 rounded" />
+                      <div className="h-4 bg-gray-200 w-2/3 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : articleData?.articles && articleData.articles.length > 0 ? (
+                <>
+                  {articleData.articles.map((article) => (
+                    <BlogPostItem key={article.id} article={article} />
+                  ))}
+
+                  {/* ── Numbered pagination ── */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center gap-1 pt-8 mt-4">
+                      <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 bg-white text-gray-600 disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
+                        aria-label="Previous page"
                       >
-                        <span>{category.name}</span>
-                        <span className="text-xs bg-muted px-2 py-0.5 text-muted-foreground font-normal">{category.articleCount}</span>
+                        <ChevronLeft className="w-4 h-4" />
                       </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
 
-              <div>
-                <h3 className="font-serif font-bold text-lg mb-4 text-primary border-b border-border pb-2">Popular Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {tags?.slice(0, 15).map(tag => (
-                    <span key={tag.id} className="text-xs border border-border px-3 py-1 text-muted-foreground hover:border-secondary hover:text-secondary cursor-pointer transition-colors">
-                      {tag.name}
-                    </span>
-                  ))}
+                      {Array.from({ length: Math.min(totalPages, 8) }, (_, i) => i + 1).map(
+                        (n) => (
+                          <button
+                            key={n}
+                            onClick={() => setPage(n)}
+                            className={`w-10 h-10 text-sm font-semibold border transition-colors ${
+                              n === page
+                                ? "bg-primary text-white border-primary"
+                                : "bg-white border-gray-300 text-gray-700 hover:border-primary hover:text-primary"
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        )
+                      )}
+
+                      <button
+                        onClick={() =>
+                          setPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={page === totalPages}
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 bg-white text-gray-600 disabled:opacity-40 hover:border-primary hover:text-primary transition-colors"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-20">
+                  <p className="text-gray-500">No articles found.</p>
+                </div>
+              )}
+            </main>
+
+            {/* ── Sidebar ── */}
+            <aside className="w-full lg:w-[36%] space-y-8">
+              {/* Search */}
+              <div className="bg-white border border-gray-200 p-6">
+                <h3 className="font-serif font-bold text-lg text-gray-900 mb-4 pb-3 border-b border-gray-100">
+                  Search
+                </h3>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Search articles..."
+                    className="pl-9 bg-gray-50 border-gray-200 text-sm focus:bg-white"
+                  />
                 </div>
               </div>
-              
-              <div className="bg-muted/50 p-6 border border-border">
-                <BookOpen className="w-8 h-8 text-secondary mb-4" />
-                <h4 className="font-serif font-bold text-primary mb-2">Technical Guides</h4>
-                <p className="text-sm text-muted-foreground mb-4">Deep dive into specific topics with our comprehensive long-form guides.</p>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link href="/knowledge">Browse Guides</Link>
-                </Button>
-              </div>
-            </div>
-          </aside>
 
-          {/* Main Content */}
-          <main className="lg:w-3/4">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-serif font-bold text-primary">
-                {activeCategory ? categories?.find(c => c.slug === activeCategory)?.name : "Latest Publications"}
-              </h2>
-              <div className="text-sm text-muted-foreground">
-                Showing {articleData?.articles?.length || 0} of {articleData?.total || 0} results
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="animate-pulse bg-muted aspect-[4/3]"></div>
+              {/* Recent Posts */}
+              <div className="bg-white border border-gray-200 p-6">
+                <h3 className="font-serif font-bold text-lg text-gray-900 mb-5 pb-3 border-b border-gray-100">
+                  Recent Posts
+                </h3>
+                {recentData?.articles?.map((article) => (
+                  <RecentPostItem key={article.id} article={article} />
                 ))}
               </div>
-            ) : articleData?.articles && articleData.articles.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                  {articleData.articles.map(article => (
-                    <ArticleCard key={article.id} article={article} />
-                  ))}
-                </div>
-                
-                {/* Pagination */}
-                {articleData.totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 pt-8 border-t border-border">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setPage(p => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-sm font-medium text-muted-foreground px-4">
-                      Page {page} of {articleData.totalPages}
-                    </span>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setPage(p => Math.min(articleData.totalPages, p + 1))}
-                      disabled={page === articleData.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-20 bg-muted/30 border border-border">
-                <p className="text-lg text-muted-foreground">No articles found matching your criteria.</p>
-                <Button variant="link" onClick={() => setActiveCategory(undefined)} className="mt-4">
-                  Clear filters
-                </Button>
-              </div>
-            )}
-          </main>
+            </aside>
+          </div>
         </div>
       </div>
     </Shell>
