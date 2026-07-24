@@ -6,6 +6,8 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 
 import { AuthProvider } from "@/lib/auth";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
+import { ScrollToTop } from "@/components/ScrollToTop";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 
 import { Home } from "@/pages/Home";
 import { ArticleList } from "@/pages/articles/ArticleList";
@@ -66,6 +68,8 @@ function AdminRoute({ path, component: Component }: { path: string; component: R
 
 function Router() {
   return (
+    <>
+    <ScrollToTop />
     <Switch>
       {/* User auth pages */}
       <Route path="/login" component={LoginPage} />
@@ -117,6 +121,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 
@@ -128,6 +133,7 @@ function App() {
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
             <Router />
           </WouterRouter>
+          <ScrollToTopButton />
           <Toaster />
         </AuthProvider>
       </TooltipProvider>
