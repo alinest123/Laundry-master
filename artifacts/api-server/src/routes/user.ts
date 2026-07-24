@@ -9,8 +9,8 @@ import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
-// All /user/* routes require authentication
-router.use(requireAuth);
+// All /user/* routes require authentication — scoped to avoid blocking public routes
+router.use("/user", requireAuth);
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 

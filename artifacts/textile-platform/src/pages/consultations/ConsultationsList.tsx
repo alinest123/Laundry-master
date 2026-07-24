@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { useListServices, useListExperts } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Star, Clock, User, CheckCircle2, ChevronRight, Microscope } from "lucide-react";
+import { usePageContent } from "@/lib/usePageContent";
 
 import expert1 from "@assets/generated_images/expert_1.jpg";
 import expert2 from "@assets/generated_images/expert_2.jpg";
@@ -11,6 +12,7 @@ import expert3 from "@assets/generated_images/expert_3.jpg";
 export function ConsultationsList() {
   const { data: services, isLoading: isLoadingServices } = useListServices();
   const { data: experts, isLoading: isLoadingExperts } = useListExperts();
+  const { c } = usePageContent("consultations");
 
   const expertImages = [expert1, expert2, expert3];
 
@@ -21,12 +23,14 @@ export function ConsultationsList() {
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CjxwYXRoIGQ9Ik0wIDBoNDB2NDBIMHoiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTAgMTBoNDBNMCAzMGg0ME0xMCAwdjQwTTMwIDB2NDAiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KPC9zdmc+')] mix-blend-overlay"></div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">Expert Consultations</h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">
+              {c("hero_headline", "Expert Consultations")}
+            </h1>
             <p className="text-xl text-white/80 font-light leading-relaxed mb-10">
-              Access the world's leading minds in textile science, commercial laundry operations, and fabric care. Direct 1-on-1 guidance for your most complex challenges.
+              {c("hero_subheadline", "Access the world's leading minds in textile science, commercial laundry operations, and fabric care. Direct 1-on-1 guidance for your most complex challenges.")}
             </p>
             <Button size="lg" className="bg-accent text-primary hover:bg-white text-base font-bold h-14 px-10" asChild>
-              <Link href="/consultations/book">Book a Session</Link>
+              <Link href="/consultations/book">{c("hero_cta", "Book a Session")}</Link>
             </Button>
           </div>
         </div>
@@ -36,8 +40,12 @@ export function ConsultationsList() {
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-4">Consultation Services</h2>
-            <p className="text-muted-foreground text-lg">Targeted advisory sessions tailored to specific operational and scientific needs.</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-4">
+              {c("services_heading", "Consultation Services")}
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              {c("services_subheading", "Targeted advisory sessions tailored to specific operational and scientific needs.")}
+            </p>
           </div>
 
           {isLoadingServices ? (

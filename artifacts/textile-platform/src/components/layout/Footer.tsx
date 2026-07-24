@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useState } from "react";
+import { usePageContent } from "@/lib/usePageContent";
 
 const COLS = [
   {
@@ -34,6 +35,7 @@ const COLS = [
 export function Footer() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const { c } = usePageContent("footer");
 
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
@@ -64,10 +66,12 @@ export function Footer() {
           </div>
 
           <p className="text-[#888] text-sm leading-relaxed mb-6 max-w-xs">
-            The global authority in professional textile care — science-first knowledge for laundry, dry cleaning, and fabric science professionals.
+            {c("tagline", "The global authority in professional textile care — science-first knowledge for laundry, dry cleaning, and fabric science professionals.")}
           </p>
 
-          <p className="text-[0.7rem] font-bold uppercase tracking-widest text-[#555] mb-3">Newsletter Sign-up</p>
+          <p className="text-[0.7rem] font-bold uppercase tracking-widest text-[#555] mb-3">
+            {c("newsletter_label", "Newsletter Sign-up")}
+          </p>
           {submitted ? (
             <p className="text-[#5a8c5e] text-sm font-semibold">✓ Thank you for subscribing!</p>
           ) : (
@@ -111,7 +115,7 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-[#2a2a2a]">
         <div className="max-w-[1280px] mx-auto px-6 h-12 flex items-center justify-between gap-4">
-          <p className="text-[#555] text-xs">© 2026 TextilePro. Textile care knowledge for professionals.</p>
+          <p className="text-[#555] text-xs">{c("copyright", "© 2026 TextilePro. Textile care knowledge for professionals.")}</p>
           <div className="flex items-center gap-5">
             <Link href="/about" className="text-[#555] hover:text-[#888] text-xs transition-colors">Privacy Policy</Link>
             <Link href="/about" className="text-[#555] hover:text-[#888] text-xs transition-colors">Terms of Use</Link>

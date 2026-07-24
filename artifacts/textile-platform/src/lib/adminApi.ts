@@ -176,6 +176,13 @@ export const adminApi = {
       return req<any>("GET", `/security-logs${q}`);
     },
   },
+
+  // ── Page Content ──────────────────────────────────────────────────────────
+  pageContent: {
+    get: (page: string) => req<Record<string, string>>("GET", `/page-content/${page}`),
+    update: (page: string, data: Record<string, string>) =>
+      req<{ ok: boolean }>("PUT", `/page-content/${page}`, data),
+  },
 };
 
 // Slug generation utility

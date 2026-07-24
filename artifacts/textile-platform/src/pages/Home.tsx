@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { usePageContent } from "@/lib/usePageContent";
 import { motion, useInView } from "framer-motion";
 import { Shell } from "@/components/layout/Shell";
 import {
@@ -227,6 +228,7 @@ export function Home() {
   const { data: stats } = useGetPlatformStats();
   const { data: featuredArticles } = useGetFeaturedArticles({ limit: 3 });
   const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const { c } = usePageContent("home");
 
   const STAT_TABS = [
     { label: "Articles", value: stats?.totalArticles?.toString() || "500+" },
@@ -248,7 +250,7 @@ export function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0 }}
             >
-              Science-first textile care knowledge
+              {c("hero_tag", "Science-first textile care knowledge")}
             </motion.span>
             <motion.h1
               className="heading-xl text-[#1c1c1c] mb-6"
@@ -256,7 +258,7 @@ export function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.1 }}
             >
-              The Science Behind<br />Professional<br />Textile Care
+              {c("hero_headline", "The Science Behind Professional Textile Care")}
             </motion.h1>
             <motion.p
               className="text-[#555] text-[1rem] leading-relaxed mb-8 max-w-md"
@@ -264,7 +266,7 @@ export function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.22 }}
             >
-              Evidence-based research, fiber science, and professional standards for laundry, dry cleaning, and textile care professionals — built on chemistry and testing, not guesswork.
+              {c("hero_subheadline", "Evidence-based research, fiber science, and professional standards for laundry, dry cleaning, and textile care professionals — built on chemistry and testing, not guesswork.")}
             </motion.p>
             <motion.div
               className="flex flex-wrap items-center gap-3"
@@ -273,10 +275,10 @@ export function Home() {
               transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.34 }}
             >
               <Link href="/knowledge" className="btn-dark inline-flex items-center gap-2 rounded-[10px]">
-                Explore the Knowledge Hub <ArrowRight className="w-4 h-4" />
+                {c("hero_cta_primary", "Explore the Knowledge Hub")} <ArrowRight className="w-4 h-4" />
               </Link>
               <Link href="/consultations/book" className="inline-flex items-center gap-2 text-[#555] text-sm font-medium hover:text-[#1c1c1c] transition-colors">
-                Book a Consultation <ArrowUpRight className="w-3.5 h-3.5" />
+                {c("hero_cta_secondary", "Book a Consultation")} <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </motion.div>
           </div>
@@ -389,7 +391,7 @@ export function Home() {
             {/* Caption box — overlaps bottom-right corner of photo */}
             <div className="absolute bottom-0 right-0 translate-y-[40%] bg-[#1c1c1c] px-6 py-6 md:px-7 md:py-7 max-w-[230px] md:max-w-[260px] z-10">
               <p className="text-white font-bold text-base md:text-[1.1rem] leading-snug">
-                Science & support<br />for your textile<br />care operations
+                {c("caption_box", "Science & support for your textile care operations")}
               </p>
             </div>
           </div>
@@ -397,23 +399,29 @@ export function Home() {
 
         {/* Right white */}
         <div className="bg-white px-6 py-10 md:px-10 md:py-14 flex flex-col justify-center">
-          <RiseUp delay={0}><span className="label-tag">Our expertise</span></RiseUp>
+          <RiseUp delay={0}><span className="label-tag">{c("expertise_label", "Our expertise")}</span></RiseUp>
           <RiseUp delay={0.1}>
             <h2 className="heading-md text-[#1c1c1c] mb-4">
-              Built on Fiber Science and<br />Wet Processing Chemistry
+              {c("expertise_heading", "Built on Fiber Science and Wet Processing Chemistry")}
             </h2>
           </RiseUp>
           <RiseUp delay={0.15}>
             <p className="text-[#777] text-xs leading-relaxed mb-6 max-w-sm">
-              Every resource on this platform starts with the underlying chemistry and material science — not marketing claims about what "works."
+              {c("expertise_body", "Every resource on this platform starts with the underlying chemistry and material science — not marketing claims about what \"works.\"")}
             </p>
           </RiseUp>
           <div className="space-y-4">
             {[
-              { title: "Fabric & fiber science", desc: "How fiber structure, weave, and construction determine care requirements — the foundation for every recommendation on this site." },
-              { title: "Wet processing & chemistry", desc: "Detergent chemistry, solvent behavior, water hardness, and the mechanics of soil removal, explained at a level professionals can apply." },
+              {
+                title: c("expertise_item1_title", "Fabric & fiber science"),
+                desc: c("expertise_item1_body", "How fiber structure, weave, and construction determine care requirements — the foundation for every recommendation on this site."),
+              },
+              {
+                title: c("expertise_item2_title", "Wet processing & chemistry"),
+                desc: c("expertise_item2_body", "Detergent chemistry, solvent behavior, water hardness, and the mechanics of soil removal, explained at a level professionals can apply."),
+              },
             ].map((item, i) => (
-              <RiseUp key={item.title} delay={0.2 + i * 0.1}>
+              <RiseUp key={i} delay={0.2 + i * 0.1}>
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#f0f0f0] last:border-0">
                   <div>
                     <p className="font-bold text-[#1c1c1c] text-sm mb-0.5">{item.title}</p>
@@ -433,11 +441,11 @@ export function Home() {
         <div className="max-w-[1280px] mx-auto">
           <div className="grid md:grid-cols-2 gap-6 mb-14">
             <RiseUp delay={0}>
-              <h2 className="heading-lg text-[#1c1c1c]">Your knowledge goals<br />are our priority</h2>
+              <h2 className="heading-lg text-[#1c1c1c]">{c("knowledge_heading", "Your knowledge goals are our priority")}</h2>
             </RiseUp>
             <RiseUp delay={0.12} className="flex flex-col justify-end">
               <p className="text-[#666] text-sm leading-relaxed mb-4 max-w-sm">
-                From fiber science fundamentals to advanced plant operations — resources built for textile care professionals who want to understand the <em>why</em>, not just follow a checklist.
+                {c("knowledge_body", "From fiber science fundamentals to advanced plant operations — resources built for textile care professionals who want to understand the why, not just follow a checklist.")}
               </p>
               <Link href="/articles" className="inline-flex items-center gap-1.5 text-[#1c1c1c] text-sm font-bold hover:text-[#4a7c59] transition-colors">
                 Browse all articles <ArrowRight className="w-3.5 h-3.5" />

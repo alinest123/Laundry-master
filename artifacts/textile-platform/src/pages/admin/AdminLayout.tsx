@@ -3,7 +3,7 @@ import {
   FileText, Users, Tag, Folder, LayoutDashboard, ChevronRight,
   Globe, LogOut, Shirt, Droplets, UserCog, Calendar, CreditCard,
   Video, Mail, Image, Search, ArrowLeftRight, Settings, Shield,
-  ClipboardList, BookOpen, ChevronDown, Menu, X,
+  ClipboardList, BookOpen, ChevronDown, Menu, X, PanelTop,
 } from "lucide-react";
 import { useAuth, can } from "@/lib/auth";
 import { useState, useEffect } from "react";
@@ -56,6 +56,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Configuration",
     items: [
+      { href: "/admin/page-content", icon: PanelTop, label: "Page Content", resource: "settings" },
       { href: "/admin/seo", icon: Search, label: "SEO", resource: "seo" },
       { href: "/admin/redirects", icon: ArrowLeftRight, label: "Redirects", resource: "redirects" },
       { href: "/admin/settings", icon: Settings, label: "Site Settings", resource: "settings" },

@@ -1,19 +1,33 @@
 import { Shell } from "@/components/layout/Shell";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { usePageContent } from "@/lib/usePageContent";
 
 export function Contact() {
+  const { c } = usePageContent("contact");
+
+  // Render address lines (supports \n separator saved from admin textarea)
+  const addressLines = c(
+    "address",
+    "100 Science Parkway, Suite 400\nBoston, MA 02110\nUnited States"
+  ).split("\n");
+
+  const generalEmail = c("general_email", "info@textilescience.org");
+  const editorialEmail = c("editorial_email", "editorial@textilescience.org");
+
   return (
     <Shell>
       <div className="container mx-auto px-4 md:px-8 py-20 max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
           <div>
-            <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary mb-6">Contact Us</h1>
+            <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary mb-6">
+              {c("heading", "Contact Us")}
+            </h1>
             <p className="text-xl text-muted-foreground font-light mb-10 leading-relaxed">
-              Whether you are looking to contribute research, inquire about corporate access, or need support with an existing consultation.
+              {c("subheading", "Whether you are looking to contribute research, inquire about corporate access, or need support with an existing consultation.")}
             </p>
 
             <div className="space-y-8 mb-12">
@@ -23,7 +37,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold text-primary mb-1">General Inquiries</h3>
-                  <a href="mailto:info@textilescience.org" className="text-secondary hover:underline">info@textilescience.org</a>
+                  <a href={`mailto:${generalEmail}`} className="text-secondary hover:underline">{generalEmail}</a>
                 </div>
               </div>
               
@@ -33,7 +47,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold text-primary mb-1">Editorial Submissions</h3>
-                  <a href="mailto:editorial@textilescience.org" className="text-secondary hover:underline">editorial@textilescience.org</a>
+                  <a href={`mailto:${editorialEmail}`} className="text-secondary hover:underline">{editorialEmail}</a>
                   <p className="text-sm text-muted-foreground mt-1">Please review our editorial guidelines before submitting.</p>
                 </div>
               </div>
@@ -45,9 +59,9 @@ export function Contact() {
                 <div>
                   <h3 className="font-bold text-primary mb-1">Headquarters</h3>
                   <p className="text-muted-foreground">
-                    100 Science Parkway, Suite 400<br/>
-                    Boston, MA 02110<br/>
-                    United States
+                    {addressLines.map((line, i) => (
+                      <span key={i}>{line}{i < addressLines.length - 1 && <br />}</span>
+                    ))}
                   </p>
                 </div>
               </div>
@@ -55,7 +69,9 @@ export function Contact() {
           </div>
 
           <div className="bg-muted/30 border border-border p-5 md:p-10">
-            <h2 className="text-2xl font-serif font-bold text-primary mb-6">Send a Message</h2>
+            <h2 className="text-2xl font-serif font-bold text-primary mb-6">
+              {c("form_heading", "Send a Message")}
+            </h2>
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">

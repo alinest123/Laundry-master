@@ -2,9 +2,11 @@ import { Shell } from "@/components/layout/Shell";
 import { Link } from "wouter";
 import { useGetKnowledgeHub } from "@workspace/api-client-react";
 import { BookOpen, FileText, FlaskConical, Map, ArrowRight } from "lucide-react";
+import { usePageContent } from "@/lib/usePageContent";
 
 export function KnowledgeHub() {
   const { data: hubData, isLoading } = useGetKnowledgeHub();
+  const { c } = usePageContent("knowledge");
 
   const sections = [
     {
@@ -41,9 +43,11 @@ export function KnowledgeHub() {
     <Shell>
       <div className="bg-primary text-white py-20">
         <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">The Knowledge Hub</h1>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">
+            {c("hero_headline", "The Knowledge Hub")}
+          </h1>
           <p className="text-xl text-white/80 font-light leading-relaxed">
-            The central repository for all professional guides, research papers, and structured learning resources.
+            {c("hero_subheadline", "The central repository for all professional guides, research papers, and structured learning resources.")}
           </p>
         </div>
       </div>

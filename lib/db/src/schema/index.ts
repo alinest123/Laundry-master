@@ -25,3 +25,4 @@ export * from "./siteSettings";
 export * from "./securityLogs";
 export * from "./auditLogs";
 export * from "./savedArticles";
+export * from "./pageContent";

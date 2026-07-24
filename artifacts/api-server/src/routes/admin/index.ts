@@ -22,6 +22,7 @@ import securityLogsRouter from "./security-logs";
 import auditLogsRouter from "./audit-logs";
 import expertsRouter from "./experts";
 import appointmentsRouter from "./appointments";
+import pageContentRouter from "./page-content";
 
 const router = Router();
 
@@ -49,5 +50,6 @@ router.use("/admin", securityLogsRouter);
 router.use("/admin", auditLogsRouter);
 router.use("/admin", expertsRouter);
 router.use("/admin", appointmentsRouter);
+router.use("/admin", pageContentRouter);
 
 export default router;
