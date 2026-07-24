@@ -12,29 +12,36 @@ import {
   useListExperts,
 } from "@workspace/api-client-react";
 
-/* ─── Placeholder images (Unsplash – no API key needed) ─── */
+/* ─── Images (Unsplash – free to use) ─── */
 const IMG = {
-  hero1: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=80",
-  hero2: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&q=80",
-  hero3: "https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=200&q=80",
-  dark1: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=700&q=80",
-  /* Hero collage — 8 elements */
-  collageMain: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",  // woman on phone + laptop
-  collage1: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80",     // woman presenting/whiteboard
-  collage3: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&q=80",         // group meeting
-  collage7: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80",         // man in navy suit
-  collage8: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&q=80",      // businessman duo
-  service1: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?w=500&q=80",
-  service2: "https://images.unsplash.com/photo-1606185540834-d6e7483ee1a4?w=500&q=80",
-  service3: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=80",
-  service4: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&q=80",
-  service5: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500&q=80",
-  team: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80",
+  /* Split intro — textile scientist portrait */
+  dark1: "https://images.unsplash.com/photo-1741176506261-73218298e4d8?w=700&q=80",
+
+  /* Hero collage — textile science professionals */
+  collageMain: "https://images.unsplash.com/photo-1580982172477-9373ff52ae43?w=600&q=80",  // scientist with lab samples
+  collage1:    "https://images.unsplash.com/photo-1631556760646-50241850eb25?w=400&q=80",   // woman scientist
+  collage3:    "https://images.unsplash.com/photo-1675430409777-eaa846201440?w=400&q=80",   // laundry facility
+  collage7:    "https://plus.unsplash.com/premium_photo-1682129257696-dfe914806043?w=400&q=80", // dry cleaning professional
+  collage8:    "https://plus.unsplash.com/premium_photo-1682129235687-a4b4168682b7?w=300&q=80", // dry cleaning garment
+
+  /* 5-tile category gallery */
+  service1: "https://plus.unsplash.com/premium_photo-1682129249054-b0aeef5ae1fe?w=500&q=80",    // Dry Cleaning Science
+  service2: "https://images.unsplash.com/photo-1672658553156-97d09a74c801?w=500&q=80",           // Fabric Research — woven weave
+  service3: "https://plus.unsplash.com/premium_photo-1674575954775-b5ef5af6fd17?w=500&q=80",    // Garment Analysis — clothing texture
+  service4: "https://images.unsplash.com/photo-1705412877708-659120ce6538?w=500&q=80",           // Textile Testing — textile pattern
+  service5: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500&q=80",           // Water Quality
+
+  /* Full-width team photo */
+  team: "https://images.unsplash.com/photo-1742535035610-c5865df05858?w=1400&q=80",
+
+  /* Professional Impact — DO NOT CHANGE */
   feature1: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80",
   feature2: "https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?w=600&q=80",
-  detail1: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=500&q=80",
-  detail2: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=500&q=80",
-  detail3: "https://images.unsplash.com/photo-1611048267451-e6ed903d4a38?w=500&q=80",
+
+  /* Latest articles */
+  detail1: "https://plus.unsplash.com/premium_photo-1726812068133-acf03fa08745?w=500&q=80",  // Cotton fiber / fabric science
+  detail2: "https://plus.unsplash.com/premium_photo-1765302374558-ad408198251d?w=500&q=80",  // Enzyme / stain removal
+  detail3: "https://images.unsplash.com/photo-1674471361340-273b7b7da2e2?w=500&q=80",        // Commercial laundry water conservation
 };
 
 const IconFabricAnalysis = () => (
