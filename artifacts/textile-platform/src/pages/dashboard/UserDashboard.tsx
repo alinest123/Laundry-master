@@ -413,7 +413,7 @@ function NewsletterTab() {
           </div>
           <button
             onClick={() => setPrefs(p => p ? { ...p, newsletterEnabled: !p.newsletterEnabled } : p)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${prefs.newsletterEnabled ? "bg-primary" : "bg-muted"}`}
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${prefs.newsletterEnabled ? "bg-primary" : "bg-muted"}`}
           >
             <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${prefs.newsletterEnabled ? "translate-x-6" : "translate-x-1"}`} />
           </button>
