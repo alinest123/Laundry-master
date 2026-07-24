@@ -297,7 +297,7 @@ export function Home() {
                └─────────────┴──────────────────────┴──────────────────┘
                2% gutters between every pair — zero overlaps.
           */}
-          <div className="relative h-[360px] sm:h-[440px] md:h-[540px] select-none">
+          <div className="hidden md:relative md:h-[540px] md:block select-none">
 
             {/* ① Col-L top: portrait photo — rows 2%→52% */}
             <motion.div
