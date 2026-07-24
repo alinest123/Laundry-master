@@ -1,0 +1,773 @@
+REPLIT MASTER PROMPT — THE SCIENCE OF PROFESSIONAL TEXTILE CARE
+PROJECT
+Build a premium, modern, production-ready website for:
+The Science of Professional Textile Care
+Primary domain:
+laundry-master.com
+The website should take visual inspiration from the professional consulting/service style of the Invetex template at:
+https://invetex.themerex.net/
+IMPORTANT:
+Do NOT copy proprietary code, copyrighted images, text, or design assets from the reference website.
+Use the reference only as inspiration for the overall visual language:
+•	Premium professional appearance
+•	Large hero sections
+•	Clean typography
+•	Service/knowledge cards
+•	Strong calls to action
+•	Professional statistics
+•	Testimonials
+•	Blog/knowledge content
+•	Newsletter
+•	Appointment booking
+•	Elegant footer
+•	Responsive mobile design
+The final website must be an ORIGINAL design created specifically for The Science of Professional Textile Care.
+________________________________________
+CORE BUSINESS CONCEPT
+This is NOT a normal laundry company website.
+This is a global educational and professional knowledge platform focused on:
+•	Professional Laundry
+•	Dry Cleaning
+•	Textile Care
+•	Fabric Science
+•	Fiber Science
+•	Stain Removal
+•	Garment Finishing
+•	Textile Chemistry
+•	Textile Technology
+•	Laundry Chemistry
+•	Water Quality
+•	Equipment
+•	Sustainability
+•	Textile Innovation
+•	Professional Training
+•	Industry Standards
+•	Quality Control
+•	Laundry Operations
+•	Textile Research
+The long-term objective is to become one of the world's most trusted educational resources for professional textile care.
+The website should therefore combine:
+1.	Knowledge platform
+2.	Educational blog
+3.	Textile care encyclopedia
+4.	Professional consultation platform
+5.	Training platform
+6.	Expert knowledge resource
+7.	Future membership platform
+Build the architecture so these features can be expanded in the future without rebuilding the website.
+________________________________________
+DESIGN DIRECTION
+Create a premium editorial and consulting-style website.
+The visual style should communicate:
+•	Scientific credibility
+•	Professional expertise
+•	Trust
+•	Education
+•	Innovation
+•	Global authority
+Avoid making the website look like a local laundry shop.
+Avoid excessive animations.
+Avoid generic AI-generated website design.
+Avoid unnecessary gradients.
+Avoid excessive rounded cards.
+Avoid cheap-looking stock imagery.
+Use high-quality textile, fabric, laundry science, laboratory, professional laundry equipment, and textile technology imagery.
+The design should feel like:
+Professional consulting firm
++
+Scientific publication
++
+Educational platform
++
+Modern knowledge hub
+________________________________________
+MAIN NAVIGATION
+Create a clean navigation system.
+Recommended structure:
+HOME
+KNOWLEDGE HUB
+•	All Articles
+•	Professional Laundry
+•	Dry Cleaning
+•	Fabric Science
+•	Fiber Science
+•	Stain Removal
+•	Textile Chemistry
+•	Garment Finishing
+•	Textile Technology
+•	Sustainability
+•	Textile Innovation
+•	Industry Standards
+•	Case Studies
+•	Research
+FABRIC ENCYCLOPEDIA
+•	Natural Fibers
+•	Synthetic Fibers
+•	Regenerated Fibers
+•	Blended Fabrics
+•	Technical Textiles
+•	Fabric Care Guides
+STAIN ENCYCLOPEDIA
+•	Oil-Based Stains
+•	Protein Stains
+•	Tannin Stains
+•	Dye Stains
+•	Food Stains
+•	Ink
+•	Rust
+•	Cosmetic Stains
+•	Unknown Stains
+LEARNING CENTER
+•	Beginner Guides
+•	Professional Guides
+•	Training
+•	Courses
+•	Certifications
+CONSULTATION
+•	Book an Expert
+•	Consultation Services
+•	How It Works
+ABOUT
+CONTACT
+SEARCH
+________________________________________
+HOMEPAGE
+Create a premium homepage inspired by the structure of a professional consulting website.
+HERO
+Headline:
+"The Science Behind Professional Textile Care"
+Subheadline:
+"Evidence-based knowledge, professional guidance, and practical education for laundry, dry cleaning, textile care, and fabric science."
+Primary CTA:
+"Explore the Knowledge Hub"
+Secondary CTA:
+"Book an Expert Consultation"
+Add a high-quality visual related to professional textile care science.
+________________________________________
+HOMEPAGE SECTIONS
+1. INTRODUCTION
+Explain what The Science of Professional Textile Care is.
+Position the platform as an independent educational knowledge resource.
+________________________________________
+2. EXPLORE BY TOPIC
+Display major knowledge categories.
+Each category should link to a dedicated SEO-optimized category page.
+Examples:
+Professional Laundry
+Fabric Science
+Stain Removal
+Dry Cleaning
+Textile Chemistry
+Garment Finishing
+Sustainability
+Textile Technology
+________________________________________
+3. FEATURED KNOWLEDGE
+Display:
+•	Featured articles
+•	Latest articles
+•	Most popular articles
+•	Editor's picks
+Allow filtering by category.
+________________________________________
+4. FABRIC SCIENCE
+Create a featured section for the Fabric Encyclopedia.
+CTA:
+"Explore Fabric Science"
+________________________________________
+5. STAIN REMOVAL
+Create a featured section for the Stain Encyclopedia.
+CTA:
+"Explore Stain Science"
+________________________________________
+6. PROFESSIONAL CONSULTATION
+Explain that users can book paid consultations with qualified experts.
+Include:
+•	Fabric problems
+•	Stain problems
+•	Laundry operations
+•	Dry cleaning
+•	Chemical selection
+•	Textile care
+•	Professional training
+•	Quality control
+CTA:
+"Book a Consultation"
+________________________________________
+7. WHY TRUST US
+Create an authority section.
+Possible content:
+Evidence-based education
+Professional experience
+Scientific references
+Industry knowledge
+Independent learning
+Practical guidance
+IMPORTANT:
+Do not invent credentials, certifications, partnerships, statistics, or claims.
+Only display verified information entered by administrators.
+________________________________________
+8. LEARNING CENTER
+Promote:
+Guides
+Courses
+Training
+Professional resources
+Future certifications
+________________________________________
+9. LATEST ARTICLES
+Show the latest 6 articles.
+Include:
+Featured image
+Category
+Title
+Excerpt
+Author
+Date
+Reading time
+Read More
+________________________________________
+10. NEWSLETTER
+"Get the latest textile care knowledge."
+Email signup.
+Implement double opt-in where possible.
+________________________________________
+KNOWLEDGE HUB
+Create a powerful article publishing system.
+The CMS must allow administrators to:
+Create articles
+Edit articles
+Delete articles
+Save drafts
+Schedule publishing
+Publish/unpublish
+Add authors
+Add categories
+Add subcategories
+Add tags
+Upload featured images
+Add article images
+Add captions
+Add references
+Add citations
+Add external sources
+Add related articles
+Add FAQ sections
+Add table of contents
+Add custom SEO metadata
+Add canonical URL
+Add Open Graph image
+Add structured data
+Add custom URL slug
+Set noindex/nofollow when necessary
+________________________________________
+CATEGORY SYSTEM
+The category architecture is extremely important.
+Every article must belong to one primary category.
+Articles may have secondary categories or tags where appropriate.
+Example:
+Category:
+Fabric Science
+Subcategory:
+Natural Fibers
+Article:
+"How Cotton Fiber Structure Affects Washing Performance"
+This article should appear under:
+Fabric Science
+Natural Fibers
+Cotton
+Washing Performance
+The system should automatically generate:
+Category pages
+Subcategory pages
+Tag pages where useful
+Breadcrumbs
+Related articles
+Internal linking
+________________________________________
+CATEGORY PAGE DESIGN
+Every category page should include:
+SEO title
+SEO meta description
+Category introduction
+Featured article
+Latest articles
+Popular articles
+Subcategories
+Related topics
+FAQ section
+Breadcrumbs
+Pagination
+Internal links
+Schema markup
+Example:
+/knowledge/fabric-science/
+Then:
+/knowledge/fabric-science/natural-fibers/
+Then:
+/knowledge/fabric-science/natural-fibers/cotton/
+Use clean, logical URLs.
+Avoid unnecessary URL parameters.
+________________________________________
+FABRIC ENCYCLOPEDIA
+Build a dedicated database structure.
+Each fabric/fiber page should support:
+Name
+Common names
+Fiber type
+Origin
+Chemical composition
+Physical properties
+Moisture behavior
+Thermal sensitivity
+pH sensitivity
+Chemical sensitivity
+Washing recommendations
+Dry cleaning considerations
+Drying recommendations
+Ironing recommendations
+Finishing considerations
+Common damage mechanisms
+Common stains
+Recommended stain removal approach
+Professional care considerations
+References
+Related articles
+Related fibers
+Images
+FAQ
+Important:
+Scientific claims must be based on reliable references.
+Do not invent technical information.
+________________________________________
+STAIN ENCYCLOPEDIA
+Create a structured stain knowledge database.
+Each stain page should support:
+Stain name
+Stain category
+Chemical nature
+Common sources
+Fabric compatibility
+Recommended treatment
+Pre-treatment
+Washing
+Rinsing
+Drying
+Warnings
+When professional treatment is required
+Related stains
+References
+Important:
+Never present stain removal advice as universally safe.
+Always warn users to check:
+Care label
+Fiber type
+Dye stability
+Colorfastness
+Finish
+Fabric construction
+When appropriate, recommend professional testing.
+________________________________________
+ARTICLE PAGE
+Create an excellent reading experience.
+Include:
+Breadcrumbs
+Category
+Title
+Subtitle
+Author
+Author bio
+Published date
+Updated date
+Reading time
+Featured image
+Table of contents
+Article content
+Scientific references
+Related articles
+FAQ
+Social sharing
+Newsletter CTA
+Consultation CTA
+________________________________________
+SEARCH
+Create global search.
+Search across:
+Articles
+Categories
+Fabric Encyclopedia
+Stain Encyclopedia
+Learning Center
+Glossary
+Authors
+Search should support:
+Autocomplete
+Keyword matching
+Filters
+Category filters
+Content type filters
+________________________________________
+CONSULTATION BOOKING
+Create a professional paid consultation platform.
+User flow:
+1.	Select consultation type
+2.	Select expert
+3.	View expert profile
+4.	View expertise
+5.	View consultation duration
+6.	View consultation price
+7.	Select date
+8.	Select available time
+9.	Enter details
+10.	Pay
+11.	Receive confirmation
+12.	Automatically create Zoom meeting
+13.	Send Zoom link securely
+14.	Send calendar invitation
+15.	Send reminder
+16.	Conduct consultation
+17.	Mark consultation completed
+Support:
+30-minute consultations
+60-minute consultations
+Custom consultation
+Training sessions
+Professional advisory sessions
+________________________________________
+ZOOM INTEGRATION
+Integrate Zoom using secure server-side API calls.
+IMPORTANT SECURITY REQUIREMENTS:
+Never expose:
+Zoom API secret
+Zoom access token
+OAuth secret
+Stripe secret key
+Database credentials
+Email API credentials
+Any private API keys
+Use environment variables.
+All sensitive API operations must happen server-side.
+Zoom meeting links should only be visible to the authenticated customer and authorized administrator.
+________________________________________
+PAYMENT
+Integrate Stripe.
+Payment system must support:
+Consultation fees
+Invoices
+Payment status
+Refund status
+Transaction records
+Coupons
+Future subscriptions
+Use secure webhook verification.
+Never trust payment status from the client/browser.
+Verify payment through Stripe server-side webhooks.
+________________________________________
+USER ACCOUNTS
+Create user accounts.
+Users can:
+Register
+Login
+Logout
+Reset password
+Verify email
+Enable 2FA in future
+View profile
+View appointments
+View Zoom meetings
+View invoices
+Save articles
+Bookmark articles
+Manage newsletter preferences
+________________________________________
+ADMIN PANEL
+Create a secure admin dashboard.
+Admin features:
+Dashboard
+Article management
+Category management
+Author management
+Fabric management
+Stain management
+User management
+Expert management
+Appointment management
+Payment management
+Zoom integration
+Newsletter management
+Media library
+SEO management
+Redirect management
+Site settings
+Security logs
+Audit logs
+________________________________________
+ROLE-BASED ACCESS
+Create roles:
+Super Admin
+Administrator
+Editor
+Author
+Consultant
+User
+Each role must have restricted permissions.
+Never rely only on frontend restrictions.
+Enforce permissions server-side.
+________________________________________
+SEO ARCHITECTURE
+Build the entire website SEO-first.
+Implement:
+Server-side rendering
+Static generation where appropriate
+Dynamic metadata
+Canonical URLs
+XML sitemap
+Image sitemap
+Robots.txt
+Breadcrumb schema
+Article schema
+FAQ schema
+Organization schema
+Person/Author schema
+WebSite schema
+SearchAction schema where appropriate
+Open Graph
+Twitter/X metadata
+Clean URLs
+Internal linking
+Pagination
+Related content
+301 redirect manager
+404 page
+Noindex control
+Duplicate content prevention
+Proper heading hierarchy
+Semantic HTML
+Optimized images
+Image ALT text
+Fast Core Web Vitals
+________________________________________
+SEO CONTENT CMS
+When an article is created, provide SEO fields:
+Primary keyword
+Secondary keywords
+Meta title
+Meta description
+URL slug
+Canonical URL
+Search intent
+Target audience
+Author
+Reviewer
+References
+FAQ questions
+FAQ answers
+Internal links
+External references
+Do not automatically stuff keywords.
+SEO recommendations should support natural, helpful content.
+________________________________________
+GOOGLE SEARCH VISIBILITY
+The website must be technically optimized to maximize the possibility of ranking well on Google.
+IMPORTANT:
+Do NOT claim that any developer can guarantee first-page Google rankings.
+Instead, implement the technical and content foundation required for long-term organic visibility.
+Focus on:
+Topical authority
+High-quality content
+E-E-A-T
+Expert authorship
+Original research
+Useful resources
+Internal linking
+Structured data
+Strong information architecture
+Fast performance
+Mobile usability
+Natural backlinks
+Search intent alignment
+Regular content updates
+Google Search Console integration
+Google Analytics integration
+Bing Webmaster Tools support
+________________________________________
+SECURITY
+Implement production-grade security.
+Use:
+HTTPS
+Secure cookies
+HttpOnly cookies
+SameSite cookies
+CSRF protection
+XSS protection
+SQL injection prevention
+Zod validation
+Rate limiting
+Brute-force protection
+Account lockout
+Secure password hashing
+Password reset security
+Email verification
+Role-based authorization
+Security headers
+Content Security Policy
+CORS configuration
+File upload validation
+File type validation
+File size limits
+Malware scanning architecture
+Audit logs
+Admin activity logs
+Session expiration
+Secure authentication
+2FA-ready architecture
+Database backups
+Environment variables
+Secret management
+Secret rotation support
+Never hardcode secrets.
+Never place secrets in frontend code.
+Never commit .env files to Git.
+Create .env.example containing variable names only.
+________________________________________
+PASSWORD AND API KEY PROTECTION
+All secrets must be stored as environment variables.
+Examples:
+DATABASE_URL
+AUTH_SECRET
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+ZOOM_CLIENT_ID
+ZOOM_CLIENT_SECRET
+ZOOM_ACCOUNT_ID
+EMAIL_API_KEY
+GOOGLE_ANALYTICS_ID
+Any private credentials
+Never expose secrets through:
+Frontend JavaScript
+HTML
+Client components
+Public API responses
+Git repository
+Logs
+Error messages
+________________________________________
+ERROR HANDLING
+Never display sensitive technical information to users.
+Production errors must not expose:
+Database errors
+API keys
+Tokens
+Stack traces
+File paths
+Internal server information
+Use safe error messages.
+Log detailed errors securely on the server.
+________________________________________
+PERFORMANCE
+Target:
+Lighthouse Performance: 90+
+Accessibility: 95+
+Best Practices: 95+
+SEO: 100
+Optimize:
+Images
+Fonts
+JavaScript
+CSS
+Database queries
+Caching
+API requests
+Lazy loading
+CDN
+Server-side rendering
+________________________________________
+ACCESSIBILITY
+Follow WCAG 2.2 AA principles.
+Include:
+Keyboard navigation
+Focus states
+Screen reader support
+ARIA labels
+Semantic HTML
+Accessible forms
+Accessible error messages
+Color contrast
+Skip navigation
+Responsive typography
+________________________________________
+MOBILE
+The website must be designed mobile-first.
+Test:
+Mobile phones
+Tablets
+Desktop
+Large monitors
+Navigation must work perfectly on touch devices.
+________________________________________
+FUTURE FEATURES
+Design architecture for future expansion.
+Possible future modules:
+AI Textile Care Assistant
+Fabric Identification Tool
+Stain Identification Tool
+Laundry Chemical Calculator
+Water Hardness Calculator
+Detergent Dosage Calculator
+Textile Care Cost Calculator
+Professional Certification
+Online Courses
+LMS
+Membership
+Premium Content
+Community
+Industry Directory
+Research Library
+Scientific Database
+Mobile App
+Multi-language support
+API
+________________________________________
+IMPORTANT DEVELOPMENT PRINCIPLE
+Build this as a long-term platform.
+Do not create a simple static website.
+Create reusable components.
+Create scalable database models.
+Create clean API architecture.
+Use TypeScript.
+Use proper validation.
+Use secure authentication.
+Write maintainable code.
+Document important architectural decisions.
+Add automated tests for critical functions.
+Create a clear README.
+Include setup instructions.
+Include deployment instructions.
+Include environment variable documentation.
+Include database migration instructions.
+Include backup instructions.
+________________________________________
+FINAL REQUIREMENT
+Before considering the project complete, perform a full audit covering:
+1.	Security
+2.	SEO
+3.	Performance
+4.	Accessibility
+5.	Mobile responsiveness
+6.	Authentication
+7.	Authorization
+8.	Payment security
+9.	Zoom integration security
+10.	Database security
+11.	API security
+12.	Broken links
+13.	404 pages
+14.	Sitemap
+15.	Robots.txt
+16.	Structured data
+17.	Metadata
+18.	Internal linking
+19.	Core Web Vitals
+20.	Sensitive information exposure
+Fix all critical issues before deployment.
+The final product should feel like a premium global educational institution for professional textile care—not like a generic laundry business website.
