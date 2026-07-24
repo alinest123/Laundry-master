@@ -1,0 +1,61 @@
+
+the button is overflowing when it is ON, fix it
+
+
+button
+36 minutes ago
+
+3 actions
+The toggle knob overflows because the button can be squeezed by the flex parent. Adding shrink-0 fixes it.
+
+
+2 actions
+The toggle button is fixed — shrink-0 prevents the flex parent from compressing it, so the knob stays fully inside the pill whether the toggle is on or off.
+
+
+Checkpoint made
+36 minutes ago
+
+Worked for 28 seconds
+Give me topic wise checklist that we are done today
+
+18 minutes ago
+Compiling a completed task checklist
+
+Compiling a completed task checklist
+Here's everything completed today, by topic:
+
+🗂 Article List — Blog Standard Layout
+ Centered white page header
+ Articles stacked vertically (replaced 2-column grid)
+ Full-width featured image per article
+ Category + date badge on each article
+ Serif title, excerpt, and "— Read More" link
+ Right sidebar with Search + Recent Posts thumbnails
+ Numbered pagination
+🖼 Article Images
+ Created articleImages.ts utility that maps article IDs to real images
+ Article images cycle across 4 real photos from attached_assets/generated_images/
+ Fallback images wired into ArticleList, ArticleCard, and ArticleDetail
+💬 Comment System
+ article_comments database table (pending / approved / rejected states)
+ Public API: fetch approved comments + submit new comment (pending by default)
+ Admin API: approve, disapprove, delete comments
+ Comments section on article detail page with submission form + "awaiting moderation" confirmation
+ Admin Comments page (/admin/comments) with filter tabs and moderation actions
+ Comments nav item added to admin sidebar
+✨ Rounded Corners (Premium Polish)
+ Global --radius bumped from 6px → 10px
+ Explicit rounded-xl / rounded-2xl applied to custom card containers across: ArticleList, ArticleCard, ArticleDetail, About, Contact, ConsultationsList, KnowledgeHub, SearchResults, UserDashboard, admin Comments
+⬆️ Scroll Behaviour
+ Auto-scroll to top on every route change (ScrollToTop component inside Wouter router)
+ Floating scroll-to-top button (bottom-right, hidden until 300 px scroll)
+ Progress ring on button fills clockwise based on page scroll percentage
+🔧 Navbar Fix
+ Removed duplicate mobile user icon div (the redundant md:hidden user link block)
+🔘 Dashboard Toggle Fix
+ Newsletter toggle button no longer overflows when switched ON (shrink-0 added)
+
+Worked for 22 seconds
+Give me topic wise checklist that we are done today (from replace every photos in the home page with appropriate/matching images with the section but dont change the image of the Professional impact section )
+

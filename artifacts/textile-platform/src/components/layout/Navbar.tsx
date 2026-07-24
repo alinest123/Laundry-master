@@ -74,8 +74,6 @@ function UserDropdown() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  if (!user) return null;
-
   const handleLogout = async () => {
     setOpen(false);
     await logout();
@@ -89,12 +87,12 @@ function UserDropdown() {
         className="flex items-center gap-1.5 text-[#666] hover:text-[#1c1c1c] transition-colors"
         aria-label="Account menu"
       >
-        {user.avatarUrl ? (
+        {user?.avatarUrl ? (
           <img src={user.avatarUrl} alt={user.name}
             className="w-7 h-7 rounded-full object-cover border border-[#e0e0e0]" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-[#1c1c1c] text-white flex items-center justify-center text-[0.6rem] font-bold">
-            {initials(user.name)}
+            {user ? initials(user.name) : <User className="w-3.5 h-3.5" />}
           </div>
         )}
         <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -102,22 +100,41 @@ function UserDropdown() {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#e8e8e8] rounded-xl shadow-lg py-1 z-50">
-          <div className="px-4 py-2.5 border-b border-[#f0f0f0]">
-            <p className="text-xs font-bold text-[#1c1c1c] truncate">{user.name}</p>
-            <p className="text-[0.68rem] text-[#999] truncate">{user.email}</p>
-          </div>
-          <Link href="/dashboard"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
-            <LayoutDashboard className="w-3.5 h-3.5 text-[#888]" />
-            Dashboard
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
-            <LogOut className="w-3.5 h-3.5" />
-            Sign out
-          </button>
+          {user ? (
+            <>
+              <div className="px-4 py-2.5 border-b border-[#f0f0f0]">
+                <p className="text-xs font-bold text-[#1c1c1c] truncate">{user.name}</p>
+                <p className="text-[0.68rem] text-[#999] truncate">{user.email}</p>
+              </div>
+              <Link href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#888]" />
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                <LogOut className="w-3.5 h-3.5" />
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#888]" />
+                Dashboard
+              </Link>
+              <Link href="/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+                <User className="w-3.5 h-3.5 text-[#888]" />
+                Sign in
+              </Link>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -163,19 +180,8 @@ export function Navbar() {
 
           {loading ? (
             <div className="w-7 h-7 rounded-full bg-[#f0f0f0] animate-pulse" />
-          ) : user ? (
-            <UserDropdown />
           ) : (
-            <div className="hidden md:flex items-center gap-3">
-              <Link href="/login"
-                className="text-[0.82rem] font-semibold text-[#666] hover:text-[#1c1c1c] transition-colors">
-                Sign in
-              </Link>
-              <Link href="/register"
-                className="text-[0.8rem] font-semibold bg-[#1c1c1c] text-white px-3.5 py-1.5 rounded-lg hover:bg-[#333] transition-colors">
-                Register
-              </Link>
-            </div>
+            <UserDropdown />
           )}
 
           <button className="md:hidden p-2 text-[#666] hover:text-[#1c1c1c]" onClick={() => setOpen(!open)}>
