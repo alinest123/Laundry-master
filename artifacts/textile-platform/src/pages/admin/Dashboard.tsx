@@ -134,7 +134,6 @@ export function Dashboard() {
         {/* ── Welcome banner ─────────────────────────────────────────── */}
         {!welcomed && (
           <div className="relative bg-gradient-to-r from-[#1c1c1c] to-[#2d2d2d] rounded-xl p-5 text-white overflow-hidden">
-            <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle at 70% 50%, white 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
             <button onClick={dismissWelcome} className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 text-white/50 hover:text-white transition-colors">
               <X className="w-4 h-4" />
             </button>
