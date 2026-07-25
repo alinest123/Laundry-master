@@ -62,7 +62,19 @@ export function Categories() {
   };
 
   const toggleHide = async (cat: Cat) => {
-    try { await adminApi.categories.update(cat.id, { isHidden: cat.isHidden === 1 ? 0 : 1 }); load(); } catch (e: any) { alert(e.message); }
+    const next = cat.isHidden === 1 ? 0 : 1;
+    try {
+      await adminApi.categories.update(cat.id, { isHidden: next });
+      // Update state in-place — no full reload, no scroll-to-top
+      const patch = (list: Cat[]): Cat[] =>
+        list.map(c =>
+          c.id === cat.id
+            ? { ...c, isHidden: next }
+            : { ...c, subcategories: c.subcategories ? patch(c.subcategories) : c.subcategories }
+        );
+      setCats(prev => patch(prev));
+      setFlat(prev => prev.map(c => c.id === cat.id ? { ...c, isHidden: next } : c));
+    } catch (e: any) { alert(e.message); }
   };
 
   return (

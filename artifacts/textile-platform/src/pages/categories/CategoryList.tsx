@@ -42,8 +42,8 @@ export function CategoryList() {
             {topLevel.map((category, index) => {
               const image = staticImages[index % staticImages.length];
               return (
-                <Link key={category.id} href={`/categories/${category.slug}`} className="group flex flex-col bg-background border border-border hover:border-secondary transition-colors h-full">
-                  <div className="aspect-video relative overflow-hidden bg-muted">
+                <Link key={category.id} href={`/categories/${category.slug}`} className="group flex flex-col bg-background border border-border hover:border-secondary transition-colors h-full rounded-lg overflow-hidden">
+                  <div className="aspect-video relative overflow-hidden bg-muted rounded-t-lg">
                     <img 
                       src={category.featuredImage || image} 
                       alt={category.name} 
