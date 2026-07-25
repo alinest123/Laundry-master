@@ -183,6 +183,25 @@ export const adminApi = {
     update: (page: string, data: Record<string, string>) =>
       req<{ ok: boolean }>("PUT", `/page-content/${page}`, data),
   },
+
+  // ── Comments (admin) ──────────────────────────────────────────────────────
+  comments: {
+    list: (params?: Record<string, string>) => {
+      const q = params ? "?" + new URLSearchParams(params).toString() : "";
+      return req<any[]>("GET", `/comments${q}`);
+    },
+    approve:    (id: number) => req<any>("PATCH", `/comments/${id}/approve`),
+    disapprove: (id: number) => req<any>("PATCH", `/comments/${id}/disapprove`),
+    delete:     (id: number) => req<void>("DELETE", `/comments/${id}`),
+  },
+
+  // ── Dashboard ─────────────────────────────────────────────────────────────
+  dashboard: {
+    stats:                () => req<any>("GET", "/dashboard/stats"),
+    activity:             () => req<any>("GET", "/dashboard/activity"),
+    topArticles:          () => req<any[]>("GET", "/dashboard/top-articles"),
+    upcomingAppointments: () => req<any>("GET", "/dashboard/upcoming-appointments"),
+  },
 };
 
 // Slug generation utility

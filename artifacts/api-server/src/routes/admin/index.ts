@@ -24,6 +24,7 @@ import expertsRouter from "./experts";
 import appointmentsRouter from "./appointments";
 import pageContentRouter from "./page-content";
 import commentsAdminRouter from "./comments";
+import dashboardRouter from "./dashboard";
 
 const router = Router();
 
@@ -53,5 +54,6 @@ router.use("/admin", expertsRouter);
 router.use("/admin", appointmentsRouter);
 router.use("/admin", pageContentRouter);
 router.use("/admin", commentsAdminRouter);
+router.use("/admin", dashboardRouter);
 
 export default router;
