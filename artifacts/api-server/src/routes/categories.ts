@@ -9,11 +9,20 @@ const router = Router();
 async function buildCategoryWithCount(cat: typeof categoriesTable.$inferSelect) {
   const links = await db.select({ count: sql<number>`count(*)` })
     .from(articleCategoriesTable)
+    .innerJoin(articlesTable, and(
+      eq(articlesTable.id, articleCategoriesTable.articleId),
+      eq(articlesTable.status, "published")
+    ))
     .where(eq(articleCategoriesTable.categoryId, cat.id));
   const subs = await db.select().from(categoriesTable).where(sql`${categoriesTable.parentId} = ${cat.id} AND ${categoriesTable.isHidden} = 0`);
   const subWithCount = await Promise.all(subs.map(async (s) => {
     const sl = await db.select({ count: sql<number>`count(*)` })
-      .from(articleCategoriesTable).where(eq(articleCategoriesTable.categoryId, s.id));
+      .from(articleCategoriesTable)
+      .innerJoin(articlesTable, and(
+        eq(articlesTable.id, articleCategoriesTable.articleId),
+        eq(articlesTable.status, "published")
+      ))
+      .where(eq(articleCategoriesTable.categoryId, s.id));
     return { id: s.id, name: s.name, slug: s.slug, description: s.description, featuredImage: s.featuredImage, articleCount: Number(sl[0]?.count ?? 0), parentId: s.parentId, subcategories: [] };
   }));
   return {
