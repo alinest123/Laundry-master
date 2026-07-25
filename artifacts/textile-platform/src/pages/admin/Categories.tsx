@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type React from "react";
-import { Plus, Pencil, Trash2, X, Check, ChevronRight, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, ChevronRight, EyeOff, Eye } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
 
@@ -61,6 +61,10 @@ export function Categories() {
     try { await adminApi.categories.delete(deleteId); setDeleteId(null); load(); } catch (e: any) { alert(e.message); }
   };
 
+  const toggleHide = async (cat: Cat) => {
+    try { await adminApi.categories.update(cat.id, { isHidden: cat.isHidden === 1 ? 0 : 1 }); load(); } catch (e: any) { alert(e.message); }
+  };
+
   return (
     <AdminLayout title="Categories" breadcrumbs={[{ label: "Categories" }]}>
       {deleteId !== null && (
@@ -106,6 +110,10 @@ export function Categories() {
                       <p className="text-xs text-stone-400">/{cat.slug}{cat.subcategories?.length ? ` · ${cat.subcategories.length} subcategories` : ""}</p>
                     </div>
                     <div className="flex items-center gap-1">
+                      <button onClick={() => toggleHide(cat)} title={cat.isHidden === 1 ? "Unhide" : "Hide"}
+                        className={`p-1.5 rounded transition-colors ${cat.isHidden === 1 ? "text-stone-500 hover:bg-stone-100 hover:text-stone-800" : "text-stone-400 hover:bg-stone-100 hover:text-stone-700"}`}>
+                        {cat.isHidden === 1 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
                       <button onClick={() => { setEditing({ ...cat }); setIsNew(false); }}
                         className="p-1.5 rounded hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
@@ -131,6 +139,10 @@ export function Categories() {
                         <p className="text-xs text-stone-400">/{sub.slug}</p>
                       </div>
                       <div className="flex items-center gap-1">
+                        <button onClick={() => toggleHide(sub)} title={sub.isHidden === 1 ? "Unhide" : "Hide"}
+                          className={`p-1.5 rounded transition-colors ${sub.isHidden === 1 ? "text-stone-500 hover:bg-stone-100 hover:text-stone-800" : "text-stone-400 hover:bg-stone-100 hover:text-stone-700"}`}>
+                          {sub.isHidden === 1 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
                         <button onClick={() => { setEditing({ ...sub }); setIsNew(false); }}
                           className="p-1.5 rounded hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors">
                           <Pencil className="w-3.5 h-3.5" />
@@ -176,21 +188,6 @@ export function Categories() {
                   {flat.filter(c => c.id !== editing.id && !c.parentId).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
-              {/* Visibility toggle */}
-              <div className="flex items-center justify-between py-1">
-                <div>
-                  <p className="text-xs font-medium text-stone-600">Hide from public</p>
-                  <p className="text-[0.68rem] text-stone-400">Hidden categories won't appear on the site</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setEditing(p => ({ ...p, isHidden: p?.isHidden === 1 ? 0 : 1 }))}
-                  className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${editing.isHidden === 1 ? "bg-stone-700" : "bg-stone-200"}`}
-                >
-                  <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${editing.isHidden === 1 ? "translate-x-[18px]" : "translate-x-[2px]"}`} />
-                </button>
-              </div>
-
               <button onClick={save} disabled={saving}
                 className="w-full flex items-center justify-center gap-2 py-2 bg-[#4a7c59] text-white text-sm font-medium rounded-lg hover:bg-[#3d6849] disabled:opacity-60 transition-colors">
                 <Check className="w-4 h-4" />
