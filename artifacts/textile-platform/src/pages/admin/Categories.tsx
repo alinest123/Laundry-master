@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import type React from "react";
-import { Plus, Pencil, Trash2, X, Check, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, ChevronRight, EyeOff } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
 
-type Cat = { id: number; name: string; slug: string; description?: string; featuredImage?: string; parentId?: number | null; subcategories?: Cat[] };
-const EMPTY = { name: "", slug: "", description: "", featuredImage: "", parentId: null as number | null };
+type Cat = { id: number; name: string; slug: string; description?: string; featuredImage?: string; parentId?: number | null; isHidden?: number; subcategories?: Cat[] };
+const EMPTY = { name: "", slug: "", description: "", featuredImage: "", parentId: null as number | null, isHidden: 0 };
 
 function CatField({ label, field, textarea = false, editing, setEditing }: {
   label: string; field: keyof typeof EMPTY; textarea?: boolean;
@@ -95,7 +95,14 @@ export function Categories() {
                 <div key={cat.id}>
                   <div className="flex items-center gap-3 px-4 py-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-stone-900">{cat.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-stone-900">{cat.name}</p>
+                        {cat.isHidden === 1 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-medium bg-stone-100 text-stone-500">
+                            <EyeOff className="w-2.5 h-2.5" /> Hidden
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-stone-400">/{cat.slug}{cat.subcategories?.length ? ` · ${cat.subcategories.length} subcategories` : ""}</p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -113,7 +120,14 @@ export function Categories() {
                     <div key={sub.id} className="flex items-center gap-3 px-4 py-2.5 bg-stone-50/50 border-t border-stone-50">
                       <ChevronRight className="w-3.5 h-3.5 text-stone-300 ml-4 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-stone-700">{sub.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-stone-700">{sub.name}</p>
+                          {sub.isHidden === 1 && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-medium bg-stone-100 text-stone-500">
+                              <EyeOff className="w-2.5 h-2.5" /> Hidden
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-stone-400">/{sub.slug}</p>
                       </div>
                       <div className="flex items-center gap-1">
@@ -155,12 +169,28 @@ export function Categories() {
               <CatField label="Featured Image URL" field="featuredImage" editing={editing} setEditing={setEditing} />
               <div>
                 <label className="block text-xs font-medium text-stone-600 mb-1">Parent Category (optional)</label>
+
                 <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
                   value={editing.parentId ?? ""} onChange={e => setEditing(p => ({ ...p, parentId: e.target.value ? parseInt(e.target.value) : null }))}>
                   <option value="">— None (top-level) —</option>
                   {flat.filter(c => c.id !== editing.id && !c.parentId).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
+              {/* Visibility toggle */}
+              <div className="flex items-center justify-between py-1">
+                <div>
+                  <p className="text-xs font-medium text-stone-600">Hide from public</p>
+                  <p className="text-[0.68rem] text-stone-400">Hidden categories won't appear on the site</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditing(p => ({ ...p, isHidden: p?.isHidden === 1 ? 0 : 1 }))}
+                  className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${editing.isHidden === 1 ? "bg-stone-700" : "bg-stone-200"}`}
+                >
+                  <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${editing.isHidden === 1 ? "translate-x-[18px]" : "translate-x-[2px]"}`} />
+                </button>
+              </div>
+
               <button onClick={save} disabled={saving}
                 className="w-full flex items-center justify-center gap-2 py-2 bg-[#4a7c59] text-white text-sm font-medium rounded-lg hover:bg-[#3d6849] disabled:opacity-60 transition-colors">
                 <Check className="w-4 h-4" />

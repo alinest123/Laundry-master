@@ -29,9 +29,9 @@ router.get("/categories", async (req, res): Promise<void> => {
 
   let rows;
   if (parentOnly) {
-    rows = await db.select().from(categoriesTable).where(sql`${categoriesTable.parentId} IS NULL`);
+    rows = await db.select().from(categoriesTable).where(sql`${categoriesTable.parentId} IS NULL AND ${categoriesTable.isHidden} = 0`);
   } else {
-    rows = await db.select().from(categoriesTable);
+    rows = await db.select().from(categoriesTable).where(sql`${categoriesTable.isHidden} = 0`);
   }
 
   const result = await Promise.all(rows.map(buildCategoryWithCount));

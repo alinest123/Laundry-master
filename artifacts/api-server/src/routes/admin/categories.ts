@@ -28,10 +28,11 @@ router.get("/admin/categories/flat", requirePermission("categories", "view"), as
 
 router.post("/admin/categories", requirePermission("categories", "create"), async (req, res): Promise<void> => {
   try {
-    const { name, slug, description, featuredImage, parentId } = req.body;
+    const { name, slug, description, featuredImage, parentId, isHidden } = req.body;
     const [cat] = await db.insert(categoriesTable).values({
       name, slug, description: description ?? null,
       featuredImage: featuredImage ?? null, parentId: parentId ?? null,
+      isHidden: isHidden ? 1 : 0,
     }).returning();
     res.status(201).json(cat);
   } catch (err: any) {
@@ -43,13 +44,14 @@ router.post("/admin/categories", requirePermission("categories", "create"), asyn
 router.put("/admin/categories/:id", requirePermission("categories", "edit"), async (req, res): Promise<void> => {
   try {
     const id = parseInt(req.params.id as string);
-    const { name, slug, description, featuredImage, parentId } = req.body;
+    const { name, slug, description, featuredImage, parentId, isHidden } = req.body;
     const upd: Record<string, unknown> = {};
     if (name !== undefined) upd.name = name;
     if (slug !== undefined) upd.slug = slug;
     if (description !== undefined) upd.description = description;
     if (featuredImage !== undefined) upd.featuredImage = featuredImage;
     if (parentId !== undefined) upd.parentId = parentId ?? null;
+    if (isHidden !== undefined) upd.isHidden = isHidden ? 1 : 0;
     const [cat] = await db.update(categoriesTable).set(upd).where(eq(categoriesTable.id, id)).returning();
     if (!cat) { res.status(404).json({ error: "Not found" }); return; }
     res.json(cat);
