@@ -1,10 +1,29 @@
 import { useEffect, useState } from "react";
+import type React from "react";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { adminApi } from "@/lib/adminApi";
 
 type Author = { id: number; name: string; role: string; email?: string; bio?: string; avatar?: string; twitter?: string; linkedin?: string; expertise?: string };
 const EMPTY: Omit<Author, "id"> = { name: "", role: "Author", email: "", bio: "", avatar: "", twitter: "", linkedin: "", expertise: "" };
+
+function Field({ label, field, type = "text", textarea = false, editing, setEditing }: {
+  label: string; field: keyof typeof EMPTY; type?: string; textarea?: boolean;
+  editing: Partial<Author> | null; setEditing: React.Dispatch<React.SetStateAction<Partial<Author> | null>>;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-stone-600 mb-1">{label}</label>
+      {textarea ? (
+        <textarea className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 focus:border-[#4a7c59] resize-none" rows={3}
+          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
+      ) : (
+        <input type={type} className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 focus:border-[#4a7c59]"
+          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
+      )}
+    </div>
+  );
+}
 
 export function Authors() {
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -36,19 +55,6 @@ export function Authors() {
     if (!deleteId) return;
     try { await adminApi.authors.delete(deleteId); setDeleteId(null); load(); } catch (e: any) { alert(e.message); }
   };
-
-  const Field = ({ label, field, type = "text", textarea = false }: { label: string; field: keyof typeof EMPTY; type?: string; textarea?: boolean }) => (
-    <div>
-      <label className="block text-xs font-medium text-stone-600 mb-1">{label}</label>
-      {textarea ? (
-        <textarea className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 focus:border-[#4a7c59] resize-none" rows={3}
-          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
-      ) : (
-        <input type={type} className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 focus:border-[#4a7c59]"
-          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
-      )}
-    </div>
-  );
 
   return (
     <AdminLayout title="Authors" breadcrumbs={[{ label: "Authors" }]}>
@@ -120,14 +126,14 @@ export function Authors() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <Field label="Full Name *" field="name" />
-              <Field label="Role" field="role" />
-              <Field label="Email" field="email" type="email" />
-              <Field label="Avatar URL" field="avatar" />
-              <Field label="Expertise" field="expertise" />
-              <Field label="Bio" field="bio" textarea />
-              <Field label="Twitter handle" field="twitter" />
-              <Field label="LinkedIn URL" field="linkedin" />
+              <Field label="Full Name *" field="name" editing={editing} setEditing={setEditing} />
+              <Field label="Role" field="role" editing={editing} setEditing={setEditing} />
+              <Field label="Email" field="email" type="email" editing={editing} setEditing={setEditing} />
+              <Field label="Avatar URL" field="avatar" editing={editing} setEditing={setEditing} />
+              <Field label="Expertise" field="expertise" editing={editing} setEditing={setEditing} />
+              <Field label="Bio" field="bio" textarea editing={editing} setEditing={setEditing} />
+              <Field label="Twitter handle" field="twitter" editing={editing} setEditing={setEditing} />
+              <Field label="LinkedIn URL" field="linkedin" editing={editing} setEditing={setEditing} />
               <button onClick={save} disabled={saving}
                 className="w-full flex items-center justify-center gap-2 py-2 bg-[#4a7c59] text-white text-sm font-medium rounded-lg hover:bg-[#3d6849] disabled:opacity-60 transition-colors">
                 <Check className="w-4 h-4" />

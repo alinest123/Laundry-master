@@ -1,10 +1,29 @@
 import { useEffect, useState } from "react";
+import type React from "react";
 import { Plus, Pencil, Trash2, X, Check, ChevronRight } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
 
 type Cat = { id: number; name: string; slug: string; description?: string; featuredImage?: string; parentId?: number | null; subcategories?: Cat[] };
 const EMPTY = { name: "", slug: "", description: "", featuredImage: "", parentId: null as number | null };
+
+function CatField({ label, field, textarea = false, editing, setEditing }: {
+  label: string; field: keyof typeof EMPTY; textarea?: boolean;
+  editing: Partial<Cat> | null; setEditing: React.Dispatch<React.SetStateAction<Partial<Cat> | null>>;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-stone-600 mb-1">{label}</label>
+      {textarea ? (
+        <textarea className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 resize-none" rows={2}
+          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
+      ) : (
+        <input className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
+      )}
+    </div>
+  );
+}
 
 export function Categories() {
   const [cats, setCats] = useState<Cat[]>([]);
@@ -41,19 +60,6 @@ export function Categories() {
     if (!deleteId) return;
     try { await adminApi.categories.delete(deleteId); setDeleteId(null); load(); } catch (e: any) { alert(e.message); }
   };
-
-  const Field = ({ label, field, textarea = false }: { label: string; field: keyof typeof EMPTY; textarea?: boolean }) => (
-    <div>
-      <label className="block text-xs font-medium text-stone-600 mb-1">{label}</label>
-      {textarea ? (
-        <textarea className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 resize-none" rows={2}
-          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
-      ) : (
-        <input className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
-          value={(editing as any)?.[field] ?? ""} onChange={e => setEditing(p => ({ ...p, [field]: e.target.value }))} />
-      )}
-    </div>
-  );
 
   return (
     <AdminLayout title="Categories" breadcrumbs={[{ label: "Categories" }]}>
@@ -145,8 +151,8 @@ export function Categories() {
                 <input className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 font-mono"
                   value={editing.slug ?? ""} onChange={e => setEditing(p => ({ ...p, slug: e.target.value }))} />
               </div>
-              <Field label="Description" field="description" textarea />
-              <Field label="Featured Image URL" field="featuredImage" />
+              <CatField label="Description" field="description" textarea editing={editing} setEditing={setEditing} />
+              <CatField label="Featured Image URL" field="featuredImage" editing={editing} setEditing={setEditing} />
               <div>
                 <label className="block text-xs font-medium text-stone-600 mb-1">Parent Category (optional)</label>
                 <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
