@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, sql, inArray } from "drizzle-orm";
+import { eq, sql, inArray, and } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { categoriesTable, articlesTable, articleCategoriesTable } from "@workspace/db";
 import { ListCategoriesQueryParams, GetCategoryDetailParams } from "@workspace/api-zod";
@@ -10,7 +10,7 @@ async function buildCategoryWithCount(cat: typeof categoriesTable.$inferSelect) 
   const links = await db.select({ count: sql<number>`count(*)` })
     .from(articleCategoriesTable)
     .where(eq(articleCategoriesTable.categoryId, cat.id));
-  const subs = await db.select().from(categoriesTable).where(eq(categoriesTable.parentId, cat.id));
+  const subs = await db.select().from(categoriesTable).where(sql`${categoriesTable.parentId} = ${cat.id} AND ${categoriesTable.isHidden} = 0`);
   const subWithCount = await Promise.all(subs.map(async (s) => {
     const sl = await db.select({ count: sql<number>`count(*)` })
       .from(articleCategoriesTable).where(eq(articleCategoriesTable.categoryId, s.id));
@@ -44,17 +44,20 @@ router.get("/categories/:slug", async (req, res): Promise<void> => {
   if (!parsed.success) { res.status(400).json({ error: "Invalid slug" }); return; }
 
   const rows = await db.select().from(categoriesTable).where(eq(categoriesTable.slug, parsed.data.slug)).limit(1);
-  if (!rows[0]) { res.status(404).json({ error: "Not found" }); return; }
+  if (!rows[0] || rows[0].isHidden === 1) { res.status(404).json({ error: "Not found" }); return; }
 
   const cat = await buildCategoryWithCount(rows[0]);
 
-  // Get articles in this category
+  // Get published articles in this category
   const links = await db.select({ articleId: articleCategoriesTable.articleId })
     .from(articleCategoriesTable).where(eq(articleCategoriesTable.categoryId, rows[0].id));
-  
+
   const articles = links.length > 0
     ? await db.select().from(articlesTable)
-        .where(inArray(articlesTable.id, links.map(l => l.articleId)))
+        .where(and(
+          inArray(articlesTable.id, links.map(l => l.articleId)),
+          eq(articlesTable.status, "published")
+        ))
     : [];
 
   const articleSummaries = articles.map(a => ({
