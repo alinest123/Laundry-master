@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { Link as LinkIcon } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Link as LinkIcon, GripVertical, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { adminApi } from "@/lib/adminApi";
+import { HOME_DEFAULT_SECTIONS, type HomeSectionConfig } from "@/pages/Home";
 
 // ── Field + Section + Page config ─────────────────────────────────────────
 
@@ -192,6 +193,140 @@ const PAGE_CONFIGS: Record<string, PageDef> = {
 
 const PAGE_KEYS = Object.keys(PAGE_CONFIGS);
 
+// ── Homepage Sections Editor ───────────────────────────────────────────────
+
+function HomeSectionsEditor({ onSaved }: { onSaved?: () => void }) {
+  const { toast } = useToast();
+  const [sections, setSections] = useState<HomeSectionConfig[]>(HOME_DEFAULT_SECTIONS);
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    adminApi.pageContent.get("home").then((data) => {
+      if (data?.sections_layout) {
+        try {
+          const parsed = JSON.parse(data.sections_layout) as HomeSectionConfig[];
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSections(parsed);
+            setLoaded(true);
+            return;
+          }
+        } catch { /* fall through */ }
+      }
+      setLoaded(true);
+    });
+  }, []);
+
+  const move = useCallback((idx: number, dir: -1 | 1) => {
+    setSections((prev) => {
+      const next = [...prev];
+      const swap = idx + dir;
+      if (swap < 0 || swap >= next.length) return prev;
+      [next[idx], next[swap]] = [next[swap], next[idx]];
+      return next;
+    });
+  }, []);
+
+  const toggleVisible = useCallback((id: string) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, visible: !s.visible } : s))
+    );
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await adminApi.pageContent.update("home", {
+        sections_layout: JSON.stringify(sections),
+      });
+      toast({ title: "Saved", description: "Homepage section order and visibility updated." });
+      onSaved?.();
+    } catch {
+      toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-stone-200 rounded-lg p-6 mb-6">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-sm font-semibold text-stone-900">Homepage Sections</h3>
+        <button
+          onClick={handleSave}
+          disabled={saving || !loaded}
+          className="px-4 py-1.5 bg-stone-900 text-white text-xs font-semibold rounded-md hover:bg-stone-700 disabled:opacity-50 transition-colors"
+        >
+          {saving ? "Saving…" : "Save order"}
+        </button>
+      </div>
+      <p className="text-xs text-stone-400 mb-5">Reorder or hide sections. Drag handles (⠿) are decorative — use the arrows to reorder.</p>
+
+      {!loaded ? (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-12 bg-stone-50 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {sections.map((section, idx) => (
+            <div
+              key={section.id}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors ${
+                section.visible
+                  ? "bg-white border-stone-200"
+                  : "bg-stone-50 border-stone-100"
+              }`}
+            >
+              {/* Grip handle */}
+              <GripVertical className="w-4 h-4 text-stone-300 shrink-0 cursor-grab" />
+
+              {/* Section name */}
+              <span className={`flex-1 text-sm font-medium ${section.visible ? "text-stone-800" : "text-stone-400 line-through"}`}>
+                {section.label}
+              </span>
+
+              {/* Visibility toggle */}
+              <button
+                onClick={() => toggleVisible(section.id)}
+                title={section.visible ? "Hide section" : "Show section"}
+                className={`w-8 h-8 flex items-center justify-center rounded-md border transition-colors ${
+                  section.visible
+                    ? "border-stone-200 text-stone-600 hover:bg-stone-50"
+                    : "border-stone-200 text-stone-300 hover:bg-stone-50"
+                }`}
+              >
+                {section.visible
+                  ? <Eye className="w-3.5 h-3.5" />
+                  : <EyeOff className="w-3.5 h-3.5" />}
+              </button>
+
+              {/* Up */}
+              <button
+                onClick={() => move(idx, -1)}
+                disabled={idx === 0}
+                className="w-8 h-8 flex items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:bg-stone-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronUp className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Down */}
+              <button
+                onClick={() => move(idx, 1)}
+                disabled={idx === sections.length - 1}
+                className="w-8 h-8 flex items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:bg-stone-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Component ──────────────────────────────────────────────────────────────
 
 export function PageContent() {
@@ -280,6 +415,9 @@ export function PageContent() {
             ))}
           </div>
         )}
+
+        {/* Homepage sections reorder/visibility editor */}
+        {activeTab === "home" && <HomeSectionsEditor />}
 
         {/* Sections */}
         {isLoaded && (

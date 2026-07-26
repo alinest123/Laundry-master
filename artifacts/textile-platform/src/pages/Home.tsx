@@ -1,16 +1,16 @@
 import { Link } from "wouter";
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, Fragment } from "react";
 import { usePageContent } from "@/lib/usePageContent";
 import { motion, useInView } from "framer-motion";
 import { Shell } from "@/components/layout/Shell";
 import {
   useGetFeaturedArticles,
   useGetPlatformStats,
-  useGetLatestArticles,
-  useListCategories,
   useListTestimonials,
   useListExperts,
+  useListCategories,
+  useGetLatestArticles,
 } from "@workspace/api-client-react";
 
 /* ─── Images (Unsplash – free to use) ─── */
@@ -38,30 +38,18 @@ const IMG = {
   /* Professional Impact — DO NOT CHANGE */
   feature1: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80",
   feature2: "https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?w=600&q=80",
-
-  /* Latest articles */
-  detail1: "https://plus.unsplash.com/premium_photo-1726812068133-acf03fa08745?w=500&q=80",  // Cotton fiber / fabric science
-  detail2: "https://plus.unsplash.com/premium_photo-1765302374558-ad408198251d?w=500&q=80",  // Enzyme / stain removal
-  detail3: "https://images.unsplash.com/photo-1674471361340-273b7b7da2e2?w=500&q=80",        // Commercial laundry water conservation
 };
 
 const IconFabricAnalysis = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Microscope body */}
     <rect x="20" y="6" width="8" height="12" rx="1.5" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Eyepiece */}
     <rect x="22" y="3" width="4" height="5" rx="1" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Arm */}
     <path d="M24 18 L24 28" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
-    {/* Stage */}
     <path d="M16 28 L32 28" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
-    {/* Objective lens */}
     <circle cx="24" cy="31" r="4" stroke="#4a7c59" strokeWidth="1.8"/>
-    {/* Base */}
     <path d="M14 42 L34 42" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
     <path d="M24 38 L24 42" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
     <path d="M16 42 L14 38 M32 42 L34 38" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
-    {/* Adjustment knob */}
     <circle cx="33" cy="26" r="2.5" stroke="#4a7c59" strokeWidth="1.6"/>
     <path d="M33 23.5 L33 20" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
   </svg>
@@ -69,51 +57,36 @@ const IconFabricAnalysis = () => (
 
 const IconStainRemoval = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Main water drop */}
     <path d="M24 8 C24 8 13 21 13 29 C13 35.627 18.373 41 25 41 C31.627 41 37 35.627 37 29 C37 21 24 8 24 8 Z" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Inner shine arc */}
     <path d="M18 28 C18 24 20 21 22 19" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
-    {/* Sparkle rays */}
     <line x1="38" y1="14" x2="41" y2="11" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
     <line x1="40" y1="18" x2="44" y2="17" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
     <line x1="37" y1="10" x2="37" y2="6" stroke="#4a7c59" strokeWidth="1.6" strokeLinecap="round"/>
-    {/* Small drop */}
     <path d="M38 26 C38 26 34 31 34 33.5 C34 35.433 35.567 37 37.5 37 C39.433 37 41 35.433 41 33.5 C41 31 38 26 38 26 Z" stroke="#4a7c59" strokeWidth="1.6" strokeLinejoin="round"/>
   </svg>
 );
 
 const IconPlantConsulting = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Factory building main body */}
     <rect x="6" y="22" width="36" height="20" rx="1" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Roof with sawtooth */}
     <path d="M6 22 L14 14 L14 22 L22 14 L22 22 L30 14 L30 22" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Chimneys */}
     <rect x="32" y="10" width="4" height="12" rx="1" stroke="#4a7c59" strokeWidth="1.6" strokeLinejoin="round"/>
     <rect x="38" y="14" width="3" height="8" rx="1" stroke="#4a7c59" strokeWidth="1.6" strokeLinejoin="round"/>
-    {/* Smoke */}
     <path d="M34 10 C34 8 36 7 35 5" stroke="#4a7c59" strokeWidth="1.4" strokeLinecap="round"/>
     <path d="M39.5 14 C39.5 12 41 11 40 9" stroke="#4a7c59" strokeWidth="1.4" strokeLinecap="round"/>
-    {/* Windows */}
     <rect x="10" y="27" width="5" height="5" rx="0.5" stroke="#4a7c59" strokeWidth="1.5"/>
     <rect x="21" y="27" width="5" height="5" rx="0.5" stroke="#4a7c59" strokeWidth="1.5"/>
-    {/* Door */}
     <rect x="31" y="31" width="7" height="11" rx="0.5" stroke="#4a7c59" strokeWidth="1.5"/>
-    {/* Ground line */}
     <line x1="4" y1="42" x2="44" y2="42" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round"/>
   </svg>
 );
 
 const IconCompliance = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Document */}
     <path d="M10 6 L10 42 L38 42 L38 14 L30 6 Z" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Folded corner */}
     <path d="M30 6 L30 14 L38 14" stroke="#4a7c59" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Lines of text */}
     <line x1="15" y1="20" x2="33" y2="20" stroke="#4a7c59" strokeWidth="1.5" strokeLinecap="round"/>
     <line x1="15" y1="25" x2="33" y2="25" stroke="#4a7c59" strokeWidth="1.5" strokeLinecap="round"/>
-    {/* Checkmark badge */}
     <circle cx="19" cy="35" r="6" stroke="#4a7c59" strokeWidth="1.6" fill="white"/>
     <path d="M16 35 L18 37.5 L22 32.5" stroke="#4a7c59" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
@@ -129,7 +102,6 @@ const rise = {
   }),
 };
 
-/* Parses "94", "500+", "12k+" → { value: 94 | 500 | 12000, suffix: "" | "+" | "k+" } */
 function parseStatNumber(raw: string): { value: number; suffix: string } {
   const lower = raw.toLowerCase();
   if (lower.endsWith("k+")) return { value: parseFloat(lower) * 1000, suffix: "k+" };
@@ -155,10 +127,8 @@ function CountUp({ value: raw, duration = 1.4, delay = 0 }: { value: string; dur
       const elapsed = now - startTime - delayMs;
       if (elapsed < 0) { raf = requestAnimationFrame(tick); return; }
       const progress = Math.min(elapsed / (duration * 1000), 1);
-      // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.round(eased * target);
-      // Format: if suffix starts with "k", show as e.g. "12k+"
       if (suffix.startsWith("k")) {
         setDisplay(`${Math.round(current / 1000)}${suffix}`);
       } else {
@@ -224,25 +194,53 @@ const TESTIMONIALS = [
   },
 ];
 
+/* ─── Section layout config ─── */
+export type HomeSectionConfig = { id: string; label: string; visible: boolean };
+
+export const HOME_DEFAULT_SECTIONS: HomeSectionConfig[] = [
+  { id: "hero",         label: "Hero",               visible: true },
+  { id: "expertise",   label: "Expertise",           visible: true },
+  { id: "services",    label: "Services Grid",       visible: true },
+  { id: "photos",      label: "Photo Gallery",       visible: true },
+  { id: "testimonials",label: "Testimonials",        visible: true },
+  { id: "team",        label: "Team Photo",          visible: true },
+  { id: "stats",       label: "Stats",               visible: true },
+  { id: "impact",      label: "Professional Impact", visible: true },
+  { id: "articles",    label: "Featured Articles",   visible: true },
+];
+
 export function Home() {
   const { data: stats } = useGetPlatformStats();
   const { data: featuredArticles } = useGetFeaturedArticles({ limit: 3 });
   const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const { c } = usePageContent("home");
+  const { c, data: pageData } = usePageContent("home");
+
+  /* Parse saved section layout from CMS, fall back to default order */
+  const sectionsLayout = useMemo<HomeSectionConfig[]>(() => {
+    const raw = pageData?.sections_layout;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as HomeSectionConfig[];
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch { /* fall through */ }
+    }
+    return HOME_DEFAULT_SECTIONS;
+  }, [pageData]);
 
   const STAT_TABS = [
-    { label: "Articles", value: stats?.totalArticles?.toString() || "500+" },
-    { label: "Experts", value: stats?.totalExperts?.toString() || "25" },
-    { label: "Topics", value: stats?.totalCategories?.toString() || "20" },
-    { label: "Countries", value: stats?.countriesReached?.toString() || "94" },
+    { label: "Articles",  value: stats?.totalArticles?.toString()   || "500+" },
+    { label: "Experts",   value: stats?.totalExperts?.toString()    || "25"   },
+    { label: "Topics",    value: stats?.totalCategories?.toString() || "20"   },
+    { label: "Countries", value: stats?.countriesReached?.toString()|| "94"   },
   ];
 
-  return (
-    <Shell>
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="bg-white">
+  /* ── Section render map ──────────────────────────────────────── */
+  const sectionMap: Record<string, React.ReactNode> = {
+
+    /* ── HERO ──────────────────────────────────────────────────── */
+    hero: (
+      <section key="hero" className="bg-white">
         <div className="max-w-[1280px] mx-auto px-6 py-16 md:py-24 grid md:grid-cols-[1fr_1fr] gap-12 items-center">
-          {/* Left */}
           <div>
             <motion.span
               className="label-tag"
@@ -283,112 +281,52 @@ export function Home() {
             </motion.div>
           </div>
 
-          {/* Right – 8-element photo collage
-               Grid logic (% of container W × H):
-               ┌─────────────┬──────────────────────┬──────────────────┐
-               │ Col-L 2–24% │  Col-C 26–68%        │ Col-R 70–98%     │
-               ├─────────────┤──────────────────────┤──────────────────┤
-               │ ① photo     │  ③ landscape strip   │ ⑥ beige rect    │
-               │  2–52%      │   2–22%              │  2–19%           │
-               ├─────────────┤──────────────────────┤──────────────────┤
-               │ ② beige●    │  ④ main tall photo   │ ⑦ portrait      │
-               │  54–76%     │   24–98%             │  21–72%          │
-               ├─────────────┤                      ├──────────────────┤
-               │ ③ green■    │                      │ ⑧ circle photo  │
-               │  78–98%     │                      │  74–98%          │
-               └─────────────┴──────────────────────┴──────────────────┘
-               2% gutters between every pair — zero overlaps.
-          */}
           <div className="hidden md:relative md:h-[540px] md:block select-none">
-
-            {/* ① Col-L top: portrait photo — rows 2%→52% */}
-            <motion.div
-              className="absolute top-[2%] left-[2%] w-[22%] h-[50%] rounded-[22px] overflow-hidden"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0 }}
-            >
+            <motion.div className="absolute top-[2%] left-[2%] w-[22%] h-[50%] rounded-[22px] overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0 }}>
               <img src={IMG.collage1} alt="Consultant" className="w-full h-full object-cover object-center" />
             </motion.div>
-
-            {/* ② Col-L mid: beige circle accent — rows 54%→76% */}
-            <motion.div
-              className="absolute top-[54%] left-[2%] w-[22%] h-[22%] rounded-full bg-[#C4A07C]"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.7, ease: [0.25,0.46,0.45,0.94], delay: 0.1 }}
-            />
-
-            {/* ③ Col-L bot: green rounded rect accent — rows 78%→98% */}
-            <motion.div
-              className="absolute top-[78%] left-[2%] w-[22%] h-[20%] rounded-[18px] bg-[#4DB86A]"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.65, ease: [0.25,0.46,0.45,0.94], delay: 0.2 }}
-            />
-
-            {/* ④ Col-C top: wide landscape strip — rows 2%→22% */}
-            <motion.div
-              className="absolute top-[2%] left-[26%] w-[42%] h-[20%] rounded-[20px] overflow-hidden"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.15 }}
-            >
+            <motion.div className="absolute top-[54%] left-[2%] w-[22%] h-[22%] rounded-full bg-[#C4A07C]"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.7, ease: [0.25,0.46,0.45,0.94], delay: 0.1 }} />
+            <motion.div className="absolute top-[78%] left-[2%] w-[22%] h-[20%] rounded-[18px] bg-[#4DB86A]"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.65, ease: [0.25,0.46,0.45,0.94], delay: 0.2 }} />
+            <motion.div className="absolute top-[2%] left-[26%] w-[42%] h-[20%] rounded-[20px] overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.15 }}>
               <img src={IMG.collage3} alt="Team meeting" className="w-full h-full object-cover object-center" />
             </motion.div>
-
-            {/* ⑤ Col-C main: tall photo — rows 24%→98% */}
-            <motion.div
-              className="absolute top-[24%] left-[26%] w-[42%] h-[74%] rounded-[28px] overflow-hidden shadow-md"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.9, ease: [0.25,0.46,0.45,0.94], delay: 0.3 }}
-            >
+            <motion.div className="absolute top-[24%] left-[26%] w-[42%] h-[74%] rounded-[28px] overflow-hidden shadow-md"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.9, ease: [0.25,0.46,0.45,0.94], delay: 0.3 }}>
               <img src={IMG.collageMain} alt="Expert consultant" className="w-full h-full object-cover object-top" />
             </motion.div>
-
-            {/* ⑥ Col-R top: beige rect accent — rows 2%→19% */}
-            <motion.div
-              className="absolute top-[2%] left-[70%] w-[28%] h-[17%] rounded-[18px] bg-[#C4A07C]"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.05 }}
-            />
-
-            {/* ⑦ Col-R mid: portrait photo — rows 21%→72% */}
-            <motion.div
-              className="absolute top-[21%] left-[70%] w-[28%] h-[51%] rounded-[22px] overflow-hidden"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.25 }}
-            >
+            <motion.div className="absolute top-[2%] left-[70%] w-[28%] h-[17%] rounded-[18px] bg-[#C4A07C]"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.6, ease: [0.25,0.46,0.45,0.94], delay: 0.05 }} />
+            <motion.div className="absolute top-[21%] left-[70%] w-[28%] h-[51%] rounded-[22px] overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.25 }}>
               <img src={IMG.collage7} alt="Business consultant" className="w-full h-full object-cover object-top" />
             </motion.div>
-
-            {/* ⑧ Col-R bot: circle photo — rows 74%→98%, centered in col */}
-            <motion.div
-              className="absolute top-[74%] left-[73%] w-[22%] h-[24%] rounded-full overflow-hidden"
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              animate={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.35 }}
-            >
+            <motion.div className="absolute top-[74%] left-[73%] w-[22%] h-[24%] rounded-full overflow-hidden"
+              initial={{ clipPath: "inset(0 100% 0 0)" }} animate={{ clipPath: "inset(0 0% 0 0)" }}
+              transition={{ duration: 0.75, ease: [0.25,0.46,0.45,0.94], delay: 0.35 }}>
               <img src={IMG.collage8} alt="Professionals" className="w-full h-full object-cover object-center" />
             </motion.div>
-
           </div>
         </div>
       </section>
-      {/* ── SPLIT INTRO ──────────────────────────────────────── */}
-      <section className="grid md:grid-cols-2 bg-white">
-        {/* Left: inset photo with caption overlapping bottom-right */}
+    ),
+
+    /* ── EXPERTISE / SPLIT INTRO ───────────────────────────────── */
+    expertise: (
+      <section key="expertise" className="grid md:grid-cols-2 bg-white">
         <div className="bg-white px-6 pt-10 pb-16 md:px-10 md:pt-14 md:pb-20 flex items-start">
           <div className="relative w-full">
-            <img
-              src={IMG.dark1}
-              alt="Expert consultant"
-              className="w-full aspect-[4/5] object-cover object-top rounded-sm"
-            />
-            {/* Caption box — overlaps bottom-right corner of photo */}
+            <img src={IMG.dark1} alt="Expert consultant" className="w-full aspect-[4/5] object-cover object-top rounded-sm" />
             <div className="absolute bottom-0 right-0 translate-y-[40%] bg-[#1c1c1c] px-6 py-6 md:px-7 md:py-7 max-w-[230px] md:max-w-[260px] z-10">
               <p className="text-white font-bold text-base md:text-[1.1rem] leading-snug">
                 {c("caption_box", "Science & support for your textile care operations")}
@@ -396,8 +334,6 @@ export function Home() {
             </div>
           </div>
         </div>
-
-        {/* Right white */}
         <div className="bg-white px-6 py-10 md:px-10 md:py-14 flex flex-col justify-center">
           <RiseUp delay={0}><span className="label-tag">{c("expertise_label", "Our expertise")}</span></RiseUp>
           <RiseUp delay={0.1}>
@@ -412,14 +348,8 @@ export function Home() {
           </RiseUp>
           <div className="space-y-4">
             {[
-              {
-                title: c("expertise_item1_title", "Fabric & fiber science"),
-                desc: c("expertise_item1_body", "How fiber structure, weave, and construction determine care requirements — the foundation for every recommendation on this site."),
-              },
-              {
-                title: c("expertise_item2_title", "Wet processing & chemistry"),
-                desc: c("expertise_item2_body", "Detergent chemistry, solvent behavior, water hardness, and the mechanics of soil removal, explained at a level professionals can apply."),
-              },
+              { title: c("expertise_item1_title", "Fabric & fiber science"), desc: c("expertise_item1_body", "How fiber structure, weave, and construction determine care requirements — the foundation for every recommendation on this site.") },
+              { title: c("expertise_item2_title", "Wet processing & chemistry"), desc: c("expertise_item2_body", "Detergent chemistry, solvent behavior, water hardness, and the mechanics of soil removal, explained at a level professionals can apply.") },
             ].map((item, i) => (
               <RiseUp key={i} delay={0.2 + i * 0.1}>
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#f0f0f0] last:border-0">
@@ -436,8 +366,11 @@ export function Home() {
           </div>
         </div>
       </section>
-      {/* ── SERVICES GRID ────────────────────────────────────── */}
-      <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
+    ),
+
+    /* ── SERVICES GRID ─────────────────────────────────────────── */
+    services: (
+      <section key="services" className="bg-[#f5f5f2] py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
           <div className="grid md:grid-cols-2 gap-6 mb-14">
             <RiseUp delay={0}>
@@ -452,7 +385,6 @@ export function Home() {
               </Link>
             </RiseUp>
           </div>
-
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SERVICES.map((s, i) => (
               <RiseUp key={s.title} delay={i * 0.08}>
@@ -466,8 +398,11 @@ export function Home() {
           </div>
         </div>
       </section>
-      {/* ── PHOTO CARD ROW ───────────────────────────────────── */}
-      <section className="bg-white py-0 overflow-hidden">
+    ),
+
+    /* ── PHOTO CARD ROW ────────────────────────────────────────── */
+    photos: (
+      <section key="photos" className="bg-white py-0 overflow-hidden">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
           {SERVICE_PHOTOS.map((p, i) => (
             <motion.div
@@ -488,15 +423,16 @@ export function Home() {
           ))}
         </div>
       </section>
-      {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      {/* ── TESTIMONIALS ─────────────────────────────────────── */}
-      <section className="bg-white py-12 md:py-20 px-6">
+    ),
+
+    /* ── TESTIMONIALS ──────────────────────────────────────────── */
+    testimonials: (
+      <section key="testimonials" className="bg-white py-12 md:py-20 px-6">
         <div className="max-w-[780px] mx-auto text-center">
           <RiseUp delay={0}><span className="label-tag">Client feedback</span></RiseUp>
           <RiseUp delay={0.1}>
             <h2 className="heading-md text-[#1c1c1c] mb-8 md:mb-10">Our customer reviews</h2>
           </RiseUp>
-
           <RiseUp delay={0.18}>
             <div className="relative min-h-[200px]">
               <div className="text-[3rem] leading-none text-[#4a7c59] font-serif mb-3">"</div>
@@ -505,42 +441,40 @@ export function Home() {
               <p className="text-[#888] text-xs mt-0.5">{TESTIMONIALS[testimonialIdx].role}</p>
             </div>
           </RiseUp>
-
           <div className="flex justify-center items-center gap-4 mt-10">
-            <button
-              onClick={() => setTestimonialIdx((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-              className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all"
-            >
+            <button onClick={() => setTestimonialIdx((i) => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+              className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <div className="flex gap-2">
               {TESTIMONIALS.map((item, i) => (
                 <button key={i} onClick={() => setTestimonialIdx(i)} className="group">
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className={`w-9 h-9 rounded-full object-cover border-2 transition-all ${i === testimonialIdx ? "border-[#4a7c59] opacity-100" : "border-transparent opacity-50 hover:opacity-75"}`}
-                  />
+                  <img src={item.avatar} alt={item.name}
+                    className={`w-9 h-9 rounded-full object-cover border-2 transition-all ${i === testimonialIdx ? "border-[#4a7c59] opacity-100" : "border-transparent opacity-50 hover:opacity-75"}`} />
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setTestimonialIdx((i) => (i + 1) % TESTIMONIALS.length)}
-              className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all"
-            >
+            <button onClick={() => setTestimonialIdx((i) => (i + 1) % TESTIMONIALS.length)}
+              className="w-9 h-9 border border-[#e0e0e0] rounded-full flex items-center justify-center hover:bg-[#1c1c1c] hover:border-[#1c1c1c] hover:text-white transition-all">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       </section>
-      {/* ── TEAM PHOTO ───────────────────────────────────────── */}
-      <section className="bg-white overflow-hidden">
+    ),
+
+    /* ── TEAM PHOTO ────────────────────────────────────────────── */
+    team: (
+      <section key="team" className="bg-white overflow-hidden">
         <div className="w-full h-[220px] sm:h-[320px] md:h-[520px]">
           <img src={IMG.team} alt="Textile care professionals" className="w-full h-full object-cover" />
         </div>
       </section>
-      {/* ── STATS TABS ───────────────────────────────────────── */}
-      <section className="bg-white border-t border-[#f0f0f0] py-8 px-6">
+    ),
+
+    /* ── STATS ─────────────────────────────────────────────────── */
+    stats: (
+      <section key="stats" className="bg-white border-t border-[#f0f0f0] py-8 px-6">
         <div className="max-w-[1280px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {STAT_TABS.map((tab, i) => (
             <RiseUp key={tab.label} delay={i * 0.08} className="text-center">
@@ -552,11 +486,12 @@ export function Home() {
           ))}
         </div>
       </section>
+    ),
 
-      {/* ── FEATURE SPLIT ────────────────────────────────────── */}
-      <section className="bg-[#f5f5f2] py-12 md:py-20 px-6">
+    /* ── PROFESSIONAL IMPACT ───────────────────────────────────── */
+    impact: (
+      <section key="impact" className="bg-[#f5f5f2] py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
-          {/* Left: stacked photos */}
           <RiseUp delay={0} className="relative h-[280px] sm:h-[360px] md:h-[440px]">
             <div className="absolute left-0 top-0 w-[72%] h-[68%] rounded-[12px] overflow-hidden shadow-lg">
               <img src={IMG.feature1} alt="Laboratory" className="w-full h-full object-cover" />
@@ -568,8 +503,6 @@ export function Home() {
               <Play className="w-5 h-5 fill-[#1c1c1c] text-[#1c1c1c] ml-0.5" />
             </button>
           </RiseUp>
-
-          {/* Right: text */}
           <div>
             <RiseUp delay={0.1}><span className="label-tag">Professional impact</span></RiseUp>
             <RiseUp delay={0.18}>
@@ -590,15 +523,16 @@ export function Home() {
           </div>
         </div>
       </section>
-      {/* ── DETAILS / ARTICLES ───────────────────────────────── */}
-      <section className="bg-white py-12 md:py-20 px-6">
+    ),
+
+    /* ── FEATURED ARTICLES ─────────────────────────────────────── */
+    articles: (
+      <section key="articles" className="bg-white py-12 md:py-20 px-6">
         <div className="max-w-[1280px] mx-auto">
           <RiseUp delay={0} className="text-center mb-12">
             <span className="label-tag">Latest Knowledge</span>
             <h2 className="heading-lg text-[#1c1c1c]">Details about our research</h2>
           </RiseUp>
-
-          {/* Loading skeletons */}
           {!featuredArticles && (
             <div className="grid md:grid-cols-3 gap-6 mb-10">
               {[0, 1, 2].map((i) => (
@@ -613,15 +547,11 @@ export function Home() {
               ))}
             </div>
           )}
-
-          {/* Empty state — no articles marked as featured yet */}
           {featuredArticles && featuredArticles.length === 0 && (
             <div className="text-center py-16 text-[#aaa] text-sm mb-10">
               No featured articles yet. Mark articles as featured in the admin panel to show them here.
             </div>
           )}
-
-          {/* Real article cards */}
           {featuredArticles && featuredArticles.length > 0 && (
             <div className="grid md:grid-cols-3 gap-6 mb-10">
               {featuredArticles.slice(0, 3).map((article, i) => (
@@ -629,11 +559,7 @@ export function Home() {
                   <Link href={`/articles/${article.slug}`} className="group block cursor-pointer">
                     <div className="aspect-[16/10] rounded-[8px] overflow-hidden mb-4 bg-[#f5f5f2]">
                       {article.featuredImage ? (
-                        <img
-                          src={article.featuredImage}
-                          alt={article.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
+                        <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[#ccc]">
                           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -656,7 +582,6 @@ export function Home() {
               ))}
             </div>
           )}
-
           <RiseUp delay={0.1} className="text-center">
             <Link href="/articles" className="btn-dark">
               See All Articles <ArrowRight className="w-4 h-4" />
@@ -664,6 +589,18 @@ export function Home() {
           </RiseUp>
         </div>
       </section>
+    ),
+  };
+
+  return (
+    <Shell>
+      {sectionsLayout
+        .filter((s) => s.visible !== false)
+        .map((s) =>
+          sectionMap[s.id]
+            ? <Fragment key={s.id}>{sectionMap[s.id]}</Fragment>
+            : null
+        )}
     </Shell>
   );
 }

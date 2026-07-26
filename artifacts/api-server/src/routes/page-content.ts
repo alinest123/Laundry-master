@@ -8,6 +8,17 @@ const router = Router();
 /** Default content — returned as fallback so the site never goes blank */
 export const PAGE_DEFAULTS: Record<string, Record<string, string>> = {
   home: {
+    sections_layout: JSON.stringify([
+      { id: "hero",          label: "Hero",               visible: true },
+      { id: "expertise",    label: "Expertise",           visible: true },
+      { id: "services",     label: "Services Grid",       visible: true },
+      { id: "photos",       label: "Photo Gallery",       visible: true },
+      { id: "testimonials", label: "Testimonials",        visible: true },
+      { id: "team",         label: "Team Photo",          visible: true },
+      { id: "stats",        label: "Stats",               visible: true },
+      { id: "impact",       label: "Professional Impact", visible: true },
+      { id: "articles",     label: "Featured Articles",   visible: true },
+    ]),
     hero_tag: "Science-first textile care knowledge",
     hero_headline: "The Science Behind Professional Textile Care",
     hero_subheadline:
