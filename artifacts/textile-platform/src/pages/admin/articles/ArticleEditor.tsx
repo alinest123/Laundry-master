@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useParams } from "wouter";
 import {
-  Save, Send, Calendar, Plus, Trash2, ChevronDown, ChevronUp,
+  Save, Send, Calendar, Plus,
   Image, HelpCircle, BookOpen, Search, X, ExternalLink, History,
-  RotateCcw, Clock,
+  RotateCcw, Clock, CalendarClock, CalendarCheck, CalendarX,
 } from "lucide-react";
 import { AdminLayout } from "../AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
@@ -82,6 +82,94 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-2">{children}</p>;
 }
 
+// ── Schedule Modal ─────────────────────────────────────────────────────────────
+function ScheduleModal({ initialDateTime, saving, onConfirm, onClose }: {
+  initialDateTime?: string;
+  saving: boolean;
+  onConfirm: (dateTime: string) => void;
+  onClose: () => void;
+}) {
+  const getDefault = () => {
+    if (initialDateTime) return initialDateTime;
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(9, 0, 0, 0);
+    // Convert to local datetime-local string
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
+  const [dateTime, setDateTime] = useState(getDefault);
+  const [err, setErr] = useState("");
+
+  const submit = () => {
+    if (!dateTime) { setErr("Please choose a date and time."); return; }
+    if (new Date(dateTime) <= new Date()) { setErr("Scheduled time must be in the future."); return; }
+    setErr("");
+    onConfirm(dateTime);
+  };
+
+  const chosen = dateTime ? new Date(dateTime) : null;
+  const isFuture = chosen && chosen > new Date();
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+        <div className="px-5 pt-5 pb-4">
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <CalendarClock className="w-4 h-4 text-amber-500" />
+              <h3 className="font-semibold text-stone-900 text-sm">Schedule Publication</h3>
+            </div>
+            <button onClick={onClose} className="p-1 text-stone-400 hover:text-stone-600 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-xs text-stone-400 ml-6">The article will publish automatically at the chosen time.</p>
+        </div>
+
+        <div className="px-5 pb-5 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-stone-600 mb-1.5">Date &amp; time</label>
+            <input
+              type="datetime-local"
+              value={dateTime}
+              onChange={e => { setDateTime(e.target.value); setErr(""); }}
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400"
+            />
+            {err && <p className="text-xs text-red-500 mt-1">{err}</p>}
+          </div>
+
+          {isFuture && chosen && (
+            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+              <CalendarCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <p className="text-xs text-amber-700">
+                Publishes{" "}
+                <span className="font-semibold">
+                  {chosen.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                </span>
+                {" at "}
+                <span className="font-semibold">
+                  {chosen.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button onClick={submit} disabled={saving}
+              className="flex-1 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 disabled:opacity-60 transition-colors flex items-center justify-center gap-1.5">
+              <CalendarClock className="w-3.5 h-3.5" />
+              {saving ? "Scheduling…" : "Confirm Schedule"}
+            </button>
+            <button onClick={onClose} className="px-4 py-2 border border-stone-200 text-sm rounded-lg hover:bg-stone-50 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function fmtRelative(dateStr: string) {
   const d = new Date(dateStr);
   const now = new Date();
@@ -125,6 +213,9 @@ export function ArticleEditor() {
   const [relatedSearch, setRelatedSearch] = useState("");
   const [relatedResults, setRelatedResults] = useState<any[]>([]);
   const [relatedTitles, setRelatedTitles] = useState<Record<number, string>>({});
+
+  // Schedule modal
+  const [scheduleModal, setScheduleModal] = useState(false);
 
   // Slug auto-generation flag
   const [slugEdited, setSlugEdited] = useState(false);
@@ -211,11 +302,14 @@ export function ArticleEditor() {
     if (!form.authorId)     { setError("Author is required"); return; }
     setError(""); setSaving(true);
 
+    // Preserve "scheduled" status unless explicitly overriding
+    const effectiveStatus = overrideStatus ?? (form.status === "scheduled" ? "scheduled" : form.status);
+
     const payload = {
       ...form,
       authorId: parseInt(form.authorId),
       isFeatured: form.isFeatured,
-      status: overrideStatus ?? form.status,
+      status: effectiveStatus,
       publishedAt: form.publishedAt || null,
       scheduledAt: form.scheduledAt || null,
     };
@@ -223,20 +317,69 @@ export function ArticleEditor() {
     try {
       let result: any;
       if (isNew) {
-        if (overrideStatus === "published" && !payload.publishedAt) payload.publishedAt = new Date().toISOString();
+        if (effectiveStatus === "published" && !payload.publishedAt) payload.publishedAt = new Date().toISOString();
         result = await adminApi.articles.create(payload);
-        showToast(overrideStatus === "published" ? "Article published!" : "Article saved!");
+        showToast(effectiveStatus === "published" ? "Article published!" : "Article saved!");
         navigate(`/admin/articles/${result.id}/edit`);
       } else {
-        if (overrideStatus === "published" && !payload.publishedAt) payload.publishedAt = new Date().toISOString();
+        if (effectiveStatus === "published" && !payload.publishedAt) payload.publishedAt = new Date().toISOString();
         result = await adminApi.articles.update(articleId!, payload);
         lastSavedContent.current = form.content;
         up({ status: result.status });
-        showToast(overrideStatus === "published" ? "Article published!" : "Changes saved!");
+        showToast(effectiveStatus === "published" ? "Article published!" : "Changes saved!");
       }
     } catch (e: any) { setError(e.message); }
     finally { setSaving(false); }
   }, [form, isNew, articleId, navigate]);
+
+  // Schedule — save article with status "scheduled" and a future scheduledAt
+  const scheduleArticle = useCallback(async (dateTime: string) => {
+    if (!form.title.trim()) { setError("Title is required"); return; }
+    if (!form.slug.trim())  { setError("Slug is required"); return; }
+    if (!form.authorId)     { setError("Author is required"); return; }
+    setError(""); setSaving(true);
+    const payload = {
+      ...form,
+      authorId: parseInt(form.authorId),
+      isFeatured: form.isFeatured,
+      status: "scheduled",
+      scheduledAt: new Date(dateTime).toISOString(),
+      publishedAt: form.publishedAt || null,
+    };
+    try {
+      if (isNew) {
+        const result = await adminApi.articles.create(payload);
+        showToast("Article scheduled!");
+        setScheduleModal(false);
+        navigate(`/admin/articles/${result.id}/edit`);
+      } else {
+        await adminApi.articles.update(articleId!, payload);
+        lastSavedContent.current = form.content;
+        up({ status: "scheduled", scheduledAt: dateTime });
+        showToast("Article scheduled!");
+        setScheduleModal(false);
+      }
+    } catch (e: any) { setError(e.message); }
+    finally { setSaving(false); }
+  }, [form, isNew, articleId, navigate]);
+
+  // Cancel schedule — revert to draft
+  const cancelSchedule = useCallback(async () => {
+    if (!articleId) return;
+    setError(""); setSaving(true);
+    try {
+      await adminApi.articles.update(articleId, {
+        ...form,
+        authorId: parseInt(form.authorId),
+        status: "draft",
+        scheduledAt: null,
+        publishedAt: form.publishedAt || null,
+      });
+      up({ status: "draft", scheduledAt: "" });
+      showToast("Schedule cancelled — article is now a draft.");
+    } catch (e: any) { setError(e.message); }
+    finally { setSaving(false); }
+  }, [form, articleId]);
 
   // Autosave — 30 s after the last content change, for existing articles only
   const handleContentChange = useCallback((html: string) => {
@@ -341,7 +484,15 @@ export function ArticleEditor() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          {form.status === "scheduled" && form.scheduledAt && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium rounded-lg">
+              <CalendarClock className="w-3.5 h-3.5 shrink-0" />
+              Scheduled · {new Date(form.scheduledAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+              {" "}
+              {new Date(form.scheduledAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
           {form.status === "published" && (
             <a href={`/articles/${form.slug}`} target="_blank" rel="noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-stone-200 text-stone-600 text-xs font-medium rounded-lg hover:bg-stone-50 transition-colors">
@@ -351,6 +502,10 @@ export function ArticleEditor() {
           <button onClick={() => save("draft")} disabled={saving}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-stone-200 text-stone-700 text-sm font-medium rounded-lg hover:bg-stone-50 disabled:opacity-60 transition-colors">
             <Save className="w-4 h-4" /> Save Draft
+          </button>
+          <button onClick={() => setScheduleModal(true)} disabled={saving}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-amber-300 bg-amber-50 text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-100 disabled:opacity-60 transition-colors">
+            <Calendar className="w-4 h-4" /> Schedule
           </button>
           <button onClick={() => save("published")} disabled={saving}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#4a7c59] text-white text-sm font-medium rounded-lg hover:bg-[#3d6849] disabled:opacity-60 transition-colors">
@@ -451,21 +606,46 @@ export function ArticleEditor() {
             {/* ── PUBLISH tab ──────────────────────────────────────────────── */}
             {activeTab === "Publish" && (
               <>
+                {/* Scheduling banner — shown when article is scheduled */}
+                {form.status === "scheduled" && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-3 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <CalendarCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <p className="text-xs font-semibold text-amber-800">Scheduled to publish</p>
+                    </div>
+                    {form.scheduledAt ? (
+                      <p className="text-xs text-amber-700 ml-5">
+                        {new Date(form.scheduledAt).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+                        <br />
+                        {new Date(form.scheduledAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-amber-700 ml-5">No time set — click Reschedule below.</p>
+                    )}
+                    <div className="flex gap-2 ml-5">
+                      <button onClick={() => setScheduleModal(true)} disabled={saving}
+                        className="flex-1 py-1.5 text-xs font-medium border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors flex items-center justify-center gap-1">
+                        <CalendarClock className="w-3 h-3" /> Reschedule
+                      </button>
+                      <button onClick={cancelSchedule} disabled={saving}
+                        className="flex-1 py-1.5 text-xs font-medium border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors flex items-center justify-center gap-1">
+                        <CalendarX className="w-3 h-3" /> Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <SectionLabel>Status</SectionLabel>
                   <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
-                    value={form.status} onChange={e => up({ status: e.target.value })}>
+                    value={form.status}
+                    onChange={e => {
+                      const s = e.target.value;
+                      up({ status: s, ...(s !== "scheduled" ? { scheduledAt: "" } : {}) });
+                    }}>
                     {STATUS_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
-
-                {form.status === "scheduled" && (
-                  <div>
-                    <label className="block text-xs font-medium text-stone-600 mb-1">Publish at</label>
-                    <input type="datetime-local" className="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
-                      value={form.scheduledAt} onChange={e => up({ scheduledAt: e.target.value })} />
-                  </div>
-                )}
 
                 {(form.status === "published" || form.status === "archived") && (
                   <div>
@@ -492,10 +672,21 @@ export function ArticleEditor() {
                       className="w-full py-2 bg-[#4a7c59] text-white text-sm font-medium rounded-lg hover:bg-[#3d6849] disabled:opacity-60 transition-colors">
                       Publish Now
                     </button>
+                    <button onClick={() => setScheduleModal(true)} disabled={saving}
+                      className="w-full py-2 border border-amber-300 bg-amber-50 text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-100 disabled:opacity-60 transition-colors flex items-center justify-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {form.status === "scheduled" ? "Reschedule" : "Schedule for later"}
+                    </button>
                     {form.status === "published" && (
                       <button onClick={() => { adminApi.articles.unpublish(articleId!).then(() => { up({ status: "archived" }); showToast("Article unpublished"); }); }}
                         className="w-full py-2 border border-stone-200 text-stone-600 text-sm font-medium rounded-lg hover:bg-stone-50 transition-colors">
                         Unpublish
+                      </button>
+                    )}
+                    {form.status === "scheduled" && (
+                      <button onClick={cancelSchedule} disabled={saving}
+                        className="w-full py-2 border border-stone-200 text-stone-600 text-sm font-medium rounded-lg hover:bg-stone-50 disabled:opacity-60 transition-colors flex items-center justify-center gap-1.5">
+                        <CalendarX className="w-3.5 h-3.5" /> Cancel Schedule
                       </button>
                     )}
                   </div>
@@ -790,6 +981,15 @@ export function ArticleEditor() {
           </div>
         </div>
       </div>
+
+      {scheduleModal && (
+        <ScheduleModal
+          initialDateTime={form.scheduledAt || undefined}
+          saving={saving}
+          onConfirm={scheduleArticle}
+          onClose={() => setScheduleModal(false)}
+        />
+      )}
     </AdminLayout>
   );
 }
