@@ -41,13 +41,15 @@ export function invalidateStatusCache() {
  */
 export async function maintenanceGate(req: Request, res: Response, next: NextFunction) {
   const path = req.path;
-  // Always allow admin, auth, status, health, and storage serving
+  // Always allow: admin routes, auth, status, health, storage serving,
+  // and page-content (used by the navbar/layout on admin pages even before login)
   if (
     path.startsWith("/admin") ||
     path.startsWith("/auth") ||
     path.startsWith("/site-status") ||
     path.startsWith("/health") ||
-    path.startsWith("/storage/objects/") // allow serving already-uploaded images
+    path.startsWith("/storage/objects/") ||
+    path.startsWith("/page-content/")
   ) {
     return next();
   }

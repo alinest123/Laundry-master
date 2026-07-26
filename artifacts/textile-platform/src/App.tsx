@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
@@ -68,10 +68,13 @@ function MaintenanceGate({ children }: { children: React.ReactNode }) {
     refetchInterval: 15_000, // re-check every 15 s so turning it off/on reflects quickly
   });
 
-  // Admins always bypass maintenance
-  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  const [location] = useLocation();
 
-  if (!authLoading && data?.maintenanceMode && !isAdmin) {
+  // Admins always bypass maintenance; admin paths always bypass (so /admin/login is reachable)
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  const isAdminPath = location.startsWith("/admin");
+
+  if (!authLoading && data?.maintenanceMode && !isAdmin && !isAdminPath) {
     return <MaintenancePage siteName={data.siteName} />;
   }
 
