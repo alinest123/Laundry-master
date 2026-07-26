@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { adminApi } from "@/lib/adminApi";
+import { useToast } from "@/hooks/use-toast";
 
 type Fabric = { id: number; name: string; slug: string; description?: string; careInstructions?: string; imageUrl?: string; createdAt: string };
 const EMPTY = { name:"", slug:"", description:"", careInstructions:"", imageUrl:"" };
@@ -13,6 +14,7 @@ export function Fabrics() {
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number|null>(null);
+  const { toast } = useToast();
 
   const load = async () => { setLoading(true); try { setItems(await adminApi.fabrics.list()); } catch {} finally { setLoading(false); } };
   useEffect(() => { load(); }, []);
@@ -20,14 +22,15 @@ export function Fabrics() {
   const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 
   const save = async () => {
-    if (!editing?.name?.trim()) return alert("Name required");
-    if (!editing?.slug?.trim()) return alert("Slug required");
+    if (!editing?.name?.trim()) { toast({ title: "Name is required", variant: "destructive" }); return; }
+    if (!editing?.slug?.trim()) { toast({ title: "Slug is required", variant: "destructive" }); return; }
     setSaving(true);
     try {
       if (isNew) await adminApi.fabrics.create(editing);
       else await adminApi.fabrics.update(editing.id, editing);
       setEditing(null); setIsNew(false); load();
-    } catch(e:any) { alert(e.message); }
+      toast({ title: isNew ? "Fabric created" : "Fabric saved" });
+    } catch(e:any) { toast({ title: e.message || "Save failed", variant: "destructive" }); }
     finally { setSaving(false); }
   };
 
