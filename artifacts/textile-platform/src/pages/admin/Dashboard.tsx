@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import {
   FileText, Users, Tag, Folder, Plus, CheckCircle, Clock, Archive,
   Calendar, CreditCard, Mail, Image, MessageCircle, UserCog, Eye,
-  TrendingUp, AlertTriangle, X, ChevronRight, Check, Trash2,
+  TrendingUp, AlertTriangle, ChevronRight, Check, Trash2,
   Pencil, BookOpen, LayoutDashboard, Settings,
 } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
@@ -38,10 +38,6 @@ export function Dashboard() {
   const [allArticles, setAllArticles]   = useState<any[]>([]);
   const [authors, setAuthors]           = useState<any[]>([]);
   const [loading, setLoading]           = useState(true);
-  const [welcomed, setWelcomed] = useState(
-    () => localStorage.getItem("cms_welcome_dismissed") === "1"
-  );
-
   // Quick draft
   const [draft, setDraft]           = useState({ title: "", content: "", authorId: "" });
   const [draftSaving, setDraftSaving] = useState(false);
@@ -79,11 +75,6 @@ export function Dashboard() {
       issues.push({ id: a.id, title: a.title, issue: "Stale draft (30+ days)", filter: "stale" });
     return issues;
   }).slice(0, 8);
-
-  const dismissWelcome = () => {
-    localStorage.setItem("cms_welcome_dismissed", "1");
-    setWelcomed(true);
-  };
 
   const approveComment = async (id: number) => {
     try { await adminApi.comments.approve(id); } catch { /* continue */ }
@@ -130,42 +121,6 @@ export function Dashboard() {
   return (
     <AdminLayout title="Dashboard" breadcrumbs={[{ label: "Dashboard" }]}>
       <div className="space-y-5 max-w-[1400px]">
-
-        {/* ── Welcome banner ─────────────────────────────────────────── */}
-        {!welcomed && (
-          <div className="relative bg-gradient-to-r from-[#1c1c1c] to-[#2d2d2d] rounded-xl p-5 text-white overflow-hidden">
-            <button onClick={dismissWelcome} className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 text-white/50 hover:text-white transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 bg-[#4a7c59] rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                <LayoutDashboard className="w-4.5 h-4.5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-base">
-                  Welcome{user?.name ? `, ${user.name.split(" ")[0]}` : ""}! You're in the CMS.
-                </p>
-                <p className="text-white/60 text-sm mt-0.5">
-                  Everything you need to manage Laundry Master's content is right here.
-                </p>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {[
-                    { href: "/admin/articles/new", label: "New Article",   Icon: Pencil },
-                    { href: "/admin/categories",   label: "Categories",    Icon: Folder },
-                    { href: "/admin/media",        label: "Media Library", Icon: Image },
-                    { href: "/admin/settings",     label: "Settings",      Icon: Settings },
-                  ].map(({ href, label, Icon }) => (
-                    <Link key={href} href={href}>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition-colors cursor-pointer">
-                        <Icon className="w-3.5 h-3.5" /> {label}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── At a Glance ────────────────────────────────────────────── */}
         <div>
