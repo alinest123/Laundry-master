@@ -50,11 +50,11 @@ function TopBanner() {
   const phone    = c("phone",    "+1-800-TEXTILE");
   const location = c("location", "Global — serving 94 countries");
 
-  const socials: { key: string; label: string; urlKey: string }[] = [
-    { key: "facebook",  label: "Facebook",  urlKey: "facebook_url"  },
-    { key: "twitter",   label: "Twitter",   urlKey: "twitter_url"   },
-    { key: "linkedin",  label: "LinkedIn",  urlKey: "linkedin_url"  },
-    { key: "instagram", label: "Instagram", urlKey: "instagram_url" },
+  const socials: { key: string; label: string; urlKey: string; showKey: string }[] = [
+    { key: "facebook",  label: "Facebook",  urlKey: "facebook_url",  showKey: "facebook_show"  },
+    { key: "twitter",   label: "Twitter",   urlKey: "twitter_url",   showKey: "twitter_show"   },
+    { key: "linkedin",  label: "LinkedIn",  urlKey: "linkedin_url",  showKey: "linkedin_show"  },
+    { key: "instagram", label: "Instagram", urlKey: "instagram_url", showKey: "instagram_show" },
   ];
 
   return (
@@ -78,7 +78,9 @@ function TopBanner() {
 
         {/* Right: social links */}
         <div className="flex items-center gap-3">
-          {socials.map(({ key, label, urlKey }) => {
+          {socials.map(({ key, label, urlKey, showKey }) => {
+            const visible = c(showKey, "1") !== "0";
+            if (!visible) return null;
             const url = c(urlKey, "");
             const icon = SOCIAL_ICONS[key];
             if (!icon) return null;

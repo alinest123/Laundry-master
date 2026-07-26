@@ -6,7 +6,7 @@ import { adminApi } from "@/lib/adminApi";
 
 // ── Field + Section + Page config ─────────────────────────────────────────
 
-type FieldDef = { key: string; label: string; type: "text" | "textarea" | "email" | "url" };
+type FieldDef = { key: string; label: string; type: "text" | "textarea" | "email" | "url" | "checkbox" };
 type SectionDef = { title: string; fields: FieldDef[] };
 type PageDef = { label: string; sections: SectionDef[] };
 
@@ -176,10 +176,14 @@ const PAGE_CONFIGS: Record<string, PageDef> = {
       {
         title: "Social Media Links",
         fields: [
-          { key: "facebook_url",  label: "Facebook URL",  type: "url" },
-          { key: "twitter_url",   label: "Twitter / X URL", type: "url" },
-          { key: "linkedin_url",  label: "LinkedIn URL",  type: "url" },
-          { key: "instagram_url", label: "Instagram URL", type: "url" },
+          { key: "facebook_show",  label: "Show Facebook icon",   type: "checkbox" },
+          { key: "facebook_url",   label: "Facebook URL",         type: "url" },
+          { key: "twitter_show",   label: "Show Twitter / X icon", type: "checkbox" },
+          { key: "twitter_url",    label: "Twitter / X URL",      type: "url" },
+          { key: "linkedin_show",  label: "Show LinkedIn icon",   type: "checkbox" },
+          { key: "linkedin_url",   label: "LinkedIn URL",         type: "url" },
+          { key: "instagram_show", label: "Show Instagram icon",  type: "checkbox" },
+          { key: "instagram_url",  label: "Instagram URL",        type: "url" },
         ],
       },
     ],
@@ -293,7 +297,21 @@ export function PageContent() {
                         <label className="block text-xs font-semibold text-stone-500 mb-1.5 uppercase tracking-wide">
                           {field.label}
                         </label>
-                        {field.type === "textarea" ? (
+                        {field.type === "checkbox" ? (
+                          <label className="flex items-center gap-3 cursor-pointer select-none">
+                            <div className="relative shrink-0">
+                              <input
+                                type="checkbox"
+                                className="sr-only"
+                                checked={getVal(activeTab, field.key) !== "0"}
+                                onChange={(e) => setVal(activeTab, field.key, e.target.checked ? "1" : "0")}
+                              />
+                              <div className={`w-9 h-5 rounded-full transition-colors ${getVal(activeTab, field.key) !== "0" ? "bg-stone-800" : "bg-stone-200"}`} />
+                              <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${getVal(activeTab, field.key) !== "0" ? "translate-x-4" : ""}`} />
+                            </div>
+                            <span className="text-sm text-stone-600">{getVal(activeTab, field.key) !== "0" ? "Visible" : "Hidden"}</span>
+                          </label>
+                        ) : field.type === "textarea" ? (
                           <textarea
                             rows={3}
                             value={getVal(activeTab, field.key)}

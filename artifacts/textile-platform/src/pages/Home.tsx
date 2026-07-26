@@ -598,24 +598,64 @@ export function Home() {
             <h2 className="heading-lg text-[#1c1c1c]">Details about our research</h2>
           </RiseUp>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
-            {[
-              { img: IMG.detail1, cat: "Fabric Science", title: "Understanding Cotton Fiber Structure and Wet Processing Behavior", desc: "How the crystalline structure of cotton cellulose affects swelling, shrinkage, and detergent penetration during washing." },
-              { img: IMG.detail2, cat: "Stain Removal", title: "Enzyme Detergents: The Science of Biological Stain Removal", desc: "How protease, lipase, and amylase enzymes break down protein, fat, and starch-based stains at molecular level." },
-              { img: IMG.detail3, cat: "Sustainability", title: "Reducing Water Consumption in Commercial Laundry by 40%", desc: "A systematic review of bath ratio optimization, counterflow rinsing, and water reuse strategies validated in real facilities." },
-            ].map((card, i) => (
-              <RiseUp key={card.title} delay={i * 0.1}>
-                <div className="group cursor-pointer">
-                  <div className="aspect-[16/10] rounded-[8px] overflow-hidden mb-4">
-                    <img src={card.img} alt={card.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  </div>
-                  <p className="text-[#4a7c59] text-[0.7rem] font-bold uppercase tracking-widest mb-1.5">{card.cat}</p>
-                  <h3 className="font-bold text-[#1c1c1c] text-sm leading-snug mb-2">{card.title}</h3>
-                  <p className="text-[#777] text-xs leading-relaxed">{card.desc}</p>
+          {/* Loading skeletons */}
+          {!featuredArticles && (
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-[16/10] rounded-[8px] bg-[#f0f0f0] mb-4" />
+                  <div className="h-3 bg-[#f0f0f0] rounded w-24 mb-2" />
+                  <div className="h-4 bg-[#f0f0f0] rounded w-full mb-1" />
+                  <div className="h-4 bg-[#f0f0f0] rounded w-4/5 mb-3" />
+                  <div className="h-3 bg-[#f0f0f0] rounded w-full mb-1" />
+                  <div className="h-3 bg-[#f0f0f0] rounded w-3/4" />
                 </div>
-              </RiseUp>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty state — no articles marked as featured yet */}
+          {featuredArticles && featuredArticles.length === 0 && (
+            <div className="text-center py-16 text-[#aaa] text-sm mb-10">
+              No featured articles yet. Mark articles as featured in the admin panel to show them here.
+            </div>
+          )}
+
+          {/* Real article cards */}
+          {featuredArticles && featuredArticles.length > 0 && (
+            <div className="grid md:grid-cols-3 gap-6 mb-10">
+              {featuredArticles.slice(0, 3).map((article, i) => (
+                <RiseUp key={article.id} delay={i * 0.1}>
+                  <Link href={`/articles/${article.slug}`} className="group block cursor-pointer">
+                    <div className="aspect-[16/10] rounded-[8px] overflow-hidden mb-4 bg-[#f5f5f2]">
+                      {article.featuredImage ? (
+                        <img
+                          src={article.featuredImage}
+                          alt={article.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#ccc]">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        </div>
+                      )}
+                    </div>
+                    {article.categories && article.categories.length > 0 && (
+                      <p className="text-[#4a7c59] text-[0.7rem] font-bold uppercase tracking-widest mb-1.5">
+                        {article.categories[0].name}
+                      </p>
+                    )}
+                    <h3 className="font-bold text-[#1c1c1c] text-sm leading-snug mb-2 group-hover:text-[#4a7c59] transition-colors">
+                      {article.title}
+                    </h3>
+                    {article.excerpt && (
+                      <p className="text-[#777] text-xs leading-relaxed line-clamp-3">{article.excerpt}</p>
+                    )}
+                  </Link>
+                </RiseUp>
+              ))}
+            </div>
+          )}
 
           <RiseUp delay={0.1} className="text-center">
             <Link href="/articles" className="btn-dark">
