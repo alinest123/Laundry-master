@@ -89,7 +89,6 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => { setSidebarOpen(false); }, [location]);
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
