@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, User, Menu, X, Clock, Phone, MapPin, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { usePageContent } from "@/lib/usePageContent";
 
 const NAV = [
   { label: "Knowledge Hub", href: "/articles" },
@@ -15,43 +16,86 @@ function initials(name: string) {
   return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
+// Social icon SVGs keyed by platform
+const SOCIAL_ICONS: Record<string, React.ReactNode> = {
+  facebook: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  ),
+  twitter: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+    </svg>
+  ),
+  linkedin: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/>
+      <circle cx="4" cy="4" r="2"/>
+    </svg>
+  ),
+  instagram: (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+    </svg>
+  ),
+};
+
 function TopBanner() {
+  const { c } = usePageContent("banner");
+
+  const hours    = c("hours",    "Mon – Fri 8:00 – 18:00 / Sat 9:00 – 14:00");
+  const phone    = c("phone",    "+1-800-TEXTILE");
+  const location = c("location", "Global — serving 94 countries");
+
+  const socials: { key: string; label: string; urlKey: string }[] = [
+    { key: "facebook",  label: "Facebook",  urlKey: "facebook_url"  },
+    { key: "twitter",   label: "Twitter",   urlKey: "twitter_url"   },
+    { key: "linkedin",  label: "LinkedIn",  urlKey: "linkedin_url"  },
+    { key: "instagram", label: "Instagram", urlKey: "instagram_url" },
+  ];
+
   return (
     <div className="bg-[#1a1a1a] text-white">
       <div className="hidden md:flex max-w-[1280px] mx-auto px-6 h-10 items-center justify-between gap-4">
+        {/* Left: contact info */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-1.5 text-[#aaa] text-[0.72rem]">
             <Clock className="w-3 h-3 shrink-0" strokeWidth={2} />
-            <span>Mon – Fri 8:00 – 18:00 / Sat 9:00 – 14:00</span>
+            <span>{hours}</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 text-[#aaa] text-[0.72rem]">
             <Phone className="w-3 h-3 shrink-0" strokeWidth={2} />
-            <span>+1-800-TEXTILE</span>
+            <span>{phone}</span>
           </div>
           <div className="hidden md:flex items-center gap-1.5 text-[#aaa] text-[0.72rem]">
             <MapPin className="w-3 h-3 shrink-0" strokeWidth={2} />
-            <span>Global — serving 94 countries</span>
+            <span>{location}</span>
           </div>
         </div>
+
+        {/* Right: social links */}
         <div className="flex items-center gap-3">
-          {[
-            { label: "Facebook", path: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" },
-            { label: "Twitter", path: "M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" },
-          ].map(({ label, path }) => (
-            <a key={label} href="#" aria-label={label} className="text-[#666] hover:text-white transition-colors">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d={path} /></svg>
-            </a>
-          ))}
-          <a href="#" aria-label="LinkedIn" className="text-[#666] hover:text-white transition-colors">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/>
-            </svg>
-          </a>
-          <a href="#" aria-label="Instagram" className="text-[#666] hover:text-white transition-colors">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-            </svg>
-          </a>
+          {socials.map(({ key, label, urlKey }) => {
+            const url = c(urlKey, "");
+            const icon = SOCIAL_ICONS[key];
+            if (!icon) return null;
+            return (
+              <a
+                key={key}
+                href={url || undefined}
+                target={url ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                aria-label={label}
+                onClick={url ? undefined : e => e.preventDefault()}
+                className={`transition-colors ${url ? "text-[#666] hover:text-white cursor-pointer" : "text-[#444] cursor-default"}`}
+              >
+                {icon}
+              </a>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -65,7 +109,6 @@ function UserDropdown() {
   const ref = useRef<HTMLDivElement>(null);
   const [, setLocation] = useLocation();
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);

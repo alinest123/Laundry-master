@@ -5,7 +5,7 @@ import { adminApi } from "@/lib/adminApi";
 
 // ── Field + Section + Page config ─────────────────────────────────────────
 
-type FieldDef = { key: string; label: string; type: "text" | "textarea" | "email" };
+type FieldDef = { key: string; label: string; type: "text" | "textarea" | "email" | "url" };
 type SectionDef = { title: string; fields: FieldDef[] };
 type PageDef = { label: string; sections: SectionDef[] };
 
@@ -161,6 +161,28 @@ const PAGE_CONFIGS: Record<string, PageDef> = {
       },
     ],
   },
+  banner: {
+    label: "Banner",
+    sections: [
+      {
+        title: "Contact Bar",
+        fields: [
+          { key: "hours",    label: "Opening Hours",   type: "text" },
+          { key: "phone",    label: "Phone Number",    type: "text" },
+          { key: "location", label: "Location / Reach", type: "text" },
+        ],
+      },
+      {
+        title: "Social Media Links",
+        fields: [
+          { key: "facebook_url",  label: "Facebook URL",  type: "url" },
+          { key: "twitter_url",   label: "Twitter / X URL", type: "url" },
+          { key: "linkedin_url",  label: "LinkedIn URL",  type: "url" },
+          { key: "instagram_url", label: "Instagram URL", type: "url" },
+        ],
+      },
+    ],
+  },
 };
 
 const PAGE_KEYS = Object.keys(PAGE_CONFIGS);
@@ -278,6 +300,17 @@ export function PageContent() {
                             className="w-full border border-stone-200 rounded-md px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 resize-y"
                             placeholder={`Enter ${field.label.toLowerCase()}…`}
                           />
+                        ) : field.type === "url" ? (
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs select-none">🔗</span>
+                            <input
+                              type="url"
+                              value={getVal(activeTab, field.key)}
+                              onChange={(e) => setVal(activeTab, field.key, e.target.value)}
+                              className="w-full border border-stone-200 rounded-md pl-8 pr-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400"
+                              placeholder="https://…"
+                            />
+                          </div>
                         ) : (
                           <input
                             type={field.type}

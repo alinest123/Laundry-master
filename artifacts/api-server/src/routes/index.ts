@@ -15,9 +15,11 @@ import adminRouter from "./admin";
 import userRouter from "./user";
 import pageContentRouter from "./page-content";
 import commentsRouter from "./comments";
+import storageRouter from "./storage";
 
 const router = Router();
 
+router.use(storageRouter);
 router.use(healthRouter);
 router.use(adminRouter);          // /admin/* — must come before public routes
 router.use(userRouter);           // /user/* — authenticated user endpoints

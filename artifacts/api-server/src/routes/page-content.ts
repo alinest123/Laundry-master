@@ -87,6 +87,15 @@ export const PAGE_DEFAULTS: Record<string, Record<string, string>> = {
     newsletter_label: "Newsletter Sign-up",
     copyright: "© 2026 TextilePro. Textile care knowledge for professionals.",
   },
+  banner: {
+    hours: "Mon – Fri 8:00 – 18:00 / Sat 9:00 – 14:00",
+    phone: "+1-800-TEXTILE",
+    location: "Global — serving 94 countries",
+    facebook_url: "",
+    twitter_url: "",
+    linkedin_url: "",
+    instagram_url: "",
+  },
 };
 
 /** GET /page-content/:page — public, merges defaults with saved DB values */
