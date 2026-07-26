@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { db } from "@workspace/db";
 import {
   usersTable, appointmentsTable, servicesTable, expertsTable,
@@ -194,7 +194,12 @@ router.get("/user/saved-articles", async (req, res): Promise<void> => {
       })
       .from(savedArticlesTable)
       .innerJoin(articlesTable, eq(savedArticlesTable.articleId, articlesTable.id))
-      .where(eq(savedArticlesTable.userId, req.user!.id));
+      .where(
+        and(
+          eq(savedArticlesTable.userId, req.user!.id),
+          ne(articlesTable.status, "archived"),
+        )
+      );
 
     res.json(rows.map(r => ({
       savedId: r.savedId,
