@@ -90,8 +90,13 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
 
+  // Lock body scroll only on mobile (when the overlay is visible).
+  // On desktop the sidebar is inline — never touch body overflow.
   useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile) {
+      document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    }
     return () => { document.body.style.overflow = ""; };
   }, [sidebarOpen]);
 
