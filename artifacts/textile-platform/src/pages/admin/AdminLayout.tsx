@@ -6,7 +6,7 @@ import {
   ClipboardList, BookOpen, Menu, X, PanelTop, MessageCircle, Check,
 } from "lucide-react";
 import { useAuth, can } from "@/lib/auth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type NavItem = {
   href: string;
@@ -88,7 +88,21 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navRef = useRef<HTMLElement>(null);
+  const savedScrollTop = useRef(0);
 
+  // Preserve sidebar nav scroll position across navigations.
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const onScroll = () => { savedScrollTop.current = el.scrollTop; };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (navRef.current) navRef.current.scrollTop = savedScrollTop.current;
+  }, [location]);
 
   // Lock body scroll only on mobile (when the overlay is visible).
   // On desktop the sidebar is inline — never touch body overflow.
@@ -176,7 +190,7 @@ export function AdminLayout({ children, title, breadcrumbs }: {
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
+          <nav ref={navRef} className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
             {visibleSections.map((section) => (
               <div key={section.label || "main"}>
                 {section.label && (
