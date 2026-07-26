@@ -25,7 +25,7 @@ const fmt = (d: string | null | undefined) =>
   d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
 const Skeleton = ({ className = "" }: { className?: string }) => (
-  <div className={`bg-stone-200 animate-pulse rounded ${className}`} />
+  <div className={`bg-[#e8e8e5] animate-pulse rounded-lg ${className}`} />
 );
 
 export function Dashboard() {
@@ -124,24 +124,26 @@ export function Dashboard() {
 
         {/* ── At a Glance ────────────────────────────────────────────── */}
         <div>
-          <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">At a Glance</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-12 gap-2">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.12em] mb-3">At a Glance</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
             {loading
               ? Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-xl border border-stone-200 p-3">
-                    <Skeleton className="w-4 h-4 mb-2" />
-                    <Skeleton className="w-8 h-6 mb-1" />
-                    <Skeleton className="w-14 h-3" />
+                  <div key={i} className="bg-white rounded-2xl border border-[#eee] p-4 shadow-sm">
+                    <Skeleton className="w-9 h-9 mb-3" />
+                    <Skeleton className="w-10 h-7 mb-1.5" />
+                    <Skeleton className="w-16 h-3" />
                   </div>
                 ))
               : STAT_TILES.map(({ label, value, icon: Icon, color, bg, href }) => (
                   <Link key={label} href={href}>
-                    <div className="bg-white border border-stone-200 rounded-xl p-3 hover:border-stone-300 hover:shadow-sm transition-all cursor-pointer group">
-                      <div className={`w-7 h-7 ${bg} rounded-lg flex items-center justify-center mb-2`}>
-                        <Icon className={`w-3.5 h-3.5 ${color}`} />
+                    <div className="bg-white border border-[#eee] rounded-2xl p-4 hover:shadow-md transition-shadow cursor-pointer flex flex-col gap-3 shadow-sm">
+                      <div className={`w-9 h-9 ${bg} rounded-xl flex items-center justify-center`}>
+                        <Icon className={`w-[18px] h-[18px] ${color}`} />
                       </div>
-                      <p className="text-xl font-bold text-stone-900 leading-none">{value}</p>
-                      <p className="text-[10px] text-stone-500 mt-1 leading-tight">{label}</p>
+                      <div>
+                        <p className="text-2xl font-bold text-[#1a1a1a] leading-none mb-1">{value}</p>
+                        <p className="text-xs text-muted-foreground leading-tight">{label}</p>
+                      </div>
                     </div>
                   </Link>
                 ))
@@ -156,40 +158,39 @@ export function Dashboard() {
           <div className="lg:col-span-2 space-y-4">
 
             {/* Recently Published */}
-            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-[#eee] overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-[#f0f0f0] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  <h3 className="text-sm font-semibold text-stone-900">Recently Published</h3>
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Recently Published</h3>
                 </div>
                 <Link href="/admin/articles?status=published">
-                  <span className="text-xs text-[#4a7c59] hover:underline cursor-pointer">View all →</span>
+                  <span className="text-xs text-primary hover:underline cursor-pointer">View all →</span>
                 </Link>
               </div>
               {loading ? (
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y divide-[#f8f8f8]">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="px-4 py-2.5 flex items-center gap-3">
-                      <Skeleton className="flex-1 h-4" />
-                      <Skeleton className="w-20 h-3" />
+                    <div key={i} className="px-5 py-3 flex items-center gap-3">
+                      <Skeleton className="flex-1 h-4" /><Skeleton className="w-20 h-3" />
                     </div>
                   ))}
                 </div>
               ) : (activity?.recentPublished?.length ?? 0) === 0 ? (
-                <p className="px-4 py-5 text-sm text-stone-400 text-center">No published articles yet.</p>
+                <p className="px-5 py-6 text-sm text-muted-foreground text-center">No published articles yet.</p>
               ) : (
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y divide-[#f8f8f8]">
                   {activity!.recentPublished.map(a => (
-                    <div key={a.id} className="px-4 py-2.5 flex items-center gap-3 group">
-                      <FileText className="w-3.5 h-3.5 text-stone-300 shrink-0" />
+                    <div key={a.id} className="px-5 py-3 flex items-center gap-3 group">
+                      <FileText className="w-3.5 h-3.5 text-muted-foreground/30 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <Link href={`/admin/articles/${a.id}/edit`}>
-                          <p className="text-sm font-medium text-stone-800 truncate hover:text-[#4a7c59] cursor-pointer">{a.title}</p>
+                          <p className="text-sm font-medium text-[#1a1a1a] truncate hover:text-primary cursor-pointer">{a.title}</p>
                         </Link>
-                        <p className="text-[11px] text-stone-400">{a.authorName ?? "Unknown"} · {fmt(a.publishedAt)}</p>
+                        <p className="text-[11px] text-muted-foreground">{a.authorName ?? "Unknown"} · {fmt(a.publishedAt)}</p>
                       </div>
                       <Link href={`/admin/articles/${a.id}/edit`}>
-                        <Pencil className="w-3 h-3 text-stone-300 hover:text-stone-600 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                        <Pencil className="w-3 h-3 text-muted-foreground/30 hover:text-[#555] cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                       </Link>
                     </div>
                   ))}
@@ -198,39 +199,38 @@ export function Dashboard() {
             </div>
 
             {/* Upcoming Scheduled */}
-            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-[#eee] overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-[#f0f0f0] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-blue-500" />
-                  <h3 className="text-sm font-semibold text-stone-900">Upcoming Scheduled</h3>
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Upcoming Scheduled</h3>
                 </div>
                 <Link href="/admin/articles?status=scheduled">
-                  <span className="text-xs text-[#4a7c59] hover:underline cursor-pointer">View all →</span>
+                  <span className="text-xs text-primary hover:underline cursor-pointer">View all →</span>
                 </Link>
               </div>
               {loading ? (
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y divide-[#f8f8f8]">
                   {Array.from({ length: 2 }).map((_, i) => (
-                    <div key={i} className="px-4 py-2.5 flex items-center gap-3">
-                      <Skeleton className="flex-1 h-4" />
-                      <Skeleton className="w-24 h-3" />
+                    <div key={i} className="px-5 py-3 flex items-center gap-3">
+                      <Skeleton className="flex-1 h-4" /><Skeleton className="w-24 h-3" />
                     </div>
                   ))}
                 </div>
               ) : (activity?.scheduled?.length ?? 0) === 0 ? (
-                <p className="px-4 py-5 text-sm text-stone-400 text-center">No scheduled articles.</p>
+                <p className="px-5 py-6 text-sm text-muted-foreground text-center">No scheduled articles.</p>
               ) : (
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y divide-[#f8f8f8]">
                   {activity!.scheduled.map(a => (
-                    <div key={a.id} className="px-4 py-2.5 flex items-center gap-3">
+                    <div key={a.id} className="px-5 py-3 flex items-center gap-3">
                       <Calendar className="w-3.5 h-3.5 text-blue-300 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <Link href={`/admin/articles/${a.id}/edit`}>
-                          <p className="text-sm font-medium text-stone-800 truncate hover:text-[#4a7c59] cursor-pointer">{a.title}</p>
+                          <p className="text-sm font-medium text-[#1a1a1a] truncate hover:text-primary cursor-pointer">{a.title}</p>
                         </Link>
-                        <p className="text-[11px] text-stone-400">{a.authorName ?? "Unknown"}</p>
+                        <p className="text-[11px] text-muted-foreground">{a.authorName ?? "Unknown"}</p>
                       </div>
-                      <span className="text-[11px] text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded shrink-0">{fmt(a.scheduledAt)}</span>
+                      <span className="text-[11px] text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-lg shrink-0">{fmt(a.scheduledAt)}</span>
                     </div>
                   ))}
                 </div>
@@ -238,11 +238,11 @@ export function Dashboard() {
             </div>
 
             {/* Pending Comments */}
-            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-[#eee] overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-[#f0f0f0] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageCircle className="w-4 h-4 text-orange-500" />
-                  <h3 className="text-sm font-semibold text-stone-900">Pending Comments</h3>
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Pending Comments</h3>
                   {pendingComments.length > 0 && (
                     <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-600">
                       {pendingComments.length}
@@ -250,53 +250,46 @@ export function Dashboard() {
                   )}
                 </div>
                 <Link href="/admin/comments">
-                  <span className="text-xs text-[#4a7c59] hover:underline cursor-pointer">Manage all →</span>
+                  <span className="text-xs text-primary hover:underline cursor-pointer">Manage all →</span>
                 </Link>
               </div>
               {loading ? (
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y divide-[#f8f8f8]">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="px-4 py-3 space-y-1.5">
-                      <Skeleton className="w-32 h-3" />
-                      <Skeleton className="w-full h-3" />
+                    <div key={i} className="px-5 py-3.5 space-y-1.5">
+                      <Skeleton className="w-32 h-3" /><Skeleton className="w-full h-3" />
                     </div>
                   ))}
                 </div>
               ) : pendingComments.length === 0 ? (
-                <div className="px-4 py-5 text-center">
+                <div className="px-5 py-6 text-center">
                   <CheckCircle className="w-8 h-8 text-emerald-200 mx-auto mb-2" />
-                  <p className="text-sm text-stone-400">All caught up — no pending comments.</p>
+                  <p className="text-sm text-muted-foreground">All caught up — no pending comments.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y divide-[#f8f8f8]">
                   {pendingComments.map(c => (
-                    <div key={c.id} className="px-4 py-3">
+                    <div key={c.id} className="px-5 py-3.5">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-semibold text-stone-700 truncate">
+                          <p className="text-[11px] font-semibold text-[#1a1a1a] truncate">
                             {c.authorName}
                             {c.articleTitle && (
-                              <span className="font-normal text-stone-400"> on "{c.articleTitle}"</span>
+                              <span className="font-normal text-muted-foreground"> on "{c.articleTitle}"</span>
                             )}
                           </p>
-                          <p className="text-xs text-stone-500 mt-0.5 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-[#555] mt-0.5 line-clamp-2 leading-relaxed">
                             {c.content.slice(0, 120)}{c.content.length > 120 ? "…" : ""}
                           </p>
-                          <p className="text-[10px] text-stone-400 mt-1">{fmt(c.createdAt)}</p>
+                          <p className="text-[10px] text-muted-foreground mt-1">{fmt(c.createdAt)}</p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0 mt-0.5">
-                          <button
-                            onClick={() => approveComment(c.id)}
-                            className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
-                            title="Approve"
-                          >
+                          <button onClick={() => approveComment(c.id)}
+                            className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="Approve">
                             <Check className="w-3 h-3" />
                           </button>
-                          <button
-                            onClick={() => trashComment(c.id)}
-                            className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
-                            title="Trash"
-                          >
+                          <button onClick={() => trashComment(c.id)}
+                            className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors" title="Trash">
                             <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
@@ -308,33 +301,31 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Right column: Quick Draft + Site Overview (1/3 width) */}
+          {/* Right column: Quick Draft + Site Overview */}
           <div className="space-y-4">
 
             {/* Quick Draft */}
-            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-stone-100 flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-stone-400" />
-                <h3 className="text-sm font-semibold text-stone-900">Quick Draft</h3>
+            <div className="bg-white rounded-2xl border border-[#eee] overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-[#f0f0f0] flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-[#1a1a1a]">Quick Draft</h3>
               </div>
-              <div className="p-4 space-y-3">
+              <div className="p-5 space-y-3">
                 {draftSaved ? (
                   <div className="text-center py-2 space-y-2">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
                       <CheckCircle className="w-5 h-5 text-emerald-600" />
                     </div>
-                    <p className="text-sm font-semibold text-stone-800">Draft saved!</p>
-                    <p className="text-xs text-stone-500">"{draftSaved.title}"</p>
+                    <p className="text-sm font-semibold text-[#1a1a1a]">Draft saved!</p>
+                    <p className="text-xs text-muted-foreground">"{draftSaved.title}"</p>
                     <div className="flex gap-2">
                       <Link href={`/admin/articles/${draftSaved.id}/edit`} className="flex-1">
-                        <span className="block text-center px-3 py-1.5 bg-[#1c1c1c] text-white text-xs font-medium rounded-lg hover:bg-[#333] transition-colors cursor-pointer">
+                        <span className="block text-center px-3 py-1.5 bg-[#1a1a1a] text-white text-xs font-medium rounded-lg hover:bg-[#333] transition-colors cursor-pointer">
                           Open Editor
                         </span>
                       </Link>
-                      <button
-                        onClick={() => setDraftSaved(null)}
-                        className="flex-1 px-3 py-1.5 border border-stone-200 text-xs font-medium rounded-lg hover:bg-stone-50 transition-colors"
-                      >
+                      <button onClick={() => setDraftSaved(null)}
+                        className="flex-1 px-3 py-1.5 border border-[#e0e0e0] text-xs font-medium rounded-lg hover:bg-[#f5f5f2] transition-colors">
                         New Draft
                       </button>
                     </div>
@@ -342,18 +333,18 @@ export function Dashboard() {
                 ) : (
                   <>
                     <div>
-                      <label className="block text-xs font-medium text-stone-600 mb-1">Title</label>
+                      <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Title</label>
                       <input
-                        className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                        className="w-full px-3 py-2 border border-[#e0e0e0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
                         placeholder="Article title…"
                         value={draft.title}
                         onChange={e => setDraft(d => ({ ...d, title: e.target.value }))}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-stone-600 mb-1">Content</label>
+                      <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Content</label>
                       <textarea
-                        className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 resize-none"
+                        className="w-full px-3 py-2 border border-[#e0e0e0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none bg-white"
                         rows={5}
                         placeholder="Start writing…"
                         value={draft.content}
@@ -362,9 +353,9 @@ export function Dashboard() {
                     </div>
                     {authors.length > 0 && (
                       <div>
-                        <label className="block text-xs font-medium text-stone-600 mb-1">Author</label>
+                        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Author</label>
                         <select
-                          className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                          className="w-full px-3 py-2 border border-[#e0e0e0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white"
                           value={draft.authorId}
                           onChange={e => setDraft(d => ({ ...d, authorId: e.target.value }))}
                         >
@@ -377,7 +368,7 @@ export function Dashboard() {
                     <button
                       onClick={saveDraft}
                       disabled={draftSaving || !draft.title.trim()}
-                      className="w-full py-2 bg-[#4a7c59] text-white text-sm font-medium rounded-lg hover:bg-[#3d6849] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
                       {draftSaving ? "Saving…" : "Save Draft"}
@@ -388,48 +379,46 @@ export function Dashboard() {
             </div>
 
             {/* Site Overview */}
-            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-              <div className="px-4 py-3 border-b border-stone-100 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-stone-400" />
-                <h3 className="text-sm font-semibold text-stone-900">Site Overview</h3>
+            <div className="bg-white rounded-2xl border border-[#eee] overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-[#f0f0f0] flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-[#1a1a1a]">Site Overview</h3>
               </div>
-              <div className="p-4 space-y-4">
-                {/* Newsletter + Appointments */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-rose-50 rounded-lg p-3 text-center">
-                    <Mail className="w-4 h-4 text-rose-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-stone-900">{loading ? "—" : (stats?.subscribers ?? 0)}</p>
-                    <p className="text-[10px] text-stone-500">Subscribers</p>
+              <div className="p-5 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-rose-50 rounded-xl p-3 text-center">
+                    <Mail className="w-4 h-4 text-rose-500 mx-auto mb-1.5" />
+                    <p className="text-lg font-bold text-[#1a1a1a]">{loading ? "—" : (stats?.subscribers ?? 0)}</p>
+                    <p className="text-[10px] text-muted-foreground">Subscribers</p>
                   </div>
-                  <div className="bg-blue-50 rounded-lg p-3 text-center">
-                    <Calendar className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-                    <p className="text-lg font-bold text-stone-900">{loading ? "—" : upcomingCount}</p>
-                    <p className="text-[10px] text-stone-500">Appointments</p>
+                  <div className="bg-blue-50 rounded-xl p-3 text-center">
+                    <Calendar className="w-4 h-4 text-blue-500 mx-auto mb-1.5" />
+                    <p className="text-lg font-bold text-[#1a1a1a]">{loading ? "—" : upcomingCount}</p>
+                    <p className="text-[10px] text-muted-foreground">Appointments</p>
                   </div>
                 </div>
 
-                {/* Top articles by views */}
                 <div>
-                  <p className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-2">Top Articles by Views</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-2">Top Articles by Views</p>
                   {loading ? (
                     <div className="space-y-2">
                       {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
                     </div>
                   ) : topArticles.length === 0 ? (
-                    <p className="text-xs text-stone-400 text-center py-2">No data yet.</p>
+                    <p className="text-xs text-muted-foreground text-center py-2">No data yet.</p>
                   ) : (
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {topArticles.map((a, i) => (
                         <div key={a.id} className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-stone-400 w-4 shrink-0">{i + 1}</span>
+                          <span className="text-[10px] font-bold text-muted-foreground w-4 shrink-0">{i + 1}</span>
                           <div className="flex-1 min-w-0">
                             <Link href={`/admin/articles/${a.id}/edit`}>
-                              <p className="text-xs text-stone-700 truncate hover:text-[#4a7c59] cursor-pointer">{a.title}</p>
+                              <p className="text-xs text-[#333] truncate hover:text-primary cursor-pointer">{a.title}</p>
                             </Link>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
-                            <Eye className="w-3 h-3 text-stone-300" />
-                            <span className="text-[11px] font-medium text-stone-500">{a.views ?? 0}</span>
+                            <Eye className="w-3 h-3 text-muted-foreground/40" />
+                            <span className="text-[11px] font-medium text-muted-foreground">{a.views ?? 0}</span>
                           </div>
                         </div>
                       ))}
@@ -443,11 +432,11 @@ export function Dashboard() {
         </div>
 
         {/* ── Content Health ──────────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-[#eee] overflow-hidden shadow-sm">
+          <div className="px-5 py-3.5 border-b border-[#f0f0f0] flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
-              <h3 className="text-sm font-semibold text-stone-900">Content Health</h3>
+              <h3 className="text-sm font-semibold text-[#1a1a1a]">Content Health</h3>
               {!loading && healthIssues.length > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600">
                   {healthIssues.length} issue{healthIssues.length !== 1 ? "s" : ""}
@@ -455,32 +444,32 @@ export function Dashboard() {
               )}
             </div>
             <Link href="/admin/articles">
-              <span className="text-xs text-[#4a7c59] hover:underline cursor-pointer">View articles →</span>
+              <span className="text-xs text-primary hover:underline cursor-pointer">View articles →</span>
             </Link>
           </div>
           {loading ? (
-            <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div className="p-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
             </div>
           ) : healthIssues.length === 0 ? (
-            <div className="px-4 py-6 text-center">
+            <div className="px-5 py-8 text-center">
               <CheckCircle className="w-10 h-10 text-emerald-200 mx-auto mb-2" />
-              <p className="text-sm font-medium text-stone-700">Everything looks great!</p>
-              <p className="text-xs text-stone-400 mt-0.5">All your articles have images, excerpts, and are up to date.</p>
+              <p className="text-sm font-medium text-[#1a1a1a]">Everything looks great!</p>
+              <p className="text-xs text-muted-foreground mt-1">All your articles have images, excerpts, and are up to date.</p>
             </div>
           ) : (
-            <div className="divide-y divide-stone-50">
+            <div className="divide-y divide-[#f8f8f8]">
               {healthIssues.map((issue, i) => (
-                <div key={i} className="px-4 py-2.5 flex items-center gap-3">
+                <div key={i} className="px-5 py-3 flex items-center gap-3">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <Link href={`/admin/articles/${issue.id}/edit`}>
-                      <p className="text-sm text-stone-700 truncate hover:text-[#4a7c59] cursor-pointer">{issue.title}</p>
+                      <p className="text-sm text-[#1a1a1a] truncate hover:text-primary cursor-pointer">{issue.title}</p>
                     </Link>
                     <p className="text-[11px] text-amber-600 font-medium">{issue.issue}</p>
                   </div>
                   <Link href={`/admin/articles/${issue.id}/edit`}>
-                    <span className="shrink-0 flex items-center gap-1 text-[11px] text-stone-400 hover:text-[#4a7c59] cursor-pointer transition-colors">
+                    <span className="shrink-0 flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary cursor-pointer transition-colors">
                       Fix <ChevronRight className="w-3 h-3" />
                     </span>
                   </Link>
@@ -491,19 +480,19 @@ export function Dashboard() {
         </div>
 
         {/* ── Quick Nav ───────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { href: "/admin/articles/new", icon: Plus,        label: "New Article",  bg: "bg-[#1c1c1c]", text: "text-white" },
-            { href: "/admin/articles",     icon: FileText,    label: "All Articles", bg: "bg-white", text: "text-stone-700" },
-            { href: "/admin/categories",   icon: Folder,      label: "Categories",   bg: "bg-white", text: "text-stone-700" },
-            { href: "/admin/media",        icon: Image,       label: "Media",        bg: "bg-white", text: "text-stone-700" },
-            { href: "/admin/users",        icon: Users,       label: "Users",        bg: "bg-white", text: "text-stone-700" },
-            { href: "/admin/settings",     icon: Settings,    label: "Settings",     bg: "bg-white", text: "text-stone-700" },
-          ].map(({ href, icon: Icon, label, bg, text }) => (
+            { href: "/admin/articles/new", icon: Plus,     label: "New Article",  dark: true },
+            { href: "/admin/articles",     icon: FileText, label: "All Articles", dark: false },
+            { href: "/admin/categories",   icon: Folder,   label: "Categories",   dark: false },
+            { href: "/admin/media",        icon: Image,    label: "Media",        dark: false },
+            { href: "/admin/users",        icon: Users,    label: "Users",        dark: false },
+            { href: "/admin/settings",     icon: Settings, label: "Settings",     dark: false },
+          ].map(({ href, icon: Icon, label, dark }) => (
             <Link key={href} href={href}>
-              <div className={`${bg} border border-stone-200 rounded-xl p-3 flex items-center gap-2.5 hover:shadow-sm hover:border-stone-300 transition-all cursor-pointer`}>
-                <Icon className={`w-4 h-4 ${text === "text-white" ? "text-white" : "text-[#4a7c59]"} shrink-0`} />
-                <span className={`text-xs font-semibold ${text} truncate`}>{label}</span>
+              <div className={`${dark ? "bg-[#1a1a1a]" : "bg-white"} border border-[#e0e0e0] rounded-2xl p-3.5 flex items-center gap-2.5 hover:shadow-md transition-shadow cursor-pointer shadow-sm`}>
+                <Icon className={`w-4 h-4 shrink-0 ${dark ? "text-white" : "text-primary"}`} />
+                <span className={`text-xs font-semibold truncate ${dark ? "text-white" : "text-[#1a1a1a]"}`}>{label}</span>
               </div>
             </Link>
           ))}

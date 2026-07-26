@@ -3,7 +3,7 @@ import {
   FileText, Users, Tag, Folder, LayoutDashboard, ChevronRight,
   Globe, LogOut, UserCog, Calendar, CreditCard,
   Video, Mail, Image, Search, ArrowLeftRight, Settings, Shield,
-  ClipboardList, BookOpen, ChevronDown, Menu, X, PanelTop, MessageCircle,
+  ClipboardList, BookOpen, Menu, X, PanelTop, MessageCircle, Check,
 } from "lucide-react";
 import { useAuth, can } from "@/lib/auth";
 import { useState, useEffect } from "react";
@@ -29,45 +29,44 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Content",
     items: [
-      { href: "/admin/articles", icon: FileText, label: "Articles", resource: "articles" },
-      { href: "/admin/categories", icon: Folder, label: "Categories", resource: "categories" },
-      { href: "/admin/authors", icon: BookOpen, label: "Authors", resource: "authors" },
-      { href: "/admin/tags", icon: Tag, label: "Tags", resource: "tags" },
-      { href: "/admin/comments", icon: MessageCircle, label: "Comments", resource: "articles" },
-
-      { href: "/admin/media", icon: Image, label: "Media Library", resource: "media" },
+      { href: "/admin/articles",   icon: FileText,     label: "Articles",      resource: "articles" },
+      { href: "/admin/categories", icon: Folder,       label: "Categories",    resource: "categories" },
+      { href: "/admin/authors",    icon: BookOpen,     label: "Authors",       resource: "authors" },
+      { href: "/admin/tags",       icon: Tag,          label: "Tags",          resource: "tags" },
+      { href: "/admin/comments",   icon: MessageCircle,label: "Comments",      resource: "articles" },
+      { href: "/admin/media",      icon: Image,        label: "Media Library", resource: "media" },
     ],
   },
   {
     label: "Expertise",
     items: [
-      { href: "/admin/experts", icon: Users, label: "Experts", resource: "experts" },
-      { href: "/admin/appointments", icon: Calendar, label: "Appointments", resource: "appointments" },
-      { href: "/admin/zoom", icon: Video, label: "Zoom Meetings", resource: "zoom" },
+      { href: "/admin/experts",     icon: Users,    label: "Experts",      resource: "experts" },
+      { href: "/admin/appointments",icon: Calendar, label: "Appointments", resource: "appointments" },
+      { href: "/admin/zoom",        icon: Video,    label: "Zoom Meetings",resource: "zoom" },
     ],
   },
   {
     label: "Commerce",
     items: [
-      { href: "/admin/payments", icon: CreditCard, label: "Payments", resource: "payments" },
-      { href: "/admin/newsletter", icon: Mail, label: "Newsletter", resource: "newsletter" },
+      { href: "/admin/payments",   icon: CreditCard, label: "Payments",   resource: "payments" },
+      { href: "/admin/newsletter", icon: Mail,       label: "Newsletter", resource: "newsletter" },
     ],
   },
   {
     label: "Configuration",
     items: [
-      { href: "/admin/page-content", icon: PanelTop, label: "Page Content", resource: "settings" },
-      { href: "/admin/seo", icon: Search, label: "SEO", resource: "seo" },
-      { href: "/admin/redirects", icon: ArrowLeftRight, label: "Redirects", resource: "redirects" },
-      { href: "/admin/settings", icon: Settings, label: "Site Settings", resource: "settings" },
+      { href: "/admin/page-content", icon: PanelTop,       label: "Page Content", resource: "settings" },
+      { href: "/admin/seo",          icon: Search,         label: "SEO",          resource: "seo" },
+      { href: "/admin/redirects",    icon: ArrowLeftRight, label: "Redirects",    resource: "redirects" },
+      { href: "/admin/settings",     icon: Settings,       label: "Site Settings",resource: "settings" },
     ],
   },
   {
     label: "Admin",
     items: [
-      { href: "/admin/users", icon: UserCog, label: "Users", resource: "users" },
-      { href: "/admin/audit-logs", icon: ClipboardList, label: "Audit Logs", resource: "audit_logs" },
-      { href: "/admin/security-logs", icon: Shield, label: "Security Logs", resource: "security_logs" },
+      { href: "/admin/users",         icon: UserCog,     label: "Users",         resource: "users" },
+      { href: "/admin/audit-logs",    icon: ClipboardList,label: "Audit Logs",   resource: "audit_logs" },
+      { href: "/admin/security-logs", icon: Shield,      label: "Security Logs", resource: "security_logs" },
     ],
   },
 ];
@@ -77,6 +76,10 @@ const ROLE_LABELS: Record<string, string> = {
   author: "Author", consultant: "Consultant", user: "User",
 };
 
+function initials(name: string) {
+  return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+}
+
 export function AdminLayout({ children, title, breadcrumbs }: {
   children: React.ReactNode;
   title: string;
@@ -84,21 +87,14 @@ export function AdminLayout({ children, title, breadcrumbs }: {
 }) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Close sidebar on route change (mobile nav tap)
   useEffect(() => { setSidebarOpen(false); }, [location]);
 
-  // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [sidebarOpen]);
-
-  const toggleSection = (label: string) => {
-    setCollapsedSections(prev => ({ ...prev, [label]: !prev[label] }));
-  };
 
   const visibleSections = NAV_SECTIONS.map(section => ({
     ...section,
@@ -107,130 +103,141 @@ export function AdminLayout({ children, title, breadcrumbs }: {
     ),
   })).filter(section => section.items.length > 0);
 
+  const pageTitle = breadcrumbs ? breadcrumbs[breadcrumbs.length - 1]?.label : title;
+
   return (
-    <div className="min-h-screen bg-[#f5f5f4] flex">
-      {/* Mobile backdrop */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <div className="min-h-screen bg-[#f0f0ee] flex flex-col">
 
-      {/* Sidebar */}
-      <aside className={`
-        w-64 lg:w-56 bg-[#111111] flex flex-col shrink-0
-        fixed inset-y-0 left-0 z-40
-        transition-transform duration-200 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
-      `}>
-        {/* Logo */}
-        <div className="px-4 py-4 border-b border-white/10 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 bg-[#4a7c59] rounded flex items-center justify-center shrink-0">
-              <Globe className="w-4 h-4 text-white" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-white text-xs font-bold leading-none truncate">Laundry Master</p>
-              <p className="text-white/40 text-[10px] mt-0.5">CMS Admin</p>
-            </div>
-          </Link>
-          {/* Close button — mobile only */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1 text-white/40 hover:text-white"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+      {/* ── Sticky top bar ── */}
+      <header className="bg-white border-b border-[#eaeaea] h-14 flex items-center justify-between px-4 sticky top-0 z-30 shrink-0">
+        <button
+          onClick={() => setSidebarOpen(o => !o)}
+          className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          {sidebarOpen ? <X className="w-5 h-5 text-[#555]" /> : <Menu className="w-5 h-5 text-[#555]" />}
+        </button>
 
-        {/* Nav */}
-        <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
-          {visibleSections.map((section) => (
-            <div key={section.label || "main"} className="mb-1">
-              {section.label && (
-                <button
-                  onClick={() => toggleSection(section.label)}
-                  className="w-full flex items-center justify-between px-2 py-1 mb-0.5 group"
-                >
-                  <span className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">
-                    {section.label}
-                  </span>
-                  <ChevronDown className={`w-3 h-3 text-white/20 transition-transform ${collapsedSections[section.label] ? "-rotate-90" : ""}`} />
-                </button>
-              )}
-              {!collapsedSections[section.label] && section.items.map(({ href, icon: Icon, label, exact }) => {
-                const isActive = exact ? location === href : location.startsWith(href) && href !== "/admin";
-                return (
-                  <Link key={href} href={href}>
-                    <span className={`flex items-center gap-2.5 px-2.5 py-2 lg:py-1.5 rounded text-sm cursor-pointer transition-colors ${
-                      isActive ? "bg-white/10 text-white" : "text-white/50 hover:text-white hover:bg-white/5"
-                    }`}>
-                      <Icon className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate text-xs">{label}</span>
-                      {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#4a7c59] shrink-0" />}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
+        <span className="font-bold text-base text-[#1a1a1a]">{pageTitle}</span>
 
-        {/* Footer — user info + logout */}
-        <div className="px-2 py-3 border-t border-white/10">
-          {user && (
-            <div className="px-2.5 py-2 mb-1 rounded bg-white/5">
-              <p className="text-white text-xs font-medium truncate">{user.name}</p>
-              <p className="text-white/40 text-[10px] truncate">{ROLE_LABELS[user.role] ?? user.role}</p>
-            </div>
-          )}
-          <Link href="/">
-            <span className="flex items-center gap-2.5 px-2.5 py-1.5 rounded text-xs text-white/40 hover:text-white hover:bg-white/5 cursor-pointer transition-colors">
-              <Globe className="w-3.5 h-3.5" /> View Site
-            </span>
-          </Link>
-          <button
-            onClick={() => logout()}
-            className="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded text-xs text-white/40 hover:text-red-400 hover:bg-white/5 cursor-pointer transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" /> Sign out
-          </button>
-        </div>
-      </aside>
-
-      {/* Main */}
-      <div className="pl-0 lg:pl-56 flex-1 flex flex-col min-h-screen w-full min-w-0">
-        {/* Top bar */}
-        <header className="bg-white border-b border-stone-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-20">
-          {/* Hamburger — mobile only */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-1.5 -ml-1 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-
-          {/* Breadcrumbs / title */}
-          <div className="flex items-center gap-2 min-w-0">
-            {breadcrumbs ? (
-              breadcrumbs.map((b, i) => (
-                <span key={i} className="flex items-center gap-2 min-w-0">
-                  {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-stone-400 shrink-0" />}
-                  {b.href
-                    ? <Link href={b.href}><span className="text-sm text-stone-500 hover:text-stone-900 cursor-pointer truncate">{b.label}</span></Link>
-                    : <span className="text-sm text-stone-900 font-medium truncate">{b.label}</span>}
-                </span>
-              ))
+        {user && (
+          <div className="w-9 h-9 shrink-0">
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.name}
+                className="w-9 h-9 rounded-full object-cover border border-[#e0e0e0]" />
             ) : (
-              <span className="text-sm font-semibold text-stone-900 truncate">{title}</span>
+              <div className="w-9 h-9 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center text-sm font-bold select-none">
+                {initials(user.name)}
+              </div>
             )}
           </div>
-        </header>
+        )}
+      </header>
 
-        {/* Content */}
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+      <div className="flex flex-1 min-h-0">
+
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 top-14 bg-black/20 z-20 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* ── Sidebar ── */}
+        <aside className={`
+          fixed top-14 left-0 bottom-0 w-60 bg-white border-r border-[#eaeaea] z-20
+          flex flex-col overflow-y-auto
+          transition-transform duration-200
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:sticky lg:top-14 lg:translate-x-0 lg:flex lg:h-[calc(100vh-56px)]
+        `}>
+          {/* User info */}
+          <div className="px-4 py-4 border-b border-[#f0f0f0] shrink-0">
+            <div className="flex items-center gap-3">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name}
+                  className="w-10 h-10 rounded-full object-cover border border-[#e0e0e0] shrink-0" />
+              ) : (
+                <div className="w-10 h-10 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0 select-none">
+                  {user ? initials(user.name) : "?"}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="font-semibold text-sm text-[#1a1a1a] truncate">{user?.name}</p>
+                <p className="text-[10px] text-muted-foreground">{user ? (ROLE_LABELS[user.role] ?? user.role) : ""}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Nav */}
+          <nav className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
+            {visibleSections.map((section) => (
+              <div key={section.label || "main"}>
+                {section.label && (
+                  <p className="px-3 mb-1 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">
+                    {section.label}
+                  </p>
+                )}
+                <div className="space-y-0.5">
+                  {section.items.map(({ href, icon: Icon, label, exact }) => {
+                    const isActive = exact
+                      ? location === href
+                      : location.startsWith(href) && href !== "/admin";
+                    return (
+                      <Link key={href} href={href}>
+                        <span className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-colors
+                          ${isActive
+                            ? "bg-primary/10 text-primary"
+                            : "text-[#555] hover:bg-[#f5f5f2] hover:text-[#1a1a1a]"
+                          }`}>
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-primary" : "text-[#888]"}`} />
+                          <span className="truncate">{label}</span>
+                          {isActive && <Check className="w-3.5 h-3.5 ml-auto text-primary shrink-0" />}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          {/* Footer */}
+          <div className="border-t border-[#f0f0f0] px-2 py-3 space-y-0.5 shrink-0">
+            <Link href="/">
+              <span className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[#555] hover:bg-[#f5f5f2] hover:text-[#1a1a1a] cursor-pointer transition-colors">
+                <Globe className="w-4 h-4 text-[#888]" />
+                View Site
+              </span>
+            </Link>
+            <button
+              onClick={() => logout()}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[#555] hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors"
+            >
+              <LogOut className="w-4 h-4 text-[#888]" />
+              Sign out
+            </button>
+          </div>
+        </aside>
+
+        {/* ── Main content ── */}
+        <main className="flex-1 min-w-0 p-4 lg:p-6 xl:p-8 overflow-auto">
+          {/* Breadcrumbs (below top bar, inside content) */}
+          {breadcrumbs && breadcrumbs.length > 1 && (
+            <div className="flex items-center gap-1.5 mb-4 text-xs text-muted-foreground">
+              {breadcrumbs.map((b, i) => (
+                <span key={i} className="flex items-center gap-1.5">
+                  {i > 0 && <ChevronRight className="w-3 h-3 shrink-0" />}
+                  {b.href
+                    ? <Link href={b.href}><span className="hover:text-primary cursor-pointer transition-colors">{b.label}</span></Link>
+                    : <span className="text-[#1a1a1a] font-medium">{b.label}</span>
+                  }
+                </span>
+              ))}
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );
