@@ -110,10 +110,10 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   const pageTitle = breadcrumbs ? breadcrumbs[breadcrumbs.length - 1]?.label : title;
 
   return (
-    <div className="min-h-screen bg-[#f0f0ee] flex flex-col">
+    <div className="h-screen bg-[#f0f0ee] flex flex-col overflow-hidden">
 
-      {/* ── Sticky top bar ── */}
-      <header className="bg-white border-b border-[#eaeaea] h-14 flex items-center justify-between px-4 sticky top-0 z-30 shrink-0">
+      {/* ── Top bar ── */}
+      <header className="bg-white border-b border-[#eaeaea] h-14 flex items-center justify-between px-4 z-30 shrink-0">
         <button
           onClick={() => setSidebarOpen(o => !o)}
           className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
@@ -137,7 +137,7 @@ export function AdminLayout({ children, title, breadcrumbs }: {
         )}
       </header>
 
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 overflow-hidden">
 
         {/* Mobile overlay */}
         {sidebarOpen && (
@@ -153,8 +153,8 @@ export function AdminLayout({ children, title, breadcrumbs }: {
           "fixed top-14 left-0 bottom-0 w-60 bg-white border-r border-[#eaeaea] z-20",
           "flex flex-col overflow-y-auto transition-transform duration-200",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
-          // Desktop: sticky in flex flow, toggled via display
-          "lg:sticky lg:top-14 lg:h-[calc(100vh-56px)] lg:translate-x-0",
+          // Desktop: part of the flex row, fills available height naturally
+          "lg:static lg:translate-x-0 lg:h-auto lg:shrink-0",
           sidebarOpen ? "lg:flex" : "lg:hidden",
         ].join(" ")}>
           {/* User info */}
