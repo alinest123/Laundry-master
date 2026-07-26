@@ -101,7 +101,11 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   }, []);
 
   useEffect(() => {
-    if (navRef.current) navRef.current.scrollTop = savedScrollTop.current;
+    // Defer past any browser scroll-into-view triggered by link focus.
+    const raf = requestAnimationFrame(() => {
+      if (navRef.current) navRef.current.scrollTop = savedScrollTop.current;
+    });
+    return () => cancelAnimationFrame(raf);
   }, [location]);
 
   // Lock body scroll only on mobile (when the overlay is visible).
@@ -167,8 +171,8 @@ export function AdminLayout({ children, title, breadcrumbs }: {
           "fixed top-14 left-0 bottom-0 w-60 bg-white border-r border-[#eaeaea] z-20",
           "flex flex-col overflow-y-auto transition-transform duration-200",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
-          // Desktop: part of the flex row, fills available height naturally
-          "lg:static lg:translate-x-0 lg:h-auto lg:shrink-0",
+          // Desktop: part of the flex row, fixed height so nav can scroll
+          "lg:static lg:translate-x-0 lg:h-full lg:shrink-0",
           sidebarOpen ? "lg:flex" : "lg:hidden",
         ].join(" ")}>
           {/* User info */}
@@ -205,7 +209,9 @@ export function AdminLayout({ children, title, breadcrumbs }: {
                       : location.startsWith(href) && href !== "/admin";
                     return (
                       <Link key={href} href={href}>
-                        <span className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-colors
+                        {/* onMouseDown preventDefault stops the browser from focusing the <a>
+                            and calling scrollIntoView, which would reset the nav scroll. */}
+                        <span onMouseDown={e => e.preventDefault()} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-colors
                           ${isActive
                             ? "bg-primary/10 text-primary"
                             : "text-[#555] hover:bg-[#f5f5f2] hover:text-[#1a1a1a]"
