@@ -16,9 +16,12 @@ import userRouter from "./user";
 import pageContentRouter from "./page-content";
 import commentsRouter from "./comments";
 import storageRouter from "./storage";
+import siteStatusRouter, { maintenanceGate } from "./site-status";
 
 const router = Router();
 
+router.use(siteStatusRouter);     // /site-status — public, must be first
+router.use(maintenanceGate);      // blocks public routes during maintenance
 router.use(storageRouter);
 router.use(healthRouter);
 router.use(adminRouter);          // /admin/* — must come before public routes

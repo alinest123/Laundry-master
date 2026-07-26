@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { siteSettingsTable } from "@workspace/db";
 import { requirePermission } from "../../middleware/requirePermission";
 import { logAudit } from "../../lib/audit";
+import { invalidateStatusCache } from "../site-status";
 
 const router = Router();
 
@@ -39,6 +40,7 @@ router.put("/settings", requirePermission("settings", "edit"), async (req, res):
       [row] = await db.insert(siteSettingsTable).values({ id: 1, ...upd } as any).returning();
     }
     await logAudit(req, "update", "settings", 1, upd);
+    invalidateStatusCache();
     res.json(row);
   } catch { res.status(500).json({ error: "Failed to save settings" }); }
 });

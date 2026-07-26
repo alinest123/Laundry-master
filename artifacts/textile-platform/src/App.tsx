@@ -1,13 +1,15 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
+import { MaintenancePage } from "@/pages/MaintenancePage";
+import { apiGet } from "@/lib/api";
 
 import { Home } from "@/pages/Home";
 import { ArticleList } from "@/pages/articles/ArticleList";
@@ -55,6 +57,26 @@ import { AuditLogs } from "@/pages/admin/AuditLogs";
 import { SecurityLogs } from "@/pages/admin/SecurityLogs";
 
 const queryClient = new QueryClient();
+
+// ── Maintenance gate ──────────────────────────────────────────────────────────
+function MaintenanceGate({ children }: { children: React.ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
+  const { data } = useQuery<{ maintenanceMode: boolean; siteName: string }>({
+    queryKey: ["site-status"],
+    queryFn: () => apiGet("/api/site-status"),
+    staleTime: 10_000,
+    refetchInterval: 15_000, // re-check every 15 s so turning it off/on reflects quickly
+  });
+
+  // Admins always bypass maintenance
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+
+  if (!authLoading && data?.maintenanceMode && !isAdmin) {
+    return <MaintenancePage siteName={data.siteName} />;
+  }
+
+  return <>{children}</>;
+}
 
 function AdminRoute({ path, component: Component }: { path: string; component: React.ComponentType }) {
   return (
@@ -131,7 +153,9 @@ function App() {
       <TooltipProvider>
         <AuthProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
+            <MaintenanceGate>
+              <Router />
+            </MaintenanceGate>
           </WouterRouter>
           <ScrollToTopButton />
           <Toaster />
