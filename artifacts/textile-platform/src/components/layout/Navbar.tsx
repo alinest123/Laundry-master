@@ -66,10 +66,13 @@ function TopBanner() {
             <Clock className="w-3 h-3 shrink-0" strokeWidth={2} />
             <span>{hours}</span>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 text-[#aaa] text-[0.72rem]">
+          <a
+            href={`tel:${phone.replace(/\s+/g, "")}`}
+            className="hidden sm:flex items-center gap-1.5 text-[#aaa] text-[0.72rem] hover:text-white transition-colors"
+          >
             <Phone className="w-3 h-3 shrink-0" strokeWidth={2} />
             <span>{phone}</span>
-          </div>
+          </a>
           <div className="hidden md:flex items-center gap-1.5 text-[#aaa] text-[0.72rem]">
             <MapPin className="w-3 h-3 shrink-0" strokeWidth={2} />
             <span>{location}</span>
