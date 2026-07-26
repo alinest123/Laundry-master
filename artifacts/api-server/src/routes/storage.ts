@@ -2,6 +2,7 @@ import { Readable } from "stream";
 import { z } from "zod";
 import { Router, type IRouter, type Request, type Response } from "express";
 import { ObjectNotFoundError, ObjectStorageService } from "../lib/objectStorage";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
@@ -12,21 +13,12 @@ const UploadRequestBody = z.object({
   contentType: z.string().min(1),
 });
 
-function isAuthenticated(req: Request): boolean {
-  return typeof (req as any).isAuthenticated === "function" && (req as any).isAuthenticated();
-}
-
 /**
  * POST /storage/uploads/request-url
  * Admin-only: returns a presigned GCS PUT URL.
  * Client uploads the file directly to GCS, never via this server.
  */
-router.post("/storage/uploads/request-url", async (req: Request, res: Response) => {
-  if (!isAuthenticated(req)) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
+router.post("/storage/uploads/request-url", requireAuth, async (req: Request, res: Response) => {
   const parsed = UploadRequestBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "name, size, and contentType are required" });

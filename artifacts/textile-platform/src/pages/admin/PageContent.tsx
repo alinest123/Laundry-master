@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link as LinkIcon } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { adminApi } from "@/lib/adminApi";
@@ -302,7 +303,7 @@ export function PageContent() {
                           />
                         ) : field.type === "url" ? (
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs select-none">🔗</span>
+                            <LinkIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
                             <input
                               type="url"
                               value={getVal(activeTab, field.key)}

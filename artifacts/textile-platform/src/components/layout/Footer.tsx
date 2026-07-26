@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useState } from "react";
+import { CheckCircle } from "lucide-react";
 import { usePageContent } from "@/lib/usePageContent";
 
 const COLS = [
@@ -73,7 +74,7 @@ export function Footer() {
             {c("newsletter_label", "Newsletter Sign-up")}
           </p>
           {submitted ? (
-            <p className="text-[#5a8c5e] text-sm font-semibold">✓ Thank you for subscribing!</p>
+            <p className="text-[#5a8c5e] text-sm font-semibold flex items-center gap-1.5"><CheckCircle className="w-4 h-4 shrink-0" /> Thank you for subscribing!</p>
           ) : (
             <form onSubmit={handleSubscribe} className="flex gap-2">
               <input

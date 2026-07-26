@@ -150,14 +150,14 @@ export function Dashboard() {
                 </p>
                 <div className="flex flex-wrap gap-2 mt-3">
                   {[
-                    { href: "/admin/articles/new", label: "✏️ New Article" },
-                    { href: "/admin/categories",   label: "📁 Categories" },
-                    { href: "/admin/media",        label: "🖼 Media Library" },
-                    { href: "/admin/settings",     label: "⚙️ Settings" },
-                  ].map(({ href, label }) => (
+                    { href: "/admin/articles/new", label: "New Article",   Icon: Pencil },
+                    { href: "/admin/categories",   label: "Categories",    Icon: Folder },
+                    { href: "/admin/media",        label: "Media Library", Icon: Image },
+                    { href: "/admin/settings",     label: "Settings",      Icon: Settings },
+                  ].map(({ href, label, Icon }) => (
                     <Link key={href} href={href}>
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition-colors cursor-pointer">
-                        {label}
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-medium transition-colors cursor-pointer">
+                        <Icon className="w-3.5 h-3.5" /> {label}
                       </span>
                     </Link>
                   ))}

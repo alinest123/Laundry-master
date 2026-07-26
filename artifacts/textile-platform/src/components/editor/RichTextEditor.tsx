@@ -19,21 +19,22 @@ import {
   Bold, Italic, UnderlineIcon, Strikethrough, Code, Subscript as SubIcon,
   Superscript as SupIcon, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered, IndentDecrease, IndentIncrease, Quote, Minus,
-  Link as LinkIcon, ImageIcon, Table as TableIcon, Undo2, Redo2,
+  Link as LinkIcon, Link2, Upload, ImageIcon, Table as TableIcon, Undo2, Redo2,
   ChevronDown, X, Check, AlertTriangle, Lightbulb, Info, Star,
-  Wrench, FlaskConical, CornerDownLeft, Code2,
+  Wrench, FlaskConical, Code2, Shirt, SprayCan,
 } from "lucide-react";
 
 // ── Custom Callout Node ────────────────────────────────────────────────────────
-const CALLOUT_TYPES: Record<string, { label: string; icon: string; border: string; bg: string; iconColor: string }> = {
-  "expert-tip":      { label: "Expert Tip",        icon: "💡", border: "border-teal-400",  bg: "bg-teal-50",   iconColor: "text-teal-600" },
-  "warning":         { label: "Warning",            icon: "⚠️", border: "border-red-400",   bg: "bg-red-50",    iconColor: "text-red-600" },
-  "important-note":  { label: "Important Note",     icon: "ℹ️", border: "border-blue-400",  bg: "bg-blue-50",   iconColor: "text-blue-600" },
-  "key-takeaway":    { label: "Key Takeaway",       icon: "⭐", border: "border-amber-400", bg: "bg-amber-50",  iconColor: "text-amber-600" },
-  "chemical-warning":{ label: "Chemical Warning",   icon: "⚗️", border: "border-red-600",   bg: "bg-red-100",   iconColor: "text-red-700" },
-  "pro-tip":         { label: "Professional Tip",   icon: "🔧", border: "border-green-400", bg: "bg-green-50",  iconColor: "text-green-700" },
-  "fabric-care":     { label: "Fabric Care",        icon: "👔", border: "border-indigo-400",bg: "bg-indigo-50", iconColor: "text-indigo-700" },
-  "stain-removal":   { label: "Stain Removal",      icon: "🧹", border: "border-violet-400",bg: "bg-violet-50", iconColor: "text-violet-700" },
+type CalloutInfo = { label: string; Icon: React.ComponentType<{ className?: string }>; border: string; bg: string; iconColor: string };
+const CALLOUT_TYPES: Record<string, CalloutInfo> = {
+  "expert-tip":      { label: "Expert Tip",        Icon: Lightbulb,    border: "border-teal-400",  bg: "bg-teal-50",   iconColor: "text-teal-600" },
+  "warning":         { label: "Warning",            Icon: AlertTriangle, border: "border-red-400",   bg: "bg-red-50",    iconColor: "text-red-600" },
+  "important-note":  { label: "Important Note",     Icon: Info,          border: "border-blue-400",  bg: "bg-blue-50",   iconColor: "text-blue-600" },
+  "key-takeaway":    { label: "Key Takeaway",       Icon: Star,          border: "border-amber-400", bg: "bg-amber-50",  iconColor: "text-amber-600" },
+  "chemical-warning":{ label: "Chemical Warning",   Icon: FlaskConical,  border: "border-red-600",   bg: "bg-red-100",   iconColor: "text-red-700" },
+  "pro-tip":         { label: "Professional Tip",   Icon: Wrench,        border: "border-green-400", bg: "bg-green-50",  iconColor: "text-green-700" },
+  "fabric-care":     { label: "Fabric Care",        Icon: Shirt,         border: "border-indigo-400",bg: "bg-indigo-50", iconColor: "text-indigo-700" },
+  "stain-removal":   { label: "Stain Removal",      Icon: SprayCan,      border: "border-violet-400",bg: "bg-violet-50", iconColor: "text-violet-700" },
 };
 
 const CalloutBlock = Node.create({
@@ -60,8 +61,8 @@ const CalloutBlock = Node.create({
         class: `callout callout-${t}`,
         style: `border-left: 4px solid; padding: 1rem 1.25rem; margin: 1.25rem 0; border-radius: 0 0.5rem 0.5rem 0;`,
       }),
-      ["p", { class: "callout-label", style: "font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 0.5rem;display:flex;align-items:center;gap:0.5rem;" },
-        `${info.icon} ${info.label}`],
+      ["p", { class: "callout-label", style: "font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 0.5rem;" },
+        info.label],
       ["div", { class: "callout-content" }, 0],
     ];
   },
@@ -219,7 +220,9 @@ function ImageModal({ onConfirm, onClose }: {
               className={`pb-2.5 mr-5 text-xs font-medium border-b-2 transition-colors ${
                 tab === t ? "border-[#4a7c59] text-[#4a7c59]" : "border-transparent text-stone-500 hover:text-stone-700"
               }`}>
-              {t === "url" ? "🔗 Paste URL" : "📁 Upload from device"}
+              <span className="flex items-center gap-1.5">
+                {t === "url" ? <><Link2 className="w-3 h-3" /> Paste URL</> : <><Upload className="w-3 h-3" /> Upload from device</>}
+              </span>
             </button>
           ))}
         </div>
@@ -241,7 +244,7 @@ function ImageModal({ onConfirm, onClose }: {
                 </label>
                 <input className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
                   placeholder="Describe the image for accessibility…" value={alt} onChange={e => setAlt(e.target.value)} />
-                {src && !alt && <p className="text-xs text-amber-600 mt-1">⚠ Alt text improves accessibility and SEO.</p>}
+                {src && !alt && <p className="text-xs text-amber-600 mt-1 flex items-center gap-1"><AlertTriangle className="w-3 h-3 shrink-0" /> Alt text improves accessibility and SEO.</p>}
               </div>
               {src && (
                 <img src={src} alt={alt} className="w-full h-32 object-contain border border-stone-100 rounded-lg bg-stone-50"
@@ -264,7 +267,7 @@ function ImageModal({ onConfirm, onClose }: {
               {!file ? (
                 <button type="button" onClick={() => fileInputRef.current?.click()}
                   className="w-full border-2 border-dashed border-stone-200 rounded-xl p-8 text-center hover:border-[#4a7c59] hover:bg-[#4a7c59]/5 transition-colors group">
-                  <div className="text-3xl mb-2">🖼️</div>
+                  <ImageIcon className="w-10 h-10 text-stone-300 group-hover:text-[#4a7c59]/50 mx-auto mb-2 transition-colors" />
                   <p className="text-sm font-medium text-stone-700 group-hover:text-[#4a7c59]">Click to choose an image</p>
                   <p className="text-xs text-stone-400 mt-1">JPG, PNG, GIF, WebP — up to 10 MB</p>
                 </button>
@@ -559,7 +562,7 @@ export function RichTextEditor({ value, onChange, placeholder, onSave }: RichTex
               {Object.entries(CALLOUT_TYPES).map(([type, info]) => (
                 <button key={type} type="button" onClick={() => setCallout(type)}
                   className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-2">
-                  <span>{info.icon}</span> {info.label}
+                  <info.Icon className={`w-3.5 h-3.5 shrink-0 ${info.iconColor}`} /> {info.label}
                 </button>
               ))}
             </div>
