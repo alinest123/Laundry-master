@@ -5,6 +5,7 @@ import {
   articlesTable, articleCategoriesTable, articleTagsTable,
   articleRelatedTable, articleImagesTable, articleFaqsTable,
   articleReferencesTable, authorsTable, categoriesTable, tagsTable,
+  articleRevisionsTable,
 } from "@workspace/db";
 import { requirePermission } from "../../middleware/requirePermission";
 
@@ -162,6 +163,18 @@ router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (
     const id = parseInt(req.params.id as string);
     const { categoryIds, tagIds, relatedArticleIds, images, faqs, references, ...f } = req.body;
 
+    // Save revision snapshot before overwriting
+    const existing = await db.select().from(articlesTable).where(eq(articlesTable.id, id)).limit(1);
+    if (existing[0]) {
+      await db.insert(articleRevisionsTable).values({
+        articleId: id,
+        title: existing[0].title,
+        content: existing[0].content,
+        snapshot: JSON.stringify(existing[0]),
+        savedBy: (req as any).user?.email ?? "unknown",
+      });
+    }
+
     const upd: Record<string, unknown> = {};
     const str = (k: string) => { if (f[k] !== undefined) upd[k] = f[k]; };
     const bool = (k: string) => { if (f[k] !== undefined) upd[k] = f[k]; };
@@ -182,6 +195,53 @@ router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (
     if (err?.code === "23505") res.status(409).json({ error: "Slug already exists" });
     else res.status(500).json({ error: "Failed to update article" });
   }
+});
+
+// ── REVISIONS ─────────────────────────────────────────────────────────────────
+router.get("/admin/articles/:id/revisions", requirePermission("articles", "view"), async (req, res): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id as string);
+    const revisions = await db.select({
+      id: articleRevisionsTable.id,
+      articleId: articleRevisionsTable.articleId,
+      title: articleRevisionsTable.title,
+      savedBy: articleRevisionsTable.savedBy,
+      createdAt: articleRevisionsTable.createdAt,
+    })
+      .from(articleRevisionsTable)
+      .where(eq(articleRevisionsTable.articleId, id))
+      .orderBy(desc(articleRevisionsTable.createdAt))
+      .limit(30);
+    res.json(revisions);
+  } catch { res.status(500).json({ error: "Failed to load revisions" }); }
+});
+
+router.post("/admin/articles/:id/revisions/:revId/restore", requirePermission("articles", "edit"), async (req, res): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id as string);
+    const revId = parseInt(req.params.revId as string);
+
+    const [rev] = await db.select()
+      .from(articleRevisionsTable)
+      .where(and(eq(articleRevisionsTable.id, revId), eq(articleRevisionsTable.articleId, id)))
+      .limit(1);
+
+    if (!rev) { res.status(404).json({ error: "Revision not found" }); return; }
+
+    // Parse the snapshot to restore all fields
+    const snap = JSON.parse(rev.snapshot || "{}");
+
+    await db.update(articlesTable).set({
+      title: rev.title,
+      content: rev.content,
+      ...(snap.excerpt !== undefined ? { excerpt: snap.excerpt } : {}),
+      ...(snap.featuredImage !== undefined ? { featuredImage: snap.featuredImage } : {}),
+      ...(snap.metaTitle !== undefined ? { metaTitle: snap.metaTitle } : {}),
+      ...(snap.metaDescription !== undefined ? { metaDescription: snap.metaDescription } : {}),
+    }).where(eq(articlesTable.id, id));
+
+    res.json({ ok: true, title: rev.title });
+  } catch { res.status(500).json({ error: "Failed to restore revision" }); }
 });
 
 // ── DELETE ────────────────────────────────────────────────────────────────────

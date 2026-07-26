@@ -1,11 +1,13 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation, useParams } from "wouter";
 import {
   Save, Send, Calendar, Plus, Trash2, ChevronDown, ChevronUp,
-  Image, HelpCircle, BookOpen, Search, X, ExternalLink,
+  Image, HelpCircle, BookOpen, Search, X, ExternalLink, History,
+  RotateCcw, Clock,
 } from "lucide-react";
 import { AdminLayout } from "../AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type ArticleImage = { url: string; caption: string; altText: string; sortOrder: number };
@@ -35,7 +37,7 @@ const EMPTY: FormData = {
   images: [], faqs: [], references: [],
 };
 
-const SIDEBAR_TABS = ["Publish", "Organize", "SEO", "Media", "Extras"] as const;
+const SIDEBAR_TABS = ["Publish", "Organize", "SEO", "Media", "Extras", "Revisions"] as const;
 type SidebarTab = (typeof SIDEBAR_TABS)[number];
 
 const STATUS_OPTS = [
@@ -80,6 +82,18 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-2">{children}</p>;
 }
 
+function fmtRelative(dateStr: string) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+  if (diffMin < 1)  return "just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24)   return `${diffH}h ago`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export function ArticleEditor() {
   const params = useParams<{ id?: string }>();
@@ -93,6 +107,16 @@ export function ArticleEditor() {
   const [loading, setLoading] = useState(!isNew);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+
+  // Revision state
+  const [revisions, setRevisions] = useState<any[]>([]);
+  const [revisionsLoading, setRevisionsLoading] = useState(false);
+  const [restoringRevId, setRestoringRevId] = useState<number | null>(null);
+
+  // Autosave state
+  const [autoSavedAt, setAutoSavedAt] = useState<Date | null>(null);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedContent = useRef<string>("");
 
   // Data for selectors
   const [authors, setAuthors] = useState<any[]>([]);
@@ -120,9 +144,10 @@ export function ArticleEditor() {
     if (!articleId) return;
     setLoading(true);
     adminApi.articles.get(articleId).then((a: any) => {
+      const content = a.content ?? "";
       setForm({
         title: a.title ?? "", slug: a.slug ?? "", excerpt: a.excerpt ?? "",
-        content: a.content ?? "", featuredImage: a.featuredImage ?? "",
+        content, featuredImage: a.featuredImage ?? "",
         readingTime: a.readingTime ?? 5, status: a.status ?? "draft",
         publishedAt: a.publishedAt ? a.publishedAt.slice(0, 16) : "",
         scheduledAt: a.scheduledAt ? a.scheduledAt.slice(0, 16) : "",
@@ -138,6 +163,7 @@ export function ArticleEditor() {
         faqs: a.faqs?.map((f: any) => ({ question: f.question, answer: f.answer, sortOrder: f.sortOrder ?? 0 })) ?? [],
         references: a.references?.map((r: any) => ({ title: r.title, url: r.url ?? "", description: r.description ?? "", refType: r.refType ?? "reference", sortOrder: r.sortOrder ?? 0 })) ?? [],
       });
+      lastSavedContent.current = content;
       setSlugEdited(true);
       // Load related article titles
       if (a.relatedArticleIds?.length) {
@@ -150,6 +176,16 @@ export function ArticleEditor() {
     }).catch(() => setError("Failed to load article"))
       .finally(() => setLoading(false));
   }, [articleId]);
+
+  // Load revisions when Revisions tab is opened
+  useEffect(() => {
+    if (activeTab !== "Revisions" || !articleId) return;
+    setRevisionsLoading(true);
+    adminApi.articles.revisions(articleId)
+      .then(setRevisions)
+      .catch(() => setRevisions([]))
+      .finally(() => setRevisionsLoading(false));
+  }, [activeTab, articleId]);
 
   // Auto-slug from title
   const handleTitleChange = (v: string) => {
@@ -171,8 +207,8 @@ export function ArticleEditor() {
   // Save
   const save = useCallback(async (overrideStatus?: string) => {
     if (!form.title.trim()) { setError("Title is required"); return; }
-    if (!form.slug.trim()) { setError("Slug is required"); return; }
-    if (!form.authorId) { setError("Author is required"); return; }
+    if (!form.slug.trim())  { setError("Slug is required"); return; }
+    if (!form.authorId)     { setError("Author is required"); return; }
     setError(""); setSaving(true);
 
     const payload = {
@@ -194,12 +230,56 @@ export function ArticleEditor() {
       } else {
         if (overrideStatus === "published" && !payload.publishedAt) payload.publishedAt = new Date().toISOString();
         result = await adminApi.articles.update(articleId!, payload);
+        lastSavedContent.current = form.content;
         up({ status: result.status });
         showToast(overrideStatus === "published" ? "Article published!" : "Changes saved!");
       }
     } catch (e: any) { setError(e.message); }
     finally { setSaving(false); }
   }, [form, isNew, articleId, navigate]);
+
+  // Autosave — 30 s after the last content change, for existing articles only
+  const handleContentChange = useCallback((html: string) => {
+    up({ content: html });
+    if (isNew || !form.title || !form.authorId) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      if (html === lastSavedContent.current) return;
+      try {
+        await adminApi.articles.update(articleId!, {
+          ...form, content: html,
+          authorId: parseInt(form.authorId),
+          publishedAt: form.publishedAt || null,
+          scheduledAt: form.scheduledAt || null,
+        });
+        lastSavedContent.current = html;
+        setAutoSavedAt(new Date());
+      } catch { /* silent — user can always click Save */ }
+    }, 30_000);
+  }, [form, isNew, articleId]);
+
+  useEffect(() => () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); }, []);
+
+  // Restore revision
+  const restoreRevision = useCallback(async (revId: number) => {
+    if (!articleId) return;
+    if (!confirm("Restore this revision? The current content will be saved as a new revision first.")) return;
+    setRestoringRevId(revId);
+    try {
+      const result = await adminApi.articles.restoreRevision(articleId, revId);
+      // Reload the article
+      const a = await adminApi.articles.get(articleId);
+      setForm(f => ({ ...f, title: a.title, content: a.content ?? "" }));
+      lastSavedContent.current = a.content ?? "";
+      showToast(`Restored: "${result.title}"`);
+      // Refresh revisions list
+      adminApi.articles.revisions(articleId).then(setRevisions).catch(() => {});
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setRestoringRevId(null);
+    }
+  }, [articleId]);
 
   // ── FAQ helpers ───────────────────────────────────────────────────────────
   const addFaq = () => up({ faqs: [...form.faqs, { question: "", answer: "", sortOrder: form.faqs.length }] });
@@ -253,8 +333,13 @@ export function ArticleEditor() {
 
       {/* Action bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-1.5 rounded-lg truncate">{error}</p>}
+          {autoSavedAt && !error && (
+            <p className="text-xs text-stone-400 flex items-center gap-1">
+              <Clock className="w-3 h-3" /> Autosaved {fmtRelative(autoSavedAt.toISOString())}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {form.status === "published" && (
@@ -308,17 +393,17 @@ export function ArticleEditor() {
             />
           </div>
 
-          {/* Content */}
-          <div className="bg-white rounded-xl border border-stone-200 p-5">
-            <div className="flex items-center justify-between mb-3">
+          {/* Content — TipTap rich editor */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between px-1">
               <label className="text-xs font-semibold text-stone-500 uppercase tracking-wide">Article Content</label>
-              <span className="text-xs text-stone-400">Markdown supported · {form.content.split(/\s+/).filter(Boolean).length} words</span>
+              <span className="text-xs text-stone-400">Ctrl+S to save · Ctrl+K for links</span>
             </div>
-            <textarea
-              className="w-full min-h-[480px] text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none resize-y font-mono leading-relaxed"
-              placeholder={`# Introduction\n\nWrite your article content here. Markdown is supported.\n\n## Section Heading\n\nParagraph text…\n\n- Bullet point\n- Another point\n\n> Blockquote`}
+            <RichTextEditor
               value={form.content}
-              onChange={e => up({ content: e.target.value })}
+              onChange={handleContentChange}
+              placeholder={`Start writing your article…\n\nUse the toolbar above for headings, links, callout blocks, tables, and more.`}
+              onSave={() => save()}
             />
           </div>
 
@@ -352,7 +437,9 @@ export function ArticleEditor() {
                   className={`px-3 py-2.5 text-xs font-medium whitespace-nowrap border-b-2 transition-colors ${
                     activeTab === tab ? "border-[#4a7c59] text-[#4a7c59]" : "border-transparent text-stone-500 hover:text-stone-700"
                   }`}>
-                  {tab}
+                  {tab === "Revisions" ? (
+                    <span className="flex items-center gap-1"><History className="w-3 h-3" /> {tab}</span>
+                  ) : tab}
                 </button>
               ))}
             </div>
@@ -648,6 +735,55 @@ export function ArticleEditor() {
                     </div>
                   )}
                 </div>
+              </>
+            )}
+
+            {/* ── REVISIONS tab ─────────────────────────────────────────────── */}
+            {activeTab === "Revisions" && (
+              <>
+                {isNew ? (
+                  <div className="py-6 text-center">
+                    <History className="w-8 h-8 text-stone-200 mx-auto mb-2" />
+                    <p className="text-xs text-stone-400">Save the article first to start tracking revisions.</p>
+                  </div>
+                ) : revisionsLoading ? (
+                  <div className="py-6 text-center text-xs text-stone-400">Loading revision history…</div>
+                ) : revisions.length === 0 ? (
+                  <div className="py-6 text-center">
+                    <History className="w-8 h-8 text-stone-200 mx-auto mb-2" />
+                    <p className="text-xs text-stone-400">No revisions yet. Each save creates a revision.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-stone-400 mb-3">
+                      {revisions.length} revision{revisions.length !== 1 ? "s" : ""} saved. Restoring overwrites the current title and content.
+                    </p>
+                    {revisions.map(rev => (
+                      <div key={rev.id} className="border border-stone-200 rounded-lg p-3 space-y-1.5 hover:border-stone-300 transition-colors">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium text-stone-800 truncate leading-snug">{rev.title}</p>
+                            <p className="text-[10px] text-stone-400 mt-0.5">
+                              {fmtRelative(rev.createdAt)} · {rev.savedBy || "Unknown"}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => restoreRevision(rev.id)}
+                            disabled={restoringRevId === rev.id}
+                            title="Restore this revision"
+                            className="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded border border-stone-200 text-[10px] text-stone-600 hover:border-[#4a7c59] hover:text-[#4a7c59] transition-colors disabled:opacity-50"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            {restoringRevId === rev.id ? "…" : "Restore"}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-stone-400">
+                          {new Date(rev.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </>
             )}
 

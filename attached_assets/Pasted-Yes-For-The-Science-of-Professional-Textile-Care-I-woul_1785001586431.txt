@@ -1,0 +1,670 @@
+Yes. For **The Science of Professional Textile Care**, I would not ask Replit to simply "add bold, italic, and image upload." I would replace the current editor with a **proper professional CMS editor comparable to WordPress/Gutenberg**, while keeping your existing SEO, article metadata, categories, tags, FAQs, references, and publishing workflow.
+
+Use this as your **Replit master prompt**:
+
+---
+
+# Build a Professional WordPress-Level Article Editor
+
+Upgrade the existing Article Editor in the Admin Panel into a **professional, modern, production-ready article editor** suitable for **The Science of Professional Textile Care**.
+
+The current editor is too basic and is missing essential publishing functionality such as image uploads, rich text formatting, links, media insertion, font controls, headings, tables, and advanced content blocks.
+
+The goal is to create an editor experience comparable to a professional CMS such as **WordPress**, while maintaining the existing application's design system, database architecture, authentication, SEO functionality, and publishing workflow.
+
+## IMPORTANT
+
+Before making changes:
+
+1. Inspect the existing Article Editor.
+2. Inspect the article database schema.
+3. Inspect how article content is currently stored and rendered.
+4. Inspect the existing Media Library.
+5. Inspect the existing image upload/storage system.
+6. Inspect the existing SEO fields.
+7. Inspect article categories, tags, authors, FAQs, references, and related articles.
+8. Do not break existing articles.
+9. Do not remove existing functionality.
+10. Reuse existing infrastructure wherever possible.
+
+If the current content storage format is insufficient for rich content, migrate it safely without losing existing articles.
+
+---
+
+# 1. RICH TEXT EDITOR
+
+Implement a professional WYSIWYG article editor with:
+
+* Bold
+* Italic
+* Underline
+* Strikethrough
+* Superscript
+* Subscript
+* Text alignment
+* Left align
+* Center align
+* Right align
+* Justify
+* Ordered lists
+* Unordered lists
+* Nested lists
+* Increase/decrease indentation
+* Blockquote
+* Code/monospace formatting
+* Clear formatting
+
+---
+
+# 2. HEADINGS & TYPOGRAPHY
+
+Allow authors to select:
+
+* Paragraph
+* H1
+* H2
+* H3
+* H4
+* H5
+* H6
+
+Add a clean typography system.
+
+IMPORTANT SEO RULE:
+
+The editor must prevent multiple H1 headings inside the article body.
+
+The article title should normally be the page's primary H1.
+
+Warn the editor if they attempt to add another H1.
+
+Use semantic HTML.
+
+Do not use headings simply to make text larger.
+
+---
+
+# 3. FONT CONTROLS
+
+Add professional typography controls where appropriate:
+
+* Font family
+* Font size
+* Text color
+* Highlight color
+
+However, do not allow arbitrary styling that creates inconsistent articles.
+
+Prefer a controlled list of approved brand fonts and sizes.
+
+The frontend article page must maintain consistent typography regardless of what the author selects.
+
+---
+
+# 4. LINKS
+
+Add a professional link insertion tool.
+
+Users should be able to:
+
+* Add internal links
+* Add external links
+* Edit existing links
+* Remove links
+* Open external links in a new tab
+* Add title attributes where appropriate
+
+Support internal article search when inserting a link.
+
+Example:
+
+Type:
+
+"Learn more about cotton fiber"
+
+Select the text.
+
+Click Insert Link.
+
+Search existing articles.
+
+Select the relevant article.
+
+Automatically insert the correct internal URL.
+
+This should encourage strong internal linking and improve SEO.
+
+Add optional:
+
+* `nofollow`
+* `sponsored`
+* `ugc`
+
+link attributes when appropriate.
+
+---
+
+# 5. IMAGE UPLOAD & MEDIA SYSTEM
+
+Add a complete image upload system.
+
+Authors must be able to:
+
+* Upload images
+* Select images from Media Library
+* Replace images
+* Remove images
+* Reuse previously uploaded images
+
+Support:
+
+* JPG
+* JPEG
+* PNG
+* WebP
+* AVIF where supported
+
+Use secure server-side validation.
+
+Do not trust file extensions alone.
+
+Validate MIME type and file contents.
+
+Restrict maximum file size.
+
+Generate optimized image versions where possible.
+
+Do not store large image binaries directly inside PostgreSQL.
+
+Use the existing media storage infrastructure if available.
+
+If the project is using Cloudflare R2 or another object storage provider, integrate with that system.
+
+Store only metadata and URLs/keys in the database.
+
+---
+
+# 6. IMAGE INSERTION
+
+When inserting an image into an article, provide:
+
+* Image preview
+* Alt text
+* Image title
+* Caption
+* Description
+* Credit/source
+* Alignment
+* Image width
+* Image size
+* Optional link
+* Open link in new tab
+
+Support:
+
+* Full width
+* Wide
+* Medium
+* Small
+* Original
+
+Allow:
+
+* Left aligned
+* Center aligned
+* Right aligned
+
+IMPORTANT:
+
+Alt text must be clearly separated from captions.
+
+Add an accessibility warning if an image has no alt text.
+
+---
+
+# 7. FEATURED IMAGE
+
+Add a dedicated Featured Image system.
+
+Authors should be able to:
+
+* Upload featured image
+* Select from Media Library
+* Replace featured image
+* Remove featured image
+* Add SEO-friendly alt text
+
+The featured image should automatically appear in:
+
+* Article page
+* Article cards
+* Latest Articles
+* Category pages
+* Search results
+* Social sharing preview where appropriate
+
+Do not duplicate image files unnecessarily.
+
+---
+
+# 8. DRAG & DROP MEDIA
+
+Allow authors to:
+
+* Drag images into the editor
+* Paste images from clipboard
+* Upload multiple images
+* Drag images into the article
+
+Show upload progress.
+
+Show errors if upload fails.
+
+Never lose the article content if an upload fails.
+
+---
+
+# 9. CONTENT BLOCKS
+
+Create a professional block-based content system.
+
+Support blocks such as:
+
+### Basic
+
+* Paragraph
+* Heading
+* Image
+* Gallery
+* Quote
+* List
+* Divider
+
+### Advanced
+
+* Two-column layout
+* Three-column layout
+* Callout box
+* Important Note
+* Warning
+* Expert Tip
+* Scientific Explanation
+* Key Takeaway
+* Pros & Cons
+* Comparison Table
+* FAQ
+* Video
+* Embedded content
+
+### Textile Care Specific Blocks
+
+Create reusable blocks for:
+
+* Fabric Care Instructions
+* Stain Removal Procedure
+* Textile Science Explanation
+* Chemical Safety Warning
+* Professional Tip
+* Machine Settings
+* Temperature Guide
+* Washing Process
+* Dry Cleaning Process
+* Garment Finishing Process
+
+These blocks should have a consistent visual design across the website.
+
+---
+
+# 10. TABLES
+
+Add a proper table editor.
+
+Authors should be able to:
+
+* Insert tables
+* Add/remove rows
+* Add/remove columns
+* Edit cells
+* Merge cells where appropriate
+* Add table headers
+
+Tables must be:
+
+* Responsive
+* Horizontally scrollable on mobile when necessary
+* Accessible
+* SEO-friendly
+
+Do not allow tables to break the mobile layout.
+
+---
+
+# 11. EMBEDDED MEDIA
+
+Support secure embedding of:
+
+* YouTube
+* Vimeo
+* Google Maps where appropriate
+
+Do not allow arbitrary unsafe HTML or scripts.
+
+Sanitize all embedded content.
+
+---
+
+# 12. CODE / HTML VIEW
+
+Provide an optional advanced HTML/source view for authorized administrators.
+
+IMPORTANT:
+
+* Sanitize HTML server-side.
+* Remove malicious scripts.
+* Prevent XSS.
+* Do not allow arbitrary JavaScript.
+* Do not allow dangerous iframe sources.
+
+Only trusted administrators should have access to advanced HTML editing.
+
+---
+
+# 13. ARTICLE SEO PANEL
+
+Keep and improve the existing SEO functionality.
+
+Include:
+
+* SEO title
+* Meta description
+* URL slug
+* Focus keyword
+* Secondary keywords
+* Canonical URL
+* Robots settings
+* Open Graph title
+* Open Graph description
+* Open Graph image
+* Twitter/X title
+* Twitter/X description
+* Twitter/X image
+
+Add an SEO preview showing:
+
+* Google search preview
+* Social sharing preview
+
+Provide helpful warnings for:
+
+* Missing SEO title
+* Missing meta description
+* Very long SEO title
+* Very long meta description
+* Missing featured image
+* Missing image alt text
+* Duplicate slug
+* Missing canonical URL where appropriate
+
+Do not create fake "SEO scores" based on arbitrary rules.
+
+---
+
+# 14. ARTICLE STRUCTURE
+
+The editor should support:
+
+* Title
+* Subtitle/excerpt
+* Author
+* Co-author if applicable
+* Category
+* Subcategory
+* Tags
+* Featured image
+* Article content
+* FAQs
+* References
+* Related articles
+* Expert review
+* Reviewer
+* Publication date
+* Last updated date
+
+Add an optional:
+
+**Reviewed by Expert**
+
+field.
+
+This is important for building E-E-A-T and professional authority.
+
+---
+
+# 15. DRAFT & AUTOSAVE
+
+Implement:
+
+* Save Draft
+* Publish
+* Update
+* Schedule Publication
+* Unpublish
+* Preview
+* Autosave
+* Restore previous version
+* Revision history
+
+Autosave should occur periodically without interrupting writing.
+
+Warn users before leaving a page with unsaved changes.
+
+---
+
+# 16. PREVIEW
+
+Add:
+
+**Preview Article**
+
+The preview should show the article exactly as it will appear publicly.
+
+Support:
+
+* Desktop preview
+* Tablet preview
+* Mobile preview
+
+Preview should not publish the article.
+
+---
+
+# 17. WORDPRESS-LIKE EDITOR EXPERIENCE
+
+The overall interface should feel familiar to professional CMS users.
+
+Recommended layout:
+
+LEFT / CENTER:
+
+Large writing canvas
+
+RIGHT SIDEBAR:
+
+* Publish
+* Status
+* Visibility
+* Schedule
+* Author
+* Category
+* Tags
+* Featured Image
+* SEO
+* Article Settings
+
+TOP TOOLBAR:
+
+* Undo
+* Redo
+* Formatting
+* Headings
+* Lists
+* Links
+* Images
+* Media
+* Tables
+
+Keep the editor clean and distraction-free.
+
+---
+
+# 18. KEYBOARD SHORTCUTS
+
+Support:
+
+* Ctrl/Cmd + B
+* Ctrl/Cmd + I
+* Ctrl/Cmd + U
+* Ctrl/Cmd + K for links
+* Ctrl/Cmd + S for save
+* Ctrl/Cmd + Z
+* Ctrl/Cmd + Shift + Z
+
+---
+
+# 19. ACCESSIBILITY
+
+The editor and published content must support:
+
+* Keyboard navigation
+* Screen readers
+* Proper heading hierarchy
+* Image alt text
+* Accessible links
+* Accessible tables
+* Sufficient color contrast
+* Focus states
+
+---
+
+# 20. SECURITY
+
+This is critical.
+
+Implement:
+
+* Server-side validation
+* HTML sanitization
+* XSS protection
+* Secure file uploads
+* MIME validation
+* File size restrictions
+* Filename sanitization
+* Authentication checks
+* Role-based permissions
+* CSRF protection where applicable
+
+Never trust content sent from the browser.
+
+Never expose storage credentials.
+
+Never expose API keys.
+
+Never expose database credentials.
+
+---
+
+# 21. DATABASE & BACKWARD COMPATIBILITY
+
+Before modifying the content system:
+
+* Back up existing article data
+* Test migration
+* Preserve all existing articles
+* Preserve existing slugs
+* Preserve SEO metadata
+* Preserve categories
+* Preserve tags
+* Preserve authors
+* Preserve publication dates
+
+Existing public article URLs must continue working.
+
+Do not introduce breaking changes.
+
+---
+
+# 22. PERFORMANCE
+
+The editor must remain fast even with large articles.
+
+Use:
+
+* Lazy loading
+* Image optimization
+* Responsive image sizes
+* Efficient API calls
+* Debounced autosave
+
+Do not load the entire Media Library unnecessarily.
+
+---
+
+# 23. FINAL TESTING
+
+Test the complete workflow:
+
+1. Create new article
+2. Add title
+3. Add headings
+4. Format text
+5. Bold text
+6. Italic text
+7. Add links
+8. Add internal article link
+9. Upload image
+10. Add alt text
+11. Add caption
+12. Insert image
+13. Add table
+14. Add callout
+15. Add FAQ
+16. Add references
+17. Add featured image
+18. Configure SEO
+19. Save draft
+20. Preview
+21. Autosave
+22. Edit article
+23. Publish
+24. View public article
+25. Test mobile article
+26. Test image loading
+27. Test internal links
+28. Test article editing again
+
+Test with multiple browsers and mobile screen sizes.
+
+---
+
+## FINAL REQUIREMENT
+
+Do not simply add a few formatting buttons to the existing editor.
+
+Build a **professional, scalable article publishing system** that can support the long-term growth of **The Science of Professional Textile Care** into a world-class educational knowledge platform.
+
+The editor should be powerful enough for professional writers and experts but simple enough for non-technical administrators.
+
+Most importantly, **do not break the existing article system, SEO, URLs, database, authentication, Media Library, or public article pages**.
+
+Before completing the task, provide:
+
+1. List of all new editor features
+2. Database changes
+3. New API endpoints
+4. Storage changes
+5. Security measures
+6. Migration status
+7. Testing results
+8. Any features that still require future development
+9. Screenshots of desktop and mobile editor
+10. Confirmation that existing articles remain intact

@@ -27,3 +27,4 @@ export * from "./auditLogs";
 export * from "./savedArticles";
 export * from "./pageContent";
 export * from "./articleComments";
+export * from "./articleRevisions";

@@ -30,6 +30,8 @@ export const adminApi = {
     publish: (id: number) => req<any>("POST", `/articles/${id}/publish`),
     unpublish: (id: number) => req<any>("POST", `/articles/${id}/unpublish`),
     schedule: (id: number, scheduledAt: string) => req<any>("POST", `/articles/${id}/schedule`, { scheduledAt }),
+    revisions: (id: number) => req<any[]>("GET", `/articles/${id}/revisions`),
+    restoreRevision: (id: number, revId: number) => req<any>("POST", `/articles/${id}/revisions/${revId}/restore`),
   },
 
   // ── Authors ───────────────────────────────────────────────────────────────
