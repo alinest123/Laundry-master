@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRoute, Link, useLocation } from "wouter";
 import {
@@ -10,6 +10,10 @@ import {
   MessageCircle,
   Send,
   CheckCircle,
+  Copy,
+  Twitter,
+  Linkedin,
+  Facebook,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +32,91 @@ interface Comment {
   authorName: string;
   content: string;
   createdAt: string;
+}
+
+// ── Share dropdown ────────────────────────────────────────────────────────────
+
+function ShareDropdown({ title, url }: { title: string; url: string }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const copyLink = () => {
+    // execCommand is the most iframe-compatible clipboard method
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => { setCopied(false); setOpen(false); }, 1800);
+    } catch {
+      // nothing more we can do
+    }
+  };
+
+  const enc = encodeURIComponent(url);
+  const encT = encodeURIComponent(title);
+
+  const socials = [
+    { label: "Twitter / X",  Icon: Twitter,  href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}` },
+    { label: "LinkedIn",     Icon: Linkedin,  href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}` },
+    { label: "Facebook",     Icon: Facebook,  href: `https://www.facebook.com/sharer/sharer.php?u=${enc}` },
+  ];
+
+  return (
+    <div ref={ref} className="relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 text-muted-foreground hover:text-primary"
+        onClick={() => setOpen(o => !o)}
+      >
+        <Share2 className="w-4 h-4" />
+      </Button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#e8e8e8] rounded-xl shadow-lg py-1.5 z-50">
+          {socials.map(({ label, Icon, href }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors"
+            >
+              <Icon className="w-3.5 h-3.5 text-[#888]" />
+              {label}
+            </a>
+          ))}
+          <div className="border-t border-[#f0f0f0] my-1" />
+          <button
+            onClick={copyLink}
+            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors"
+          >
+            {copied
+              ? <><CheckCircle className="w-3.5 h-3.5 text-[#4a7c59]" /><span className="text-[#4a7c59] font-medium">Copied!</span></>
+              : <><Copy className="w-3.5 h-3.5 text-[#888]" />Copy link</>
+            }
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ── Bookmark button ───────────────────────────────────────────────────────────
@@ -349,33 +438,7 @@ export function ArticleDetail() {
                 </div>
                 <div className="flex gap-2">
                   <BookmarkButton articleId={article.id} />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-primary"
-                    onClick={async () => {
-                      const url = window.location.href;
-                      // Use native share sheet on mobile if available
-                      if (navigator.share) {
-                        try {
-                          await navigator.share({ title: article.title, url });
-                          return;
-                        } catch {
-                          // User cancelled or share failed — fall through to clipboard
-                        }
-                      }
-                      // Clipboard fallback (works everywhere)
-                      try {
-                        await navigator.clipboard.writeText(url);
-                        toast({ title: "Link copied!", description: "Article URL copied to clipboard." });
-                      } catch {
-                        // Last resort: prompt the user to copy manually
-                        toast({ title: "Copy this link", description: url });
-                      }
-                    }}
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </Button>
+                  <ShareDropdown title={article.title} url={window.location.href} />
                 </div>
               </div>
             </div>
