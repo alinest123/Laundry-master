@@ -87,7 +87,7 @@ export function AdminLayout({ children, title, breadcrumbs }: {
 }) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => { setSidebarOpen(false); }, [location]);
 
@@ -144,13 +144,15 @@ export function AdminLayout({ children, title, breadcrumbs }: {
         )}
 
         {/* ── Sidebar ── */}
-        <aside className={`
-          fixed top-14 left-0 bottom-0 w-60 bg-white border-r border-[#eaeaea] z-20
-          flex flex-col overflow-y-auto
-          transition-transform duration-200
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:sticky lg:top-14 lg:translate-x-0 lg:flex lg:h-[calc(100vh-56px)]
-        `}>
+        <aside className={[
+          // Mobile: fixed drawer controlled by transform
+          "fixed top-14 left-0 bottom-0 w-60 bg-white border-r border-[#eaeaea] z-20",
+          "flex flex-col overflow-y-auto transition-transform duration-200",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          // Desktop: sticky in flex flow, toggled via display
+          "lg:sticky lg:top-14 lg:h-[calc(100vh-56px)] lg:translate-x-0",
+          sidebarOpen ? "lg:flex" : "lg:hidden",
+        ].join(" ")}>
           {/* User info */}
           <div className="px-4 py-4 border-b border-[#f0f0f0] shrink-0">
             <div className="flex items-center gap-3">
