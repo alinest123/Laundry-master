@@ -353,9 +353,26 @@ export function ArticleDetail() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-muted-foreground hover:text-primary"
-                    onClick={() =>
-                      navigator.share?.({ title: article.title, url: window.location.href }).catch(() => {})
-                    }
+                    onClick={async () => {
+                      const url = window.location.href;
+                      // Use native share sheet on mobile if available
+                      if (navigator.share) {
+                        try {
+                          await navigator.share({ title: article.title, url });
+                          return;
+                        } catch {
+                          // User cancelled or share failed — fall through to clipboard
+                        }
+                      }
+                      // Clipboard fallback (works everywhere)
+                      try {
+                        await navigator.clipboard.writeText(url);
+                        toast({ title: "Link copied!", description: "Article URL copied to clipboard." });
+                      } catch {
+                        // Last resort: prompt the user to copy manually
+                        toast({ title: "Copy this link", description: url });
+                      }
+                    }}
                   >
                     <Share2 className="w-4 h-4" />
                   </Button>
