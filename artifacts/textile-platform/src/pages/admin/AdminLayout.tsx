@@ -95,17 +95,35 @@ export function AdminLayout({ children, title, breadcrumbs }: {
   useEffect(() => {
     const el = navRef.current;
     if (!el) return;
+
+    // Track scroll position continuously.
     const onScroll = () => { savedScrollTop.current = el.scrollTop; };
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
+
+    // When focus lands on any child (e.g. after the browser calls scrollIntoView
+    // for the focused <a>), re-assert our saved position immediately.
+    const onFocusIn = () => {
+      requestAnimationFrame(() => {
+        if (navRef.current) navRef.current.scrollTop = savedScrollTop.current;
+      });
+    };
+    el.addEventListener("focusin", onFocusIn);
+
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      el.removeEventListener("focusin", onFocusIn);
+    };
   }, []);
 
   useEffect(() => {
-    // Defer past any browser scroll-into-view triggered by link focus.
-    const raf = requestAnimationFrame(() => {
+    const restore = () => {
       if (navRef.current) navRef.current.scrollTop = savedScrollTop.current;
-    });
-    return () => cancelAnimationFrame(raf);
+    };
+    // rAF catches the first paint; setTimeout 100ms is a safety-net for any
+    // browser scroll-into-view that fires after rAF.
+    const raf = requestAnimationFrame(restore);
+    const tid = setTimeout(restore, 100);
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
   }, [location]);
 
   // Lock body scroll only on mobile (when the overlay is visible).
@@ -207,11 +225,10 @@ export function AdminLayout({ children, title, breadcrumbs }: {
                     const isActive = exact
                       ? location === href
                       : location.startsWith(href) && href !== "/admin";
+                    // onMouseDown on the <a> prevents browser focus→scrollIntoView on nav.
                     return (
-                      <Link key={href} href={href}>
-                        {/* onMouseDown preventDefault stops the browser from focusing the <a>
-                            and calling scrollIntoView, which would reset the nav scroll. */}
-                        <span onMouseDown={e => e.preventDefault()} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-colors
+                      <Link key={href} href={href} onMouseDown={e => e.preventDefault()}>
+                        <span className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-colors
                           ${isActive
                             ? "bg-primary/10 text-primary"
                             : "text-[#555] hover:bg-[#f5f5f2] hover:text-[#1a1a1a]"
