@@ -1,7 +1,7 @@
 export type Role = "super_admin" | "administrator" | "editor" | "author" | "consultant" | "user";
 export type Resource =
   | "dashboard" | "articles" | "categories" | "authors" | "tags"
-  | "fabrics" | "stains" | "users" | "experts" | "appointments"
+  | "users" | "experts" | "appointments"
   | "payments" | "zoom" | "newsletter" | "media" | "seo"
   | "redirects" | "settings" | "security_logs" | "audit_logs";
 export type Action = "view" | "create" | "edit" | "delete" | "publish";
@@ -14,8 +14,6 @@ const PERMS: Record<Resource, PermMap> = {
   categories:    { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"], editor: ["view","create","edit","delete"], author: ["view"] },
   authors:       { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"], editor: ["view"] },
   tags:          { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"], editor: ["view","create","edit","delete"], author: ["view"] },
-  fabrics:       { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"], editor: ["view","create","edit","delete"] },
-  stains:        { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"], editor: ["view","create","edit","delete"] },
   users:         { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"] },
   experts:       { super_admin: ["view","create","edit","delete"], administrator: ["view","create","edit","delete"], editor: ["view"] },
   appointments:  { super_admin: ["view","edit"], administrator: ["view","edit"], consultant: ["view"] },

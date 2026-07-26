@@ -69,23 +69,6 @@ export const adminApi = {
     delete: (id: number) => req<void>("DELETE", `/users/${id}`),
   },
 
-  // ── Fabrics ───────────────────────────────────────────────────────────────
-  fabrics: {
-    list: () => req<any[]>("GET", "/fabrics"),
-    get: (id: number) => req<any>("GET", `/fabrics/${id}`),
-    create: (data: any) => req<any>("POST", "/fabrics", data),
-    update: (id: number, data: any) => req<any>("PUT", `/fabrics/${id}`, data),
-    delete: (id: number) => req<void>("DELETE", `/fabrics/${id}`),
-  },
-
-  // ── Stains ────────────────────────────────────────────────────────────────
-  stains: {
-    list: () => req<any[]>("GET", "/stains"),
-    get: (id: number) => req<any>("GET", `/stains/${id}`),
-    create: (data: any) => req<any>("POST", "/stains", data),
-    update: (id: number, data: any) => req<any>("PUT", `/stains/${id}`, data),
-    delete: (id: number) => req<void>("DELETE", `/stains/${id}`),
-  },
 
   // ── Experts ───────────────────────────────────────────────────────────────
   experts: {

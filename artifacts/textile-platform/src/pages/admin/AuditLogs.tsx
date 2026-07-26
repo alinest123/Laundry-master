@@ -3,7 +3,7 @@ import { AdminLayout } from "./AdminLayout";
 import { adminApi } from "@/lib/adminApi";
 
 type Log = { id: number; userEmail?: string; action: string; resource: string; resourceId?: string; ipAddress?: string; createdAt: string };
-const RESOURCES = ["articles","users","authors","categories","tags","fabrics","stains","experts","appointments","payments","zoom","newsletter","media","seo","redirects","settings","auth"];
+const RESOURCES = ["articles","users","authors","categories","tags","experts","appointments","payments","zoom","newsletter","media","seo","redirects","settings","auth"];
 
 export function AuditLogs() {
   const [logs, setLogs] = useState<Log[]>([]);

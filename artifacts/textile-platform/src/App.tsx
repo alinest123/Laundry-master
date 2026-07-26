@@ -40,8 +40,7 @@ import { Authors } from "@/pages/admin/Authors";
 import { Categories as AdminCategories } from "@/pages/admin/Categories";
 import { Tags } from "@/pages/admin/Tags";
 import { Users } from "@/pages/admin/Users";
-import { Fabrics } from "@/pages/admin/Fabrics";
-import { Stains } from "@/pages/admin/Stains";
+
 import { Experts } from "@/pages/admin/Experts";
 import { Appointments } from "@/pages/admin/Appointments";
 import { Payments } from "@/pages/admin/Payments";
@@ -115,8 +114,7 @@ function Router() {
       <AdminRoute path="/admin/categories" component={AdminCategories} />
       <AdminRoute path="/admin/tags" component={Tags} />
       <AdminRoute path="/admin/users" component={Users} />
-      <AdminRoute path="/admin/fabrics" component={Fabrics} />
-      <AdminRoute path="/admin/stains" component={Stains} />
+
       <AdminRoute path="/admin/experts" component={Experts} />
       <AdminRoute path="/admin/appointments" component={Appointments} />
       <AdminRoute path="/admin/payments" component={Payments} />

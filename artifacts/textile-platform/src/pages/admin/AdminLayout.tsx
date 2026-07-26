@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import {
   FileText, Users, Tag, Folder, LayoutDashboard, ChevronRight,
-  Globe, LogOut, Shirt, Droplets, UserCog, Calendar, CreditCard,
+  Globe, LogOut, UserCog, Calendar, CreditCard,
   Video, Mail, Image, Search, ArrowLeftRight, Settings, Shield,
   ClipboardList, BookOpen, ChevronDown, Menu, X, PanelTop, MessageCircle,
 } from "lucide-react";
@@ -34,8 +34,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/authors", icon: BookOpen, label: "Authors", resource: "authors" },
       { href: "/admin/tags", icon: Tag, label: "Tags", resource: "tags" },
       { href: "/admin/comments", icon: MessageCircle, label: "Comments", resource: "articles" },
-      { href: "/admin/fabrics", icon: Shirt, label: "Fabrics", resource: "fabrics" },
-      { href: "/admin/stains", icon: Droplets, label: "Stains", resource: "stains" },
+
       { href: "/admin/media", icon: Image, label: "Media Library", resource: "media" },
     ],
   },

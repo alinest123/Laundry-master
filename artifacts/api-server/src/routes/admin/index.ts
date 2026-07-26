@@ -9,8 +9,7 @@ import tagsRouter from "./tags";
 
 // New routers — define relative paths (no /admin prefix)
 import usersRouter from "./users";
-import fabricsRouter from "./fabrics";
-import stainsRouter from "./stains";
+
 import paymentsRouter from "./payments";
 import zoomRouter from "./zoom";
 import newsletterRouter from "./newsletter";
@@ -39,8 +38,7 @@ router.use(tagsRouter);
 
 // New routers: mount under /admin since their paths are relative
 router.use("/admin", usersRouter);
-router.use("/admin", fabricsRouter);
-router.use("/admin", stainsRouter);
+
 router.use("/admin", paymentsRouter);
 router.use("/admin", zoomRouter);
 router.use("/admin", newsletterRouter);
