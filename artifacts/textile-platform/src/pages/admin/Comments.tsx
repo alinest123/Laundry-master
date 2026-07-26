@@ -152,6 +152,13 @@ export function Comments() {
     staleTime: 30_000,
   });
 
+  // Always-fresh pending count, independent of the current tab filter
+  const { data: pendingComments = [] } = useQuery<CommentRow[]>({
+    queryKey: ["admin-comments", "pending"],
+    queryFn: () => fetchComments("pending"),
+    staleTime: 30_000,
+  });
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin-comments"] });
 
   const approveMut = useMutation({
@@ -170,7 +177,7 @@ export function Comments() {
     onError: () => toast({ title: "Error", variant: "destructive" }),
   });
 
-  const pending = comments.filter((c) => c.isApproved === 0).length;
+  const pending = pendingComments.length;
 
   const TABS: { key: typeof filter; label: string }[] = [
     { key: "all", label: "All" },

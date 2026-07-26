@@ -106,8 +106,10 @@ router.get("/articles", async (req, res): Promise<void> => {
   let countQuery = db.select({ count: sql<number>`count(*)` }).from(articlesTable).$dynamic();
 
   const conditions = [];
-  if (status) conditions.push(eq(articlesTable.status, status));
-  else conditions.push(eq(articlesTable.status, "published"));
+  // Public endpoint always forces published — the status param is ignored here
+  // (admin routes have their own separate listing with unrestricted status)
+  void status;
+  conditions.push(eq(articlesTable.status, "published"));
   if (articleIds !== undefined) {
     if (articleIds.length === 0) {
       res.json({ articles: [], total: 0, page, limit, totalPages: 0 });
@@ -171,7 +173,9 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
   const parsed = GetArticleParams.safeParse({ slug: rawSlug });
   if (!parsed.success) { res.status(400).json({ error: "Invalid slug" }); return; }
 
-  const rows = await db.select().from(articlesTable).where(eq(articlesTable.slug, parsed.data.slug)).limit(1);
+  const rows = await db.select().from(articlesTable)
+    .where(and(eq(articlesTable.slug, parsed.data.slug), eq(articlesTable.status, "published")))
+    .limit(1);
   if (!rows[0]) { res.status(404).json({ error: "Not found" }); return; }
 
   // Increment views
@@ -188,7 +192,8 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
       .where(eq(articleCategoriesTable.categoryId, full.categories[0].id));
     const relatedIds = catLinks.map(l => l.articleId).filter(id => id !== rows[0].id).slice(0, 4);
     if (relatedIds.length > 0) {
-      const relRows = await db.select().from(articlesTable).where(inArray(articlesTable.id, relatedIds));
+      const relRows = await db.select().from(articlesTable)
+      .where(and(inArray(articlesTable.id, relatedIds), eq(articlesTable.status, "published")));
       related = await Promise.all(relRows.map(buildArticleSummary));
     }
   }

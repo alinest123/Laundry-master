@@ -3,7 +3,7 @@ import { Pencil, X, Check, AlertCircle } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import { adminApi } from "@/lib/adminApi";
 
-type SeoArticle = { id: number; title: string; slug: string; status: string; metaTitle?: string; metaDescription?: string; metaKeywords?: string; noindex: boolean };
+type SeoArticle = { id: number; title: string; slug: string; status: string; metaTitle?: string; metaDescription?: string; metaKeywords?: string; noindex: boolean; nofollow: boolean };
 
 function seoScore(a: SeoArticle): number {
   let s = 0;
@@ -27,7 +27,7 @@ export function SeoManagement() {
     if (!editing) return;
     setSaving(true);
     try {
-      await adminApi.seo.update(editing.id, { metaTitle:editing.metaTitle, metaDescription:editing.metaDescription, metaKeywords:editing.metaKeywords, noindex:editing.noindex, nofollow:false });
+      await adminApi.seo.update(editing.id, { metaTitle:editing.metaTitle, metaDescription:editing.metaDescription, metaKeywords:editing.metaKeywords, noindex:editing.noindex, nofollow:editing.nofollow });
       setEditing(null); load();
     } catch(e:any) { alert(e.message); }
     finally { setSaving(false); }
@@ -59,9 +59,15 @@ export function SeoManagement() {
               <input className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm"
                 value={editing.metaKeywords??""} onChange={e=>setEditing({...editing,metaKeywords:e.target.value})} />
             </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="noindex" checked={editing.noindex} onChange={e=>setEditing({...editing,noindex:e.target.checked})} />
-              <label htmlFor="noindex" className="text-xs text-stone-600">No-index (hide from search engines)</label>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="noindex" checked={editing.noindex} onChange={e=>setEditing({...editing,noindex:e.target.checked})} />
+                <label htmlFor="noindex" className="text-xs text-stone-600">No-index (hide from search engines)</label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="nofollow" checked={editing.nofollow} onChange={e=>setEditing({...editing,nofollow:e.target.checked})} />
+                <label htmlFor="nofollow" className="text-xs text-stone-600">No-follow (don't follow links on this page)</label>
+              </div>
             </div>
             <div className="flex gap-3">
               <button onClick={save} disabled={saving} className="flex-1 bg-[#1c1c1c] text-white text-sm font-medium py-2 rounded-lg hover:bg-[#333] disabled:opacity-50">{saving?"Saving…":"Save"}</button>
