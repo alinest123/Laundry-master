@@ -65,8 +65,8 @@ router.patch("/user/profile", async (req, res): Promise<void> => {
 
 async function formatAppointment(a: typeof appointmentsTable.$inferSelect) {
   const [serviceRows, expertRows] = await Promise.all([
-    db.select().from(servicesTable).where(eq(servicesTable.id, a.serviceId)).limit(1),
-    db.select().from(expertsTable).where(eq(expertsTable.id, a.expertId)).limit(1),
+    a.serviceId != null ? db.select().from(servicesTable).where(eq(servicesTable.id, a.serviceId)).limit(1) : Promise.resolve([]),
+    a.expertId != null ? db.select().from(expertsTable).where(eq(expertsTable.id, a.expertId)).limit(1) : Promise.resolve([]),
   ]);
   const s = serviceRows[0];
   const e = expertRows[0];

@@ -4,6 +4,7 @@ import pinoHttp from "pino-http";
 import { sessionMiddleware } from "./middleware/session";
 import router from "./routes";
 import authRouter from "./routes/auth";
+import calWebhookRouter from "./routes/webhooks/cal";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
@@ -41,6 +42,9 @@ app.use(
     credentials: true,
   }),
 );
+
+// Cal.com webhook needs raw body for HMAC-SHA256 verification — mount BEFORE express.json()
+app.use("/api/webhooks/cal", express.raw({ type: "application/json" }), calWebhookRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

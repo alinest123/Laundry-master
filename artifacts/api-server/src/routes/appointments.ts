@@ -7,18 +7,22 @@ import { CreateAppointmentBody, GetAppointmentParams } from "@workspace/api-zod"
 const router = Router();
 
 async function formatAppointment(a: typeof appointmentsTable.$inferSelect) {
-  const [service, expert] = await Promise.all([
-    db.select().from(servicesTable).where(eq(servicesTable.id, a.serviceId)).limit(1),
-    db.select().from(expertsTable).where(eq(expertsTable.id, a.expertId)).limit(1),
+  const [serviceRows, expertRows] = await Promise.all([
+    a.serviceId != null ? db.select().from(servicesTable).where(eq(servicesTable.id, a.serviceId)).limit(1) : Promise.resolve([]),
+    a.expertId != null ? db.select().from(expertsTable).where(eq(expertsTable.id, a.expertId)).limit(1) : Promise.resolve([]),
   ]);
+  const service = serviceRows[0];
+  const expert = expertRows[0];
   return {
     id: a.id, status: a.status,
     scheduledAt: a.scheduledAt.toISOString(),
+    scheduledEnd: a.scheduledEnd?.toISOString() ?? null,
+    calBookingUid: a.calBookingUid ?? null,
     timezone: a.timezone, notes: a.notes, zoomLink: a.zoomLink,
     userEmail: a.userEmail, userName: a.userName,
     createdAt: a.createdAt.toISOString(),
-    service: service[0] ? { id: service[0].id, name: service[0].name, description: service[0].description, duration: service[0].duration, price: Number(service[0].price), currency: service[0].currency, icon: service[0].icon, category: service[0].category } : null,
-    expert: expert[0] ? { id: expert[0].id, name: expert[0].name, title: expert[0].title, bio: expert[0].bio, avatar: expert[0].avatar, specializations: expert[0].specializations, rating: Number(expert[0].rating), sessionCount: expert[0].sessionCount, yearsExperience: expert[0].yearsExperience } : null,
+    service: service ? { id: service.id, name: service.name, description: service.description, duration: service.duration, price: Number(service.price), currency: service.currency, icon: service.icon, category: service.category } : null,
+    expert: expert ? { id: expert.id, name: expert.name, title: expert.title, bio: expert.bio, avatar: expert.avatar, specializations: expert.specializations, rating: Number(expert.rating), sessionCount: expert.sessionCount, yearsExperience: expert.yearsExperience } : null,
   };
 }
 
