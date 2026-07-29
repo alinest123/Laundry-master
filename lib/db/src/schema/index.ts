@@ -28,3 +28,10 @@ export * from "./savedArticles";
 export * from "./pageContent";
 export * from "./articleComments";
 export * from "./articleRevisions";
+// Knowledge platform
+export * from "./topics";
+export * from "./articleTopics";
+export * from "./contentRelationships";
+export * from "./learningPaths";
+export * from "./learningPathItems";
+export * from "./editorialDocuments";

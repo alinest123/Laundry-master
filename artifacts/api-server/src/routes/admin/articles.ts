@@ -5,7 +5,7 @@ import {
   articlesTable, articleCategoriesTable, articleTagsTable,
   articleRelatedTable, articleImagesTable, articleFaqsTable,
   articleReferencesTable, authorsTable, categoriesTable, tagsTable,
-  articleRevisionsTable,
+  articleRevisionsTable, articleTopicsTable, topicsTable,
 } from "@workspace/db";
 import { requirePermission } from "../../middleware/requirePermission";
 
@@ -15,7 +15,7 @@ async function getAdminArticle(id: number) {
   const rows = await db.select().from(articlesTable).where(eq(articlesTable.id, id)).limit(1);
   if (!rows[0]) return null;
 
-  const [catLinks, tagLinks, relatedLinks, images, faqs, refs, authorRows] = await Promise.all([
+  const [catLinks, tagLinks, relatedLinks, images, faqs, refs, authorRows, topicLinks] = await Promise.all([
     db.select().from(articleCategoriesTable).where(eq(articleCategoriesTable.articleId, id)),
     db.select().from(articleTagsTable).where(eq(articleTagsTable.articleId, id)),
     db.select().from(articleRelatedTable).where(eq(articleRelatedTable.articleId, id)),
@@ -23,6 +23,7 @@ async function getAdminArticle(id: number) {
     db.select().from(articleFaqsTable).where(eq(articleFaqsTable.articleId, id)).orderBy(articleFaqsTable.sortOrder),
     db.select().from(articleReferencesTable).where(eq(articleReferencesTable.articleId, id)).orderBy(articleReferencesTable.sortOrder),
     db.select().from(authorsTable).where(eq(authorsTable.id, rows[0].authorId)).limit(1),
+    db.select().from(articleTopicsTable).where(eq(articleTopicsTable.articleId, id)),
   ]);
 
   return {
@@ -31,6 +32,7 @@ async function getAdminArticle(id: number) {
     categoryIds: catLinks.map(c => c.categoryId),
     tagIds: tagLinks.map(t => t.tagId),
     relatedArticleIds: relatedLinks.map(r => r.relatedArticleId),
+    topicIds: topicLinks.map(t => t.topicId),
     images,
     faqs,
     references: refs,
@@ -38,7 +40,7 @@ async function getAdminArticle(id: number) {
 }
 
 async function syncRelations(articleId: number, data: {
-  categoryIds?: number[]; tagIds?: number[]; relatedArticleIds?: number[];
+  categoryIds?: number[]; tagIds?: number[]; relatedArticleIds?: number[]; topicIds?: number[];
   images?: { url: string; caption?: string; altText?: string; sortOrder?: number }[];
   faqs?: { question: string; answer: string; sortOrder?: number }[];
   references?: { title: string; url?: string; description?: string; refType?: string; sortOrder?: number }[];
@@ -95,6 +97,13 @@ async function syncRelations(articleId: number, data: {
         : null
     ));
   }
+  if (data.topicIds !== undefined) {
+    ops.push(db.delete(articleTopicsTable).where(eq(articleTopicsTable.articleId, articleId)).then(() =>
+      data.topicIds!.length > 0
+        ? db.insert(articleTopicsTable).values(data.topicIds!.map(tid => ({ articleId, topicId: tid })))
+        : null
+    ));
+  }
 
   await Promise.all(ops);
 }
@@ -135,7 +144,7 @@ router.get("/admin/articles/:id", requirePermission("articles", "view"), async (
 // ── CREATE ────────────────────────────────────────────────────────────────────
 router.post("/admin/articles", requirePermission("articles", "create"), async (req, res): Promise<void> => {
   try {
-    const { categoryIds, tagIds, relatedArticleIds, images, faqs, references, ...f } = req.body;
+    const { categoryIds, tagIds, relatedArticleIds, topicIds, images, faqs, references, ...f } = req.body;
     const [article] = await db.insert(articlesTable).values({
       title: f.title, slug: f.slug, excerpt: f.excerpt ?? null,
       content: f.content ?? "", featuredImage: f.featuredImage ?? null,
@@ -143,13 +152,19 @@ router.post("/admin/articles", requirePermission("articles", "create"), async (r
       authorId: f.authorId, isFeatured: f.isFeatured ? 1 : 0,
       publishedAt: f.publishedAt ? new Date(f.publishedAt) : null,
       scheduledAt: f.scheduledAt ? new Date(f.scheduledAt) : null,
+      contentType: f.contentType ?? "professional-article",
+      knowledgeLevel: f.knowledgeLevel ?? "professional",
+      difficulty: f.difficulty ?? null,
+      keyTakeaway: f.keyTakeaway ?? null,
+      learningObjectives: f.learningObjectives ?? null,
+      expertReviewStatus: f.expertReviewStatus ?? "not-reviewed",
       metaTitle: f.metaTitle ?? null, metaDescription: f.metaDescription ?? null,
       metaKeywords: f.metaKeywords ?? null, canonicalUrl: f.canonicalUrl ?? null,
       ogImage: f.ogImage ?? null, structuredData: f.structuredData ?? null,
       noindex: f.noindex ?? false, nofollow: f.nofollow ?? false, tocEnabled: f.tocEnabled ?? false,
     }).returning();
 
-    await syncRelations(article.id, { categoryIds, tagIds, relatedArticleIds, images, faqs, references });
+    await syncRelations(article.id, { categoryIds, tagIds, relatedArticleIds, topicIds, images, faqs, references });
     res.status(201).json(await getAdminArticle(article.id));
   } catch (err: any) {
     if (err?.code === "23505") res.status(409).json({ error: "Slug already exists" });
@@ -161,7 +176,7 @@ router.post("/admin/articles", requirePermission("articles", "create"), async (r
 router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (req, res): Promise<void> => {
   try {
     const id = parseInt(req.params.id as string);
-    const { categoryIds, tagIds, relatedArticleIds, images, faqs, references, ...f } = req.body;
+    const { categoryIds, tagIds, relatedArticleIds, topicIds, images, faqs, references, ...f } = req.body;
 
     // Save revision snapshot before overwriting
     const existing = await db.select().from(articlesTable).where(eq(articlesTable.id, id)).limit(1);
@@ -179,14 +194,15 @@ router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (
     const str = (k: string) => { if (f[k] !== undefined) upd[k] = f[k]; };
     const bool = (k: string) => { if (f[k] !== undefined) upd[k] = f[k]; };
     ["title","slug","excerpt","content","featuredImage","readingTime","status","authorId",
-     "metaTitle","metaDescription","metaKeywords","canonicalUrl","ogImage","structuredData"].forEach(str);
+     "metaTitle","metaDescription","metaKeywords","canonicalUrl","ogImage","structuredData",
+     "contentType","knowledgeLevel","difficulty","keyTakeaway","learningObjectives","expertReviewStatus"].forEach(str);
     ["noindex","nofollow","tocEnabled"].forEach(bool);
     if (f.isFeatured !== undefined) upd.isFeatured = f.isFeatured ? 1 : 0;
     if (f.publishedAt !== undefined) upd.publishedAt = f.publishedAt ? new Date(f.publishedAt) : null;
     if (f.scheduledAt !== undefined) upd.scheduledAt = f.scheduledAt ? new Date(f.scheduledAt) : null;
 
     if (Object.keys(upd).length) await db.update(articlesTable).set(upd).where(eq(articlesTable.id, id));
-    await syncRelations(id, { categoryIds, tagIds, relatedArticleIds, images, faqs, references });
+    await syncRelations(id, { categoryIds, tagIds, relatedArticleIds, topicIds, images, faqs, references });
 
     const a = await getAdminArticle(id);
     if (!a) { res.status(404).json({ error: "Not found" }); return; }

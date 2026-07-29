@@ -24,6 +24,9 @@ import appointmentsRouter from "./appointments";
 import pageContentRouter from "./page-content";
 import commentsAdminRouter from "./comments";
 import dashboardRouter from "./dashboard";
+import topicsRouter from "./topics";
+import learningPathsRouter from "./learningPaths";
+import editorialDocumentsRouter from "./editorialDocuments";
 
 const router = Router();
 
@@ -53,5 +56,8 @@ router.use("/admin", appointmentsRouter);
 router.use("/admin", pageContentRouter);
 router.use("/admin", commentsAdminRouter);
 router.use("/admin", dashboardRouter);
+router.use(topicsRouter);           // already includes /admin prefix
+router.use("/admin", learningPathsRouter);
+router.use(editorialDocumentsRouter); // includes /admin/* and /editorial/*
 
 export default router;

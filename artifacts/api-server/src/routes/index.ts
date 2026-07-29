@@ -17,10 +17,12 @@ import pageContentRouter from "./page-content";
 import commentsRouter from "./comments";
 import storageRouter from "./storage";
 import siteStatusRouter, { maintenanceGate } from "./site-status";
+import sitemapRouter from "./sitemap";
 
 const router = Router();
 
 router.use(siteStatusRouter);     // /site-status — public, must be first
+router.use(sitemapRouter);        // /sitemap.xml — public
 router.use(maintenanceGate);      // blocks public routes during maintenance
 router.use(storageRouter);
 router.use(healthRouter);

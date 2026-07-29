@@ -54,6 +54,9 @@ import { PageContent } from "@/pages/admin/PageContent";
 import { Comments } from "@/pages/admin/Comments";
 import { AuditLogs } from "@/pages/admin/AuditLogs";
 import { SecurityLogs } from "@/pages/admin/SecurityLogs";
+import { Topics } from "@/pages/admin/Topics";
+import { LearningPaths } from "@/pages/admin/LearningPaths";
+import { EditorialDocs } from "@/pages/admin/EditorialDocs";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +131,9 @@ function Router() {
       <AdminRoute path="/admin/comments" component={Comments} />
       <AdminRoute path="/admin/audit-logs" component={AuditLogs} />
       <AdminRoute path="/admin/security-logs" component={SecurityLogs} />
+      <AdminRoute path="/admin/topics" component={Topics} />
+      <AdminRoute path="/admin/learning-paths" component={LearningPaths} />
+      <AdminRoute path="/admin/editorial-docs" component={EditorialDocs} />
 
       {/* Public site */}
       <Route path="/" component={Home} />

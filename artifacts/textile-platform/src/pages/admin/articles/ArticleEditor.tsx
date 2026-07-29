@@ -19,7 +19,10 @@ type FormData = {
   featuredImage: string; readingTime: number;
   status: string; publishedAt: string; scheduledAt: string;
   isFeatured: boolean; tocEnabled: boolean;
-  authorId: string; categoryIds: number[]; tagIds: number[]; relatedArticleIds: number[];
+  authorId: string; categoryIds: number[]; tagIds: number[]; relatedArticleIds: number[]; topicIds: number[];
+  // Knowledge architecture
+  contentType: string; knowledgeLevel: string; difficulty: string;
+  keyTakeaway: string; learningObjectives: string; expertReviewStatus: string;
   metaTitle: string; metaDescription: string; metaKeywords: string;
   canonicalUrl: string; ogImage: string; structuredData: string;
   noindex: boolean; nofollow: boolean;
@@ -30,15 +33,54 @@ const EMPTY: FormData = {
   title: "", slug: "", excerpt: "", content: "", featuredImage: "", readingTime: 5,
   status: "draft", publishedAt: "", scheduledAt: "",
   isFeatured: false, tocEnabled: false,
-  authorId: "", categoryIds: [], tagIds: [], relatedArticleIds: [],
+  authorId: "", categoryIds: [], tagIds: [], relatedArticleIds: [], topicIds: [],
+  contentType: "professional-article", knowledgeLevel: "professional", difficulty: "",
+  keyTakeaway: "", learningObjectives: "", expertReviewStatus: "not-reviewed",
   metaTitle: "", metaDescription: "", metaKeywords: "",
   canonicalUrl: "", ogImage: "", structuredData: "",
   noindex: false, nofollow: false,
   images: [], faqs: [], references: [],
 };
 
-const SIDEBAR_TABS = ["Publish", "Organize", "SEO", "Media", "Extras", "Revisions"] as const;
+const SIDEBAR_TABS = ["Publish", "Organize", "Knowledge", "SEO", "Media", "Extras", "Revisions"] as const;
 type SidebarTab = (typeof SIDEBAR_TABS)[number];
+
+const CONTENT_TYPES = [
+  { value: "60-second",            label: "60-Second Knowledge" },
+  { value: "professional-article", label: "Professional Article" },
+  { value: "editorial",            label: "Editorial" },
+  { value: "practical-guide",      label: "Practical Guide" },
+  { value: "technical-article",    label: "Technical Article" },
+  { value: "research-paper",       label: "Research Paper" },
+  { value: "white-paper",          label: "White Paper" },
+  { value: "case-study",           label: "Case Study" },
+  { value: "best-practice-guide",  label: "Best Practice Guide" },
+  { value: "sop",                  label: "Standard Operating Procedure" },
+  { value: "technical-reference",  label: "Technical Reference" },
+  { value: "expert-interview",     label: "Expert Interview" },
+  { value: "industry-heritage",    label: "Industry Heritage" },
+  { value: "professional-profile", label: "Professional Profile" },
+];
+
+const KNOWLEDGE_LEVELS = [
+  { value: "quick",        label: "Quick (60-second)" },
+  { value: "professional", label: "Professional" },
+  { value: "advanced",     label: "Advanced / Technical" },
+];
+
+const DIFFICULTIES = [
+  { value: "",           label: "Not set" },
+  { value: "beginner",   label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced",   label: "Advanced" },
+];
+
+const REVIEW_STATUSES = [
+  { value: "not-reviewed",        label: "Not Reviewed" },
+  { value: "editorially-reviewed",label: "Editorially Reviewed" },
+  { value: "expert-reviewed",     label: "Expert Reviewed" },
+  { value: "technically-verified",label: "Technically Verified" },
+];
 
 const STATUS_OPTS = [
   { value: "draft",     label: "Draft" },
@@ -210,6 +252,7 @@ export function ArticleEditor() {
   const [authors, setAuthors] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
+  const [topics, setTopics] = useState<any[]>([]);
   const [relatedSearch, setRelatedSearch] = useState("");
   const [relatedResults, setRelatedResults] = useState<any[]>([]);
   const [relatedTitles, setRelatedTitles] = useState<Record<number, string>>({});
@@ -225,8 +268,9 @@ export function ArticleEditor() {
 
   // Load reference data
   useEffect(() => {
-    Promise.all([adminApi.authors.list(), adminApi.categories.flat(), adminApi.tags.list()])
-      .then(([a, c, t]) => { setAuthors(a); setCategories(c); setTags(t); })
+    Promise.all([adminApi.authors.list(), adminApi.categories.flat(), adminApi.tags.list(),
+      fetch("/api/admin/topics", { credentials: "include" }).then(r => r.json()).catch(() => [])
+    ]).then(([a, c, t, top]) => { setAuthors(a); setCategories(c); setTags(t); setTopics(Array.isArray(top) ? top : []); })
       .catch(console.error);
   }, []);
 
@@ -246,6 +290,13 @@ export function ArticleEditor() {
         authorId: String(a.authorId ?? ""),
         categoryIds: a.categoryIds ?? [], tagIds: a.tagIds ?? [],
         relatedArticleIds: a.relatedArticleIds ?? [],
+        topicIds: a.topicIds ?? [],
+        contentType: a.contentType ?? "professional-article",
+        knowledgeLevel: a.knowledgeLevel ?? "professional",
+        difficulty: a.difficulty ?? "",
+        keyTakeaway: a.keyTakeaway ?? "",
+        learningObjectives: a.learningObjectives ?? "",
+        expertReviewStatus: a.expertReviewStatus ?? "not-reviewed",
         metaTitle: a.metaTitle ?? "", metaDescription: a.metaDescription ?? "",
         metaKeywords: a.metaKeywords ?? "", canonicalUrl: a.canonicalUrl ?? "",
         ogImage: a.ogImage ?? "", structuredData: a.structuredData ?? "",
@@ -738,6 +789,23 @@ export function ArticleEditor() {
                 </div>
 
                 <div>
+                  <SectionLabel>Topics</SectionLabel>
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                    {topics.length === 0 ? (
+                      <p className="text-xs text-stone-400">No topics yet — create them in Knowledge → Topics</p>
+                    ) : topics.map((t: any) => (
+                      <label key={t.id} className="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox"
+                          checked={(form.topicIds ?? []).includes(t.id)}
+                          onChange={() => up({ topicIds: (form.topicIds ?? []).includes(t.id) ? (form.topicIds ?? []).filter((id: number) => id !== t.id) : [...(form.topicIds ?? []), t.id] })}
+                          className="w-3.5 h-3.5 rounded border-stone-300 text-[#4a7c59] focus:ring-[#4a7c59]" />
+                        <span className={`text-sm ${t.parentId ? "pl-3 text-stone-500" : "font-medium text-stone-700"}`}>{t.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
                   <SectionLabel>Related Articles</SectionLabel>
                   <div className="relative mb-2">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
@@ -765,6 +833,61 @@ export function ArticleEditor() {
                       ))}
                     </div>
                   )}
+                </div>
+              </>
+            )}
+
+            {/* ── KNOWLEDGE tab ────────────────────────────────────────────── */}
+            {activeTab === "Knowledge" && (
+              <>
+                <div>
+                  <SectionLabel>Content Type</SectionLabel>
+                  <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                    value={form.contentType} onChange={e => up({ contentType: e.target.value })}>
+                    {CONTENT_TYPES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                  <p className="text-xs text-stone-400 mt-1">Determines the content card format displayed to readers.</p>
+                </div>
+
+                <div>
+                  <SectionLabel>Knowledge Level</SectionLabel>
+                  <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                    value={form.knowledgeLevel} onChange={e => up({ knowledgeLevel: e.target.value })}>
+                    {KNOWLEDGE_LEVELS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <SectionLabel>Difficulty</SectionLabel>
+                  <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                    value={form.difficulty} onChange={e => up({ difficulty: e.target.value })}>
+                    {DIFFICULTIES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <SectionLabel>Expert Review Status</SectionLabel>
+                  <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                    value={form.expertReviewStatus} onChange={e => up({ expertReviewStatus: e.target.value })}>
+                    {REVIEW_STATUSES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <SectionLabel>Key Takeaway</SectionLabel>
+                  <textarea className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 resize-none"
+                    rows={3} placeholder="The single most important thing readers should remember…"
+                    value={form.keyTakeaway} onChange={e => up({ keyTakeaway: e.target.value })} />
+                </div>
+
+                <div>
+                  <SectionLabel>Learning Objectives</SectionLabel>
+                  <textarea className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 resize-none font-mono text-xs"
+                    rows={5}
+                    placeholder={`One objective per line:\nUnderstand fabric care labels\nApply correct wash temperatures`}
+                    value={form.learningObjectives}
+                    onChange={e => up({ learningObjectives: e.target.value })} />
+                  <p className="text-xs text-stone-400 mt-0.5">One per line. Stored as a list.</p>
                 </div>
               </>
             )}

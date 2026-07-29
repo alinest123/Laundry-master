@@ -2,6 +2,13 @@ import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
+// content_type values: 60-second | professional-article | editorial | practical-guide |
+//   technical-article | research-paper | white-paper | case-study | best-practice-guide |
+//   sop | technical-reference | expert-interview | industry-heritage | professional-profile
+// knowledge_level values: quick | professional | advanced
+// difficulty values: beginner | intermediate | advanced
+// expert_review_status values: not-reviewed | editorially-reviewed | expert-reviewed | technically-verified
+
 export const articlesTable = pgTable("articles", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -16,6 +23,13 @@ export const articlesTable = pgTable("articles", {
   isFeatured: integer("is_featured").notNull().default(0),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+  // Knowledge architecture
+  contentType: text("content_type").notNull().default("professional-article"),
+  knowledgeLevel: text("knowledge_level").notNull().default("professional"),
+  difficulty: text("difficulty"),
+  keyTakeaway: text("key_takeaway"),
+  learningObjectives: text("learning_objectives"), // JSON array of strings
+  expertReviewStatus: text("expert_review_status").notNull().default("not-reviewed"),
   // SEO
   metaTitle: text("meta_title"),
   metaDescription: text("meta_description"),

@@ -2,3 +2,5 @@
 - [API Server Build](api-server-build.md) — esbuild bundles from src directly; @workspace/db resolves to lib/db/src/index.ts via exports field; rebuild after any schema addition
 - [CMS Architecture](cms-architecture.md) — admin routes at /api/admin/*, frontend at /admin/*, schema additions, isFeatured stays integer for back-compat
 - [DB Package Build](db-package-build.md) — lib/db uses composite:true; always run `pnpm --filter @workspace/db exec tsc --build` after schema additions or api-server tsc --noEmit will fail with "no exported member" errors
+- [Knowledge Platform Schema](knowledge-platform-schema.md) — 6 new tables + 6 article columns; migration in 0001_knowledge_platform.sql applied to Supabase
+- [Admin Route Pattern](api-server-build.md) — new admin routers: topics uses /admin prefix internally; learning-paths and editorial-documents mount under /admin; editorial-documents also serves public /editorial/:slug

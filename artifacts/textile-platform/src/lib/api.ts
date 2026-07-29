@@ -23,6 +23,15 @@ export function apiPost<T>(path: string, body?: unknown): Promise<T> {
   }).then(handleResponse<T>);
 }
 
+export function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return fetch(`${API_ORIGIN}${path}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).then(handleResponse<T>);
+}
+
 export function apiPatch<T>(path: string, body: unknown): Promise<T> {
   return fetch(`${API_ORIGIN}${path}`, {
     method: "PATCH",

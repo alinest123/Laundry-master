@@ -1,0 +1,900 @@
+Absolutely. I recommend giving Replit a **structured implementation prompt** rather than simply saying "build three layers." The goal should be to **extend your existing CMS and database**, not rebuild the website.
+
+You can paste the following directly into Replit:
+
+---
+
+# REPLIT MASTER PROMPT — KNOWLEDGE PLATFORM ARCHITECTURE
+
+## Project
+
+**The Science of Professional Textile Care**
+Published by **Laundry-Master.com**
+
+## Objective
+
+Transform the existing Laundry Master website from a conventional article/blog platform into a **professional, structured knowledge platform for the global textile care industry**.
+
+The platform must support a three-layer knowledge architecture:
+
+### Layer 1 — 60-Second Knowledge
+
+Short, highly accessible educational content designed for quick consumption.
+
+### Layer 2 — Professional Knowledge
+
+Detailed educational articles for laundry, dry cleaning, textile care, and related professionals.
+
+### Layer 3 — Technical Knowledge
+
+Deep technical resources including research papers, technical articles, case studies, SOPs, best-practice guides, and advanced professional references.
+
+The goal is to allow users to move naturally from:
+
+**Discover → Understand → Go Deeper → Apply Knowledge**
+
+Do not build this as three disconnected systems.
+
+Build a connected knowledge ecosystem where every content item can be linked to related content at different knowledge levels.
+
+---
+
+# IMPORTANT — BEFORE DEVELOPMENT
+
+First inspect the existing codebase and identify:
+
+* Current article schema
+* Category schema
+* Subcategory schema
+* Tag system
+* Author system
+* Expert system
+* Knowledge Hub
+* Article Editor
+* Article Detail page
+* Search system
+* Media Library
+* SEO system
+* Admin Panel
+* Existing URL structure
+* Existing internal linking system
+* Existing page-content CMS
+* Existing revision history
+* Existing scheduled publishing
+* Existing comments system
+
+Do not replace working functionality.
+
+Do not break existing articles.
+
+Do not change existing public article URLs unnecessarily.
+
+Do not duplicate existing database tables if the current architecture can be extended safely.
+
+Create a migration plan before changing the database.
+
+---
+
+# 1. KNOWLEDGE CONTENT TYPES
+
+Extend the existing article/content system to support the following content types:
+
+### Quick Knowledge
+
+* 60-Second Knowledge
+
+### Professional Knowledge
+
+* Professional Article
+* Editorial
+* Practical Guide
+
+### Technical Knowledge
+
+* Technical Article
+* Research Paper
+* White Paper
+* Case Study
+* Best Practice Guide
+* SOP
+* Technical Reference
+
+### Professional & Industry Content
+
+* Expert Interview
+* Industry Heritage
+* Professional Profile
+
+The system must allow administrators to add new content types in the future without rebuilding the database.
+
+---
+
+# 2. KNOWLEDGE LEVEL
+
+Add a structured knowledge-level field.
+
+Options:
+
+* Quick
+* Professional
+* Advanced
+
+The system should allow content relationships such as:
+
+**Quick Knowledge**
+→ related to
+**Professional Article**
+→ related to
+**Technical Reference**
+
+For example:
+
+### Quick Knowledge
+
+"Water is not just a solvent."
+
+↓
+
+### Professional Knowledge
+
+"Understanding Water Quality in Professional Laundry"
+
+↓
+
+### Technical Knowledge
+
+"Water Hardness, Alkalinity and Detergency: A Technical Review"
+
+The CMS must allow editors to manually connect these pieces of content.
+
+---
+
+# 3. TOPIC TAXONOMY
+
+Build a scalable topic hierarchy.
+
+Initial primary topics:
+
+* Fabric Science
+* Stain Removal
+* Water & Water Quality
+* Laundry Chemistry
+* Dry Cleaning
+* Professional Wet Cleaning
+* Garment Finishing
+* Textile Technology
+* Equipment & Engineering
+* Sustainability
+* Hygiene & Healthcare Textiles
+* Care Labels
+* Quality Control
+* Training & Leadership
+* Industry Heritage
+
+The system must support:
+
+**Topic → Subtopic → Sub-subtopic**
+
+Example:
+
+Fabric Science
+→ Natural Fibres
+→ Cotton
+
+Fabric Science
+→ Synthetic Fibres
+→ Polyester
+
+Water & Water Quality
+→ Water Hardness
+→ Water Treatment
+
+Do not hardcode this hierarchy into frontend components.
+
+Make it manageable from the Admin Panel.
+
+---
+
+# 4. KNOWLEDGE HUB
+
+Upgrade the existing Knowledge Hub into the central knowledge discovery system.
+
+Users should be able to filter content by:
+
+* Topic
+* Subtopic
+* Knowledge Level
+* Content Type
+* Author
+* Expert
+* Date
+* Difficulty
+* Popularity
+
+Add search.
+
+Add sorting options:
+
+* Most Recent
+* Most Read
+* Recommended
+* Beginner
+* Advanced
+
+The Knowledge Hub should be SEO-friendly and crawlable.
+
+Do not rely exclusively on JavaScript filtering for important SEO pages.
+
+---
+
+# 5. KNOWLEDGE PATH
+
+Create a structured learning path for major topics.
+
+Example:
+
+## Water Quality
+
+### Start Here
+
+60-Second Knowledge
+
+### Build Your Understanding
+
+Professional Knowledge
+
+### Go Deeper
+
+Technical Knowledge
+
+### Apply the Knowledge
+
+Case Studies / SOPs / Best Practice Guides
+
+Every topic landing page should automatically display relevant content in this structure.
+
+Editors should also be able to manually curate the order.
+
+---
+
+# 6. CONTENT RELATIONSHIPS
+
+Create a flexible content relationship system.
+
+Allow editors to connect:
+
+* Related Knowledge
+* Related Quick Knowledge
+* Related Professional Articles
+* Related Technical Resources
+* Prerequisite Knowledge
+* Follow-up Knowledge
+* Case Studies
+* SOPs
+* References
+
+Example:
+
+Article A:
+
+"Understanding Water Hardness"
+
+Related:
+
+* 60-Second: Why Water Hardness Matters
+* Professional: Water Hardness in Commercial Laundry
+* Technical: Water Hardness and Detergency
+* Case Study: Reducing Scale in a Laundry Plant
+* SOP: Water Hardness Testing Procedure
+
+Avoid duplicate relationships.
+
+Prevent circular or broken links.
+
+---
+
+# 7. ARTICLE PAGE EXPERIENCE
+
+Upgrade the Article Detail page.
+
+At the top, display:
+
+* Breadcrumbs
+* Topic
+* Knowledge Level
+* Content Type
+* Title
+* Subtitle
+* Author
+* Author expertise
+* Published date
+* Updated date
+* Reading time
+
+Add a clear knowledge-level indicator.
+
+Example:
+
+**60-Second Knowledge**
+
+or
+
+**Professional Knowledge**
+
+or
+
+**Advanced Technical Knowledge**
+
+At the bottom add:
+
+## Continue Learning
+
+Show:
+
+**Start Here**
+
+**Build Your Understanding**
+
+**Go Deeper**
+
+**Apply the Knowledge**
+
+Automatically populate these sections from content relationships and knowledge levels.
+
+Allow manual editorial overrides.
+
+---
+
+# 8. 60-SECOND KNOWLEDGE
+
+Create a dedicated content format for short educational content.
+
+The editor should support:
+
+* Short title
+* Short introduction
+* Key facts
+* Numbered points
+* Quick explanation
+* One key takeaway
+* Related topic
+* Link to deeper article
+
+Recommended structure:
+
+### Title
+
+Water Is the Foundation of Professional Textile Care
+
+### Subtitle
+
+10 Things Every Laundry Professional Should Know
+
+### Quick Facts
+
+1. Water is not just a solvent.
+2. Water carries chemistry.
+3. Water quality affects cleaning performance.
+
+### Key Takeaway
+
+Understanding water is fundamental to understanding professional textile care.
+
+### Go Deeper
+
+Read the complete professional guide.
+
+The CMS should make creating this content simple.
+
+---
+
+# 9. SOCIAL & MULTI-CHANNEL CONTENT
+
+Allow 60-Second Knowledge content to be reused for:
+
+* Instagram carousel
+* LinkedIn post
+* Facebook post
+* X/Twitter thread
+* YouTube Shorts script
+* Pinterest content
+* Newsletter summary
+
+Do not automatically publish to social media yet unless integrations already exist.
+
+Instead, create an admin feature to generate or copy social-ready versions.
+
+---
+
+# 10. PILLAR TOPIC PAGES
+
+Create SEO-focused topic landing pages.
+
+Example:
+
+`/knowledge/water-quality/`
+
+The page should contain:
+
+* Topic introduction
+* Topic description
+* 60-Second Knowledge
+* Professional Knowledge
+* Technical Knowledge
+* Case Studies
+* SOPs
+* Related Topics
+* Frequently Asked Questions
+* Recommended Learning Path
+
+Each major topic should become a potential SEO pillar page.
+
+---
+
+# 11. URL ARCHITECTURE
+
+Use clean, logical URLs.
+
+Recommended structure:
+
+`/knowledge/`
+
+`/knowledge/fabric-science/`
+
+`/knowledge/fabric-science/natural-fibres/`
+
+`/knowledge/fabric-science/natural-fibres/cotton/`
+
+For content:
+
+`/articles/article-slug/`
+
+`/technical/technical-resource-slug/`
+
+`/research/research-paper-slug/`
+
+`/case-studies/case-study-slug/`
+
+`/sop/sop-slug/`
+
+However, before changing existing URLs, preserve existing URLs and implement redirects only where necessary.
+
+Do not create unnecessary URL depth.
+
+Use canonical URLs.
+
+---
+
+# 12. ADMIN PANEL
+
+Upgrade the Admin Panel.
+
+Add:
+
+### Knowledge Management
+
+* Knowledge Hub
+* Topics
+* Subtopics
+* Content Types
+* Knowledge Levels
+* Learning Paths
+* Content Relationships
+
+The admin should be able to:
+
+* Create content
+* Edit content
+* Assign topic
+* Assign subtopic
+* Assign knowledge level
+* Assign content type
+* Assign difficulty
+* Add related content
+* Create learning paths
+* Reorder learning path items
+* Preview content
+* Schedule publishing
+* Publish/unpublish
+* View revisions
+* Restore revisions
+
+---
+
+# 13. EDITOR
+
+Extend the existing professional TipTap article editor.
+
+Add fields for:
+
+* Content Type
+* Knowledge Level
+* Topic
+* Subtopic
+* Difficulty
+* Estimated Reading Time
+* Key Takeaway
+* Learning Objectives
+* Related Knowledge
+* Prerequisite Knowledge
+* Continue Learning
+
+Do not remove existing:
+
+* SEO fields
+* FAQs
+* References
+* Tags
+* Author
+* Featured image
+* Comments
+* Revision history
+* Scheduled publishing
+
+---
+
+# 14. SEARCH
+
+Upgrade search to understand the knowledge architecture.
+
+Search results should show:
+
+* Title
+* Excerpt
+* Topic
+* Knowledge Level
+* Content Type
+* Author
+* Date
+
+Allow filtering by:
+
+* Topic
+* Knowledge Level
+* Content Type
+
+Search should prioritize relevance rather than keyword stuffing.
+
+---
+
+# 15. SEO
+
+Build the knowledge architecture with strong SEO foundations.
+
+Implement:
+
+* SEO-friendly URLs
+* Canonical URLs
+* XML sitemap
+* Robots.txt
+* Breadcrumb structured data
+* Article structured data
+* FAQ structured data where appropriate
+* Organization structured data
+* Author structured data where appropriate
+* Open Graph metadata
+* Twitter/X metadata
+* Internal linking
+* Topic pillar pages
+* Related content links
+
+Avoid duplicate content between:
+
+* 60-Second Knowledge
+* Professional Articles
+* Technical Articles
+
+Short content should summarize and link to deeper content rather than simply duplicating it.
+
+---
+
+# 16. E-E-A-T
+
+The platform must strongly support:
+
+**Experience**
+
+* Author profiles
+* Expert profiles
+* Professional experience
+* Industry background
+
+**Expertise**
+
+* Author expertise
+* Expert reviewers
+* Technical references
+* Research citations
+
+**Authoritativeness**
+
+* Editorial governance
+* Professional publication identity
+* Consistent topic architecture
+* Expert-reviewed content
+
+**Trust**
+
+* Editorial standards
+* Publication ethics
+* Disclaimer
+* Corrections policy
+* Update dates
+* Transparent references
+
+Add a future-ready field:
+
+**Expert Review Status**
+
+Options:
+
+* Not Reviewed
+* Editorially Reviewed
+* Expert Reviewed
+* Technically Verified
+
+Only authorized users should be able to mark content as Expert Reviewed or Technically Verified.
+
+---
+
+# 17. EDITORIAL GOVERNANCE
+
+Create a dedicated:
+
+## Editorial Governance
+
+section on the website.
+
+Include pages for:
+
+* Editorial Identity Policy
+* Editorial Standards
+* Publication Ethics
+* Copyright & Intellectual Property
+* Privacy Policy
+* Terms of Use
+* Disclaimer
+* AI & Research Transparency Policy
+* Corrections & Updates Policy
+
+Create an admin system so these policies can be updated without code changes.
+
+Add document metadata:
+
+* Version
+* Effective Date
+* Document Number
+* Status
+* Approved By
+* Revision History
+
+Do not alter the approved Editorial Identity Policy without explicit administrative action.
+
+---
+
+# 18. FUTURE LEARNING PLATFORM
+
+Design the architecture so it can later support:
+
+* Courses
+* Learning modules
+* Professional certification
+* CPD programs
+* Quizzes
+* Assessments
+* Certificates
+* Member profiles
+* Professional communities
+
+Do not build the full LMS now.
+
+However, the database architecture must not prevent these future features.
+
+---
+
+# 19. PERFORMANCE
+
+Ensure:
+
+* Fast page loading
+* Server-side rendering or SEO-friendly rendering where appropriate
+* Lazy-loaded images
+* Responsive images
+* Mobile-first design
+* Minimal unnecessary API calls
+* Pagination
+* Efficient database queries
+
+Knowledge pages must remain fast as content grows to thousands of articles.
+
+---
+
+# 20. MOBILE EXPERIENCE
+
+All knowledge pages must be fully responsive.
+
+Test:
+
+* Mobile
+* Tablet
+* Desktop
+
+Ensure:
+
+* Filters work on mobile
+* Knowledge cards are readable
+* Learning paths are easy to navigate
+* Tables do not break layouts
+* Images remain responsive
+* Navigation is accessible
+
+---
+
+# 21. ANALYTICS
+
+Prepare analytics events for:
+
+* Knowledge page views
+* 60-Second Knowledge views
+* Professional article views
+* Technical resource views
+* "Go Deeper" clicks
+* Learning Path progression
+* Internal search
+* Topic filter usage
+* Related content clicks
+
+Do not add invasive tracking.
+
+Use privacy-conscious analytics where possible.
+
+---
+
+# 22. DATABASE REQUIREMENTS
+
+Design the schema to support:
+
+* Topics
+* Subtopics
+* Content Types
+* Knowledge Levels
+* Content Relationships
+* Learning Paths
+* Learning Path Items
+* Expert Reviews
+* Editorial Documents
+
+Use foreign keys.
+
+Add appropriate indexes.
+
+Prevent duplicate relationships.
+
+Use soft deletion where appropriate.
+
+Create safe database migrations.
+
+Do not delete existing article data.
+
+---
+
+# 23. MIGRATION
+
+Existing articles must continue working.
+
+For existing content:
+
+* Assign a sensible default content type
+* Assign a default knowledge level
+* Preserve existing categories
+* Preserve existing tags
+* Preserve authors
+* Preserve slugs
+* Preserve SEO metadata
+* Preserve publication dates
+
+Do not automatically classify everything as "60-Second Knowledge."
+
+Use:
+
+**Existing long-form articles → Professional Knowledge**
+
+unless the content clearly belongs elsewhere.
+
+---
+
+# 24. FINAL USER EXPERIENCE
+
+The final website should communicate:
+
+> **Discover the idea.**
+> **Understand the science.**
+> **Explore the technical details.**
+> **Apply the knowledge.**
+
+The platform should feel like a **professional global knowledge resource**, not a generic blog.
+
+---
+
+# 25. FINAL TESTING
+
+Before marking the task complete, test:
+
+### Content Creation
+
+Create:
+
+1. 60-Second Knowledge
+2. Professional Article
+3. Technical Article
+4. Case Study
+5. SOP
+
+### Relationships
+
+Connect:
+
+60-Second
+→ Professional
+→ Technical
+→ Case Study
+→ SOP
+
+Verify that the full learning path works.
+
+### SEO
+
+Verify:
+
+* URLs
+* Metadata
+* Canonical
+* Sitemap
+* Structured data
+* Breadcrumbs
+* Internal links
+
+### Admin
+
+Verify:
+
+* Create
+* Edit
+* Delete
+* Publish
+* Schedule
+* Unpublish
+* Revision
+* Restore
+* Relationship management
+
+### Mobile
+
+Test every new page on mobile.
+
+### Existing Content
+
+Verify that all existing articles continue to work without URL or content loss.
+
+---
+
+# FINAL DELIVERABLE
+
+When complete, provide a concise implementation report containing:
+
+1. Database changes
+2. New API endpoints
+3. New Admin Panel features
+4. New public pages
+5. New URL structure
+6. Knowledge architecture
+7. Migration status
+8. SEO implementation
+9. Security considerations
+10. Mobile testing results
+11. Existing article compatibility
+12. Remaining future work
+
+**IMPORTANT:** Do not mark this task complete just because the code compiles. Test the entire workflow from **Admin Content Creation → Publishing → Knowledge Hub → Topic Page → Article → Continue Learning → Related Content**.
+
+The final implementation must strengthen **The Science of Professional Textile Care** as a long-term, authoritative, globally scalable knowledge platform rather than simply adding another blog feature.

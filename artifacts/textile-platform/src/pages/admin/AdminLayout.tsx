@@ -4,6 +4,7 @@ import {
   Globe, LogOut, UserCog, Calendar, CreditCard,
   Video, Mail, Image, Search, ArrowLeftRight, Settings, Shield,
   ClipboardList, BookOpen, Menu, X, PanelTop, MessageCircle, Check,
+  Layers, GitBranch, BookMarked, ScrollText,
 } from "lucide-react";
 import { useAuth, can } from "@/lib/auth";
 import { useState, useEffect, useRef } from "react";
@@ -50,6 +51,14 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/admin/payments",   icon: CreditCard, label: "Payments",   resource: "payments" },
       { href: "/admin/newsletter", icon: Mail,       label: "Newsletter", resource: "newsletter" },
+    ],
+  },
+  {
+    label: "Knowledge",
+    items: [
+      { href: "/admin/topics",            icon: Layers,      label: "Topics",             resource: "settings" },
+      { href: "/admin/learning-paths",    icon: GitBranch,   label: "Learning Paths",     resource: "settings" },
+      { href: "/admin/editorial-docs",    icon: ScrollText,  label: "Editorial Docs",     resource: "settings" },
     ],
   },
   {
