@@ -6,25 +6,39 @@ import { siteSettingsTable } from "@workspace/db";
 const router = Router();
 
 // ── In-memory cache (refreshed every 10 s) ───────────────────────────────────
-let cache: { maintenanceMode: boolean; siteName: string; expires: number } | null = null;
+let cache: {
+  maintenanceMode: boolean; siteName: string;
+  logoUrl: string | null; logoText: string; logoSizeDesktop: string; logoSizeMobile: string;
+  expires: number;
+} | null = null;
 const TTL = 10_000;
 
 async function getStatus() {
   if (cache && Date.now() < cache.expires) return cache;
   try {
     const rows = await db
-      .select({ maintenanceMode: siteSettingsTable.maintenanceMode, siteName: siteSettingsTable.siteName })
+      .select({
+        maintenanceMode: siteSettingsTable.maintenanceMode,
+        siteName: siteSettingsTable.siteName,
+        logoUrl: siteSettingsTable.logoUrl,
+        logoText: siteSettingsTable.logoText,
+        logoSizeDesktop: siteSettingsTable.logoSizeDesktop,
+        logoSizeMobile: siteSettingsTable.logoSizeMobile,
+      })
       .from(siteSettingsTable)
       .where(eq(siteSettingsTable.id, 1))
       .limit(1);
     cache = {
       maintenanceMode: rows[0]?.maintenanceMode ?? false,
       siteName: rows[0]?.siteName ?? "Laundry Master",
+      logoUrl: rows[0]?.logoUrl ?? null,
+      logoText: rows[0]?.logoText ?? "Laundry Master",
+      logoSizeDesktop: rows[0]?.logoSizeDesktop ?? "32",
+      logoSizeMobile: rows[0]?.logoSizeMobile ?? "28",
       expires: Date.now() + TTL,
     };
   } catch {
-    // Fail open — never block the site due to a DB error
-    cache = { maintenanceMode: false, siteName: "Laundry Master", expires: Date.now() + TTL };
+    cache = { maintenanceMode: false, siteName: "Laundry Master", logoUrl: null, logoText: "Laundry Master", logoSizeDesktop: "32", logoSizeMobile: "28", expires: Date.now() + TTL };
   }
   return cache;
 }
@@ -72,9 +86,16 @@ export async function maintenanceGate(req: Request, res: Response, next: NextFun
 router.get("/site-status", async (_req: Request, res: Response) => {
   try {
     const status = await getStatus();
-    res.json({ maintenanceMode: status.maintenanceMode, siteName: status.siteName });
+    res.json({
+      maintenanceMode: status.maintenanceMode,
+      siteName: status.siteName,
+      logoUrl: status.logoUrl,
+      logoText: status.logoText,
+      logoSizeDesktop: status.logoSizeDesktop,
+      logoSizeMobile: status.logoSizeMobile,
+    });
   } catch {
-    res.json({ maintenanceMode: false, siteName: "Laundry Master" });
+    res.json({ maintenanceMode: false, siteName: "Laundry Master", logoUrl: null, logoText: "Laundry Master", logoSizeDesktop: "32", logoSizeMobile: "28" });
   }
 });
 

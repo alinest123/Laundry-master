@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Search, User, Menu, X, Clock, Phone, MapPin, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePageContent } from "@/lib/usePageContent";
+import { useSiteStatus } from "@/lib/useSiteStatus";
 
 const NAV = [
   { label: "Knowledge Hub", href: "/articles" },
@@ -193,6 +194,12 @@ export function Navbar() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
   const { user, loading } = useAuth();
+  const { data: siteStatus } = useSiteStatus();
+
+  const logoUrl = siteStatus?.logoUrl;
+  const logoText = siteStatus?.logoText || "Laundry Master";
+  const desktopH = Number(siteStatus?.logoSizeDesktop || 32);
+  const mobileH = Number(siteStatus?.logoSizeMobile || 28);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#f0f0f0]">
@@ -200,12 +207,45 @@ export function Navbar() {
       <div className="max-w-[1280px] mx-auto px-6 h-[64px] flex items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 bg-[#1c1c1c] rounded-sm flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
-            </svg>
-          </div>
-          <span className="font-extrabold text-[1.05rem] tracking-tight text-[#1c1c1c]">Laundry Master</span>
+          {logoUrl ? (
+            <>
+              {/* Custom image logo */}
+              <img
+                src={logoUrl}
+                alt={logoText}
+                className="hidden md:block object-contain"
+                style={{ height: desktopH, width: "auto", maxWidth: 200 }}
+              />
+              <img
+                src={logoUrl}
+                alt={logoText}
+                className="md:hidden object-contain"
+                style={{ height: mobileH, width: "auto", maxWidth: 160 }}
+              />
+            </>
+          ) : (
+            <>
+              {/* Default SVG icon + text */}
+              <div
+                className="bg-[#1c1c1c] rounded-sm flex items-center justify-center shrink-0"
+                style={{ width: Math.round(desktopH * 0.875), height: Math.round(desktopH * 0.875) }}
+              >
+                <svg
+                  width={Math.round(desktopH * 0.4375)}
+                  height={Math.round(desktopH * 0.4375)}
+                  viewBox="0 0 14 14" fill="none"
+                >
+                  <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
+                </svg>
+              </div>
+              <span
+                className="font-extrabold tracking-tight text-[#1c1c1c]"
+                style={{ fontSize: Math.max(14, Math.round(desktopH * 0.525)) }}
+              >
+                {logoText}
+              </span>
+            </>
+          )}
         </Link>
 
         {/* Center nav */}

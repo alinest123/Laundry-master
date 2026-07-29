@@ -4,7 +4,7 @@ import {
   Globe, LogOut, UserCog, Calendar, CreditCard,
   Video, Mail, Image, Search, ArrowLeftRight, Settings, Shield,
   ClipboardList, BookOpen, Menu, X, PanelTop, MessageCircle, Check,
-  Layers, GitBranch, BookMarked, ScrollText,
+  Layers, GitBranch, BookMarked, ScrollText, Palette,
 } from "lucide-react";
 import { useAuth, can } from "@/lib/auth";
 import { useState, useEffect, useRef } from "react";
@@ -64,10 +64,11 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Configuration",
     items: [
-      { href: "/admin/page-content", icon: PanelTop,       label: "Page Content", resource: "settings" },
-      { href: "/admin/seo",          icon: Search,         label: "SEO",          resource: "seo" },
-      { href: "/admin/redirects",    icon: ArrowLeftRight, label: "Redirects",    resource: "redirects" },
-      { href: "/admin/settings",     icon: Settings,       label: "Site Settings",resource: "settings" },
+      { href: "/admin/branding",     icon: Palette,        label: "Branding & Images", resource: "settings" },
+      { href: "/admin/page-content", icon: PanelTop,       label: "Page Content",      resource: "settings" },
+      { href: "/admin/seo",          icon: Search,         label: "SEO",               resource: "seo" },
+      { href: "/admin/redirects",    icon: ArrowLeftRight, label: "Redirects",         resource: "redirects" },
+      { href: "/admin/settings",     icon: Settings,       label: "Site Settings",     resource: "settings" },
     ],
   },
   {

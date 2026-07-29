@@ -11,6 +11,11 @@ export const siteSettingsTable = pgTable("site_settings", {
   customHeadHtml: text("custom_head_html"),
   customBodyHtml: text("custom_body_html"),
   socialLinks: text("social_links"), // JSON string
+  // Branding
+  logoUrl: text("logo_url"),
+  logoText: text("logo_text").default("Laundry Master"),
+  logoSizeDesktop: text("logo_size_desktop").default("32"), // stored as text to avoid migration type issues
+  logoSizeMobile: text("logo_size_mobile").default("28"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 

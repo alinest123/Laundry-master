@@ -57,6 +57,7 @@ import { SecurityLogs } from "@/pages/admin/SecurityLogs";
 import { Topics } from "@/pages/admin/Topics";
 import { LearningPaths } from "@/pages/admin/LearningPaths";
 import { EditorialDocs } from "@/pages/admin/EditorialDocs";
+import { Branding } from "@/pages/admin/Branding";
 import { TopicPage } from "@/pages/knowledge/TopicPage";
 
 const queryClient = new QueryClient();
@@ -135,6 +136,7 @@ function Router() {
       <AdminRoute path="/admin/topics" component={Topics} />
       <AdminRoute path="/admin/learning-paths" component={LearningPaths} />
       <AdminRoute path="/admin/editorial-docs" component={EditorialDocs} />
+      <AdminRoute path="/admin/branding" component={Branding} />
 
       {/* Public site */}
       <Route path="/" component={Home} />

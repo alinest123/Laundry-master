@@ -22,7 +22,8 @@ router.get("/settings", requirePermission("settings", "view"), async (req, res):
 
 router.put("/settings", requirePermission("settings", "edit"), async (req, res): Promise<void> => {
   try {
-    const { siteName, siteDescription, contactEmail, maintenanceMode, customHeadHtml, customBodyHtml, socialLinks } = req.body;
+    const { siteName, siteDescription, contactEmail, maintenanceMode, customHeadHtml, customBodyHtml, socialLinks,
+            logoUrl, logoText, logoSizeDesktop, logoSizeMobile } = req.body;
     const upd: Record<string, unknown> = {};
     if (siteName !== undefined) upd.siteName = siteName;
     if (siteDescription !== undefined) upd.siteDescription = siteDescription;
@@ -31,6 +32,10 @@ router.put("/settings", requirePermission("settings", "edit"), async (req, res):
     if (customHeadHtml !== undefined) upd.customHeadHtml = customHeadHtml;
     if (customBodyHtml !== undefined) upd.customBodyHtml = customBodyHtml;
     if (socialLinks !== undefined) upd.socialLinks = typeof socialLinks === "string" ? socialLinks : JSON.stringify(socialLinks);
+    if (logoUrl !== undefined) upd.logoUrl = logoUrl;
+    if (logoText !== undefined) upd.logoText = logoText;
+    if (logoSizeDesktop !== undefined) upd.logoSizeDesktop = String(logoSizeDesktop);
+    if (logoSizeMobile !== undefined) upd.logoSizeMobile = String(logoSizeMobile);
     // Upsert row id=1
     const existing = await db.select({ id: siteSettingsTable.id }).from(siteSettingsTable).where(eq(siteSettingsTable.id, 1)).limit(1);
     let row;

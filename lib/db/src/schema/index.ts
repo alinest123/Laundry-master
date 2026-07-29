@@ -35,3 +35,4 @@ export * from "./contentRelationships";
 export * from "./learningPaths";
 export * from "./learningPathItems";
 export * from "./editorialDocuments";
+export * from "./siteImages";

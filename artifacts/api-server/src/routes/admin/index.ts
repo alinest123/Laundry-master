@@ -28,6 +28,7 @@ import topicsRouter from "./topics";
 import learningPathsRouter from "./learningPaths";
 import editorialDocumentsRouter from "./editorialDocuments";
 import contentRelationshipsRouter from "./contentRelationships";
+import siteImagesRouter from "./site-images";
 
 const router = Router();
 
@@ -61,5 +62,6 @@ router.use(topicsRouter);           // already includes /admin prefix
 router.use("/admin", learningPathsRouter);
 router.use(editorialDocumentsRouter); // includes /admin/* and /editorial/*
 router.use("/admin", contentRelationshipsRouter); // /admin/articles/:id/relationships
+router.use("/admin", siteImagesRouter);           // /admin/site-images
 
 export default router;
