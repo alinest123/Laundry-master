@@ -1,0 +1,363 @@
+SEO ARCHITECTURE
+
+Build the entire website SEO-first.
+
+Implement:
+
+Server-side rendering
+
+Static generation where appropriate
+
+Dynamic metadata
+
+Canonical URLs
+
+XML sitemap
+
+Image sitemap
+
+Robots.txt
+
+Breadcrumb schema
+
+Article schema
+
+FAQ schema
+
+Organization schema
+
+Person/Author schema
+
+WebSite schema
+
+SearchAction schema where appropriate
+
+Open Graph
+
+Twitter/X metadata
+
+Clean URLs
+
+Internal linking
+
+Pagination
+
+Related content
+
+301 redirect manager
+
+404 page
+
+Noindex control
+
+Duplicate content prevention
+
+Proper heading hierarchy
+
+Semantic HTML
+
+Optimized images
+
+Image ALT text
+
+Fast Core Web Vitals
+
+SEO CONTENT CMS
+
+When an article is created, provide SEO fields:
+
+Primary keyword
+
+Secondary keywords
+
+Meta title
+
+Meta description
+
+URL slug
+
+Canonical URL
+
+Search intent
+
+Target audience
+
+Author
+
+Reviewer
+
+References
+
+FAQ questions
+
+FAQ answers
+
+Internal links
+
+External references
+
+Do not automatically stuff keywords.
+
+SEO recommendations should support natural, helpful content.
+
+GOOGLE SEARCH VISIBILITY
+
+The website must be technically optimized to maximize the possibility of ranking well on Google.
+
+IMPORTANT:
+
+Do NOT claim that any developer can guarantee first-page Google rankings.
+
+Instead, implement the technical and content foundation required for long-term organic visibility.
+
+Focus on:
+
+Topical authority
+
+High-quality content
+
+E-E-A-T
+
+Expert authorship
+
+Original research
+
+Useful resources
+
+Internal linking
+
+Structured data
+
+Strong information architecture
+
+Fast performance
+
+Mobile usability
+
+Natural backlinks
+
+Search intent alignment
+
+Regular content updates
+
+Google Search Console integration
+
+Google Analytics integration
+
+Bing Webmaster Tools support
+
+SECURITY
+
+Implement production-grade security.
+
+Use:
+
+HTTPS
+
+Secure cookies
+
+HttpOnly cookies
+
+SameSite cookies
+
+CSRF protection
+
+XSS protection
+
+SQL injection prevention
+
+Zod validation
+
+Rate limiting
+
+Brute-force protection
+
+Account lockout
+
+Secure password hashing
+
+Password reset security
+
+Email verification
+
+Role-based authorization
+
+Security headers
+
+Content Security Policy
+
+CORS configuration
+
+File upload validation
+
+File type validation
+
+File size limits
+
+Malware scanning architecture
+
+Audit logs
+
+Admin activity logs
+
+Session expiration
+
+Secure authentication
+
+2FA-ready architecture
+
+Database backups
+
+Environment variables
+
+Secret management
+
+Secret rotation support
+
+Never hardcode secrets.
+
+Never place secrets in frontend code.
+
+Never commit .env files to Git.
+
+Create .env.example containing variable names only.
+
+PASSWORD AND API KEY PROTECTION
+
+All secrets must be stored as environment variables.
+
+Examples:
+
+DATABASE_URL
+
+AUTH_SECRET
+
+STRIPE_SECRET_KEY
+
+STRIPE_WEBHOOK_SECRET
+
+ZOOM_CLIENT_ID
+
+ZOOM_CLIENT_SECRET
+
+ZOOM_ACCOUNT_ID
+
+EMAIL_API_KEY
+
+GOOGLE_ANALYTICS_ID
+
+Any private credentials
+
+Never expose secrets through:
+
+Frontend JavaScript
+
+HTML
+
+Client components
+
+Public API responses
+
+Git repository
+
+Logs
+
+Error messages
+
+ERROR HANDLING
+
+Never display sensitive technical information to users.
+
+Production errors must not expose:
+
+Database errors
+
+API keys
+
+Tokens
+
+Stack traces
+
+File paths
+
+Internal server information
+
+Use safe error messages.
+
+Log detailed errors securely on the server.
+
+PERFORMANCE
+
+Target:
+
+Lighthouse Performance: 90+
+
+Accessibility: 95+
+
+Best Practices: 95+
+
+SEO: 100
+
+Optimize:
+
+Images
+
+Fonts
+
+JavaScript
+
+CSS
+
+Database queries
+
+Caching
+
+API requests
+
+Lazy loading
+
+CDN
+
+Server-side rendering
+
+ACCESSIBILITY
+
+Follow WCAG 2.2 AA principles.
+
+Include:
+
+Keyboard navigation
+
+Focus states
+
+Screen reader support
+
+ARIA labels
+
+Semantic HTML
+
+Accessible forms
+
+Accessible error messages
+
+Color contrast
+
+Skip navigation
+
+Responsive typography
+
+MOBILE
+
+The website must be designed mobile-first.
+
+Test:
+
+Mobile phones
+
+Tablets
+
+Desktop
+
+Large monitors
+
+Navigation must work perfectly on touch devices.
