@@ -8,6 +8,11 @@ import {
   Sun, Quote, FileText, BarChart2, Star, Award, TrendingUp,
   ChevronDown, ChevronUp, Printer,
 } from "lucide-react";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { ArticleSchema, BreadcrumbSchema, FAQSchema, PersonSchema } from "@/components/seo/JsonLd";
+
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "";
+
 // X (formerly Twitter) logo — replaces the removed Twitter bird icon
 function XLogo({ className }: { className?: string }) {
   return (
@@ -734,6 +739,17 @@ export function ArticleDetail() {
   );
   const relatedRels = rels.filter(r => r.relationshipType === "related");
 
+  // ── SEO variables ──────────────────────────────────────────────────────────
+  const seoTitle   = (article as any).metaTitle    || article.title;
+  const seoDesc    = (article as any).metaDescription || article.excerpt || "";
+  const seoImage   = (article as any).ogImage      || article.featuredImage || "";
+  const articleUrl = `${SITE_URL}/articles/${article.slug}`;
+  const canonical  = (article as any).canonicalUrl || articleUrl;
+  const firstCat   = article.categories?.[0] as { name: string; slug: string } | undefined;
+  const articleAuthor = (article as any).author as { name: string; jobTitle?: string; bio?: string } | null;
+  const articleFaqs   = (article as any).faqs as { question: string; answer: string }[] | undefined ?? [];
+  const articleTags   = (article as any).tags  as { name: string }[] | undefined ?? [];
+
   const levelColors: Record<string, string> = {
     quick: "bg-amber-50 border-amber-200 text-amber-800",
     professional: "bg-blue-50 border-blue-200 text-blue-800",
@@ -764,6 +780,51 @@ export function ArticleDetail() {
 
   return (
     <Shell>
+      {/* ── SEO ──────────────────────────────────────────────────────────── */}
+      <PageSeo
+        title={seoTitle}
+        description={seoDesc}
+        canonical={canonical}
+        noindex={(article as any).noindex}
+        nofollow={(article as any).nofollow}
+        ogType="article"
+        ogImage={seoImage}
+        ogImageAlt={(article as any).ogImageAlt || (article as any).featuredImageAlt || ""}
+        articlePublishedTime={(article as any).publishedAt ?? undefined}
+        articleModifiedTime={(article as any).updatedAt ?? undefined}
+        articleAuthor={articleAuthor?.name}
+        articleSection={firstCat?.name}
+        articleTags={articleTags.map(t => t.name)}
+        keywords={(article as any).metaKeywords ?? undefined}
+      />
+      <ArticleSchema
+        headline={article.title}
+        description={seoDesc}
+        url={articleUrl}
+        imageUrl={article.featuredImage ?? undefined}
+        imageAlt={(article as any).featuredImageAlt ?? undefined}
+        datePublished={(article as any).publishedAt ?? undefined}
+        dateModified={(article as any).updatedAt ?? undefined}
+        authorName={articleAuthor?.name}
+        articleSection={firstCat?.name}
+        keywords={(article as any).metaKeywords ?? undefined}
+        wordCount={wordCount}
+      />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: SITE_URL || "/" },
+        { name: "Knowledge Hub", url: `${SITE_URL}/articles` },
+        ...(firstCat ? [{ name: firstCat.name, url: `${SITE_URL}/categories/${firstCat.slug}` }] : []),
+        { name: article.title },
+      ]} />
+      {articleFaqs.length > 0 && <FAQSchema items={articleFaqs} />}
+      {articleAuthor && (
+        <PersonSchema
+          name={articleAuthor.name}
+          jobTitle={articleAuthor.jobTitle}
+          description={articleAuthor.bio}
+        />
+      )}
+
       <ReadingProgressBar />
       <article className={`bg-background ${darkMode ? "dark" : ""}`}>
 

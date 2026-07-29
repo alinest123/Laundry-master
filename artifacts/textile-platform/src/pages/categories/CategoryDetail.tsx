@@ -1,4 +1,7 @@
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { CollectionPageSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "";
 import { useRoute, Link } from "wouter";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,9 +45,21 @@ export function CategoryDetail() {
   }
 
   const { category, articles, total } = categoryData;
+  const catUrl = `${SITE_URL}/categories/${category.slug}`;
 
   return (
     <Shell>
+      <PageSeo
+        title={category.name}
+        description={category.description || `Browse ${total} articles on ${category.name} — professional textile care knowledge.`}
+        canonical={catUrl}
+      />
+      <CollectionPageSchema name={category.name} description={category.description || undefined} url={catUrl} />
+      <BreadcrumbSchema items={[
+        { name: "Home", url: SITE_URL || "/" },
+        { name: "Categories", url: `${SITE_URL}/categories` },
+        { name: category.name },
+      ]} />
       {/* Category Header */}
       <div className="bg-primary text-white py-16 relative overflow-hidden">
         {category.featuredImage && (

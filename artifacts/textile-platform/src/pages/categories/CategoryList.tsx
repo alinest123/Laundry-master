@@ -1,4 +1,7 @@
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { CollectionPageSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "";
 import { Link } from "wouter";
 import { useListCategories } from "@workspace/api-client-react";
 import { ArrowRight, BookOpen, Layers } from "lucide-react";
@@ -20,6 +23,13 @@ export function CategoryList() {
 
   return (
     <Shell>
+      <PageSeo
+        title="Browse Categories"
+        description="Explore professional textile care topics by category — fabric science, stain removal, dry cleaning, laundry chemistry, and sustainability."
+        canonical={`${SITE_URL}/categories`}
+      />
+      <CollectionPageSchema name="Textile Care Categories" description="Professional textile care knowledge by topic." url={`${SITE_URL}/categories`} />
+      <BreadcrumbSchema items={[{ name: "Home", url: SITE_URL || "/" }, { name: "Categories" }]} />
       <div className="bg-primary text-white py-20 border-b border-primary-foreground/10">
         <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl">
           <Layers className="w-12 h-12 mx-auto text-accent mb-6" />

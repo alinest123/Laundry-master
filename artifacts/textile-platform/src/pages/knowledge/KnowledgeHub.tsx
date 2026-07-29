@@ -3,6 +3,9 @@ import { Shell } from "@/components/layout/Shell";
 import { Link } from "wouter";
 import { BookOpen, FileText, FlaskConical, Zap, ArrowRight, Filter, Clock, ChevronDown, Tag } from "lucide-react";
 import { usePageContent } from "@/lib/usePageContent";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { CollectionPageSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "";
 import { apiGet } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -145,6 +148,17 @@ export function KnowledgeHub() {
 
   return (
     <Shell>
+      <PageSeo
+        title="Knowledge Hub"
+        description={c("hero_subheadline", "Professional knowledge and technical resources for textile care specialists.")}
+        canonical={`${SITE_URL}/knowledge`}
+      />
+      <CollectionPageSchema
+        name="Textile Care Knowledge Hub"
+        description="Professional knowledge and technical resources for laundry, dry cleaning, and fabric science specialists."
+        url={`${SITE_URL}/knowledge`}
+      />
+      <BreadcrumbSchema items={[{ name: "Home", url: SITE_URL || "/" }, { name: "Knowledge Hub" }]} />
       {/* Hero */}
       <div className="bg-[#1a2e1a] text-white pt-20 pb-14">
         <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl">

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useMemo, Fragment } from "react";
 import { usePageContent } from "@/lib/usePageContent";
 import { motion, useInView } from "framer-motion";
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { CollectionPageSchema } from "@/components/seo/JsonLd";
 import {
   useGetFeaturedArticles,
   useGetPlatformStats,
@@ -594,6 +596,15 @@ export function Home() {
 
   return (
     <Shell>
+      <PageSeo
+        title="The Science of Professional Textile Care"
+        description={c("hero_subheadline", "Evidence-based knowledge for laundry, dry cleaning, and fabric science professionals — built on chemistry and testing, not guesswork.")}
+      />
+      <CollectionPageSchema
+        name="Laundry Master — Professional Textile Care Knowledge"
+        description="Evidence-based resources for laundry, dry cleaning, and fabric science professionals."
+        url={`${(import.meta.env.VITE_SITE_URL as string | undefined) ?? ""}/`}
+      />
       {sectionsLayout
         .filter((s) => s.visible !== false)
         .map((s) =>

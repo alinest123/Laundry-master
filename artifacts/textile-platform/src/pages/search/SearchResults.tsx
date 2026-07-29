@@ -1,4 +1,7 @@
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { SearchResultsPageSchema } from "@/components/seo/JsonLd";
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "";
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import { Search as SearchIcon, FileText, Folder, BookOpen, ArrowRight } from "lucide-react";
@@ -26,6 +29,12 @@ export function SearchResults() {
 
   return (
     <Shell>
+      <PageSeo
+        title={query ? `Search: "${query}"` : "Search"}
+        description={query ? `Results for "${query}" on Laundry Master` : "Search the professional textile care knowledge base."}
+        noindex
+      />
+      <SearchResultsPageSchema url={`${SITE_URL}/search`} query={query || undefined} />
       <div className="bg-muted/30 border-b border-border py-16">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl text-center">
           <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary mb-8">Search the Platform</h1>

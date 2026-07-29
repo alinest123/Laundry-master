@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { HelmetProvider } from 'react-helmet-async';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 
@@ -10,6 +11,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { MaintenancePage } from "@/pages/MaintenancePage";
 import { apiGet } from "@/lib/api";
+import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd";
+import { useSiteStatus } from "@/lib/useSiteStatus";
 
 import { Home } from "@/pages/Home";
 import { ArticleList } from "@/pages/articles/ArticleList";
@@ -61,6 +64,20 @@ import { Branding } from "@/pages/admin/Branding";
 import { TopicPage } from "@/pages/knowledge/TopicPage";
 
 const queryClient = new QueryClient();
+
+// ── Site-wide JSON-LD schemas (Organization + WebSite) ───────────────────────
+function SiteSchemas() {
+  const { data } = useSiteStatus();
+  const siteName = data?.siteName ?? "Laundry Master";
+  const siteUrl = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "https://laundrymaster.com";
+  const logoUrl = data?.logoUrl ?? undefined;
+  return (
+    <>
+      <OrganizationSchema name={siteName} url={siteUrl} logoUrl={logoUrl} />
+      <WebSiteSchema name={siteName} url={siteUrl} />
+    </>
+  );
+}
 
 // ── Maintenance gate ──────────────────────────────────────────────────────────
 function MaintenanceGate({ children }: { children: React.ReactNode }) {
@@ -160,19 +177,22 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <MaintenanceGate>
-              <Router />
-            </MaintenanceGate>
-          </WouterRouter>
-          <ScrollToTopButton />
-          <Toaster />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+              <SiteSchemas />
+              <MaintenanceGate>
+                <Router />
+              </MaintenanceGate>
+            </WouterRouter>
+            <ScrollToTopButton />
+            <Toaster />
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 

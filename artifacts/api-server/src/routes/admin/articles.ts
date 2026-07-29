@@ -162,6 +162,9 @@ router.post("/admin/articles", requirePermission("articles", "create"), async (r
       metaKeywords: f.metaKeywords ?? null, canonicalUrl: f.canonicalUrl ?? null,
       ogImage: f.ogImage ?? null, structuredData: f.structuredData ?? null,
       noindex: f.noindex ?? false, nofollow: f.nofollow ?? false, tocEnabled: f.tocEnabled ?? false,
+      primaryKeyword: f.primaryKeyword ?? null, secondaryKeywords: f.secondaryKeywords ?? null,
+      searchIntent: f.searchIntent ?? null, targetAudience: f.targetAudience ?? null,
+      featuredImageAlt: f.featuredImageAlt ?? null, ogImageAlt: f.ogImageAlt ?? null,
     }).returning();
 
     await syncRelations(article.id, { categoryIds, tagIds, relatedArticleIds, topicIds, images, faqs, references });
@@ -195,7 +198,8 @@ router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (
     const bool = (k: string) => { if (f[k] !== undefined) upd[k] = f[k]; };
     ["title","slug","excerpt","content","featuredImage","readingTime","status","authorId",
      "metaTitle","metaDescription","metaKeywords","canonicalUrl","ogImage","structuredData",
-     "contentType","knowledgeLevel","difficulty","keyTakeaway","learningObjectives","expertReviewStatus"].forEach(str);
+     "contentType","knowledgeLevel","difficulty","keyTakeaway","learningObjectives","expertReviewStatus",
+     "primaryKeyword","secondaryKeywords","searchIntent","targetAudience","featuredImageAlt","ogImageAlt"].forEach(str);
     ["noindex","nofollow","tocEnabled"].forEach(bool);
     if (f.isFeatured !== undefined) upd.isFeatured = f.isFeatured ? 1 : 0;
     if (f.publishedAt !== undefined) upd.publishedAt = f.publishedAt ? new Date(f.publishedAt) : null;

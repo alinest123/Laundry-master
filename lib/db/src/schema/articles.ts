@@ -39,6 +39,13 @@ export const articlesTable = pgTable("articles", {
   structuredData: text("structured_data"),
   noindex: boolean("noindex").notNull().default(false),
   nofollow: boolean("nofollow").notNull().default(false),
+  // Extended SEO
+  primaryKeyword: text("primary_keyword"),
+  secondaryKeywords: text("secondary_keywords"), // comma-separated
+  searchIntent: text("search_intent"), // informational | navigational | transactional | commercial
+  targetAudience: text("target_audience"),
+  featuredImageAlt: text("featured_image_alt"),
+  ogImageAlt: text("og_image_alt"),
   // Features
   tocEnabled: boolean("toc_enabled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -1,4 +1,7 @@
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
+import { CollectionPageSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+const SITE_URL = (import.meta.env.VITE_SITE_URL as string | undefined) ?? "";
 import { Link } from "wouter";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -95,6 +98,8 @@ function RecentPostItem({ article }: { article: ArticleSummary }) {
 }
 
 /* ── Main page ──────────────────────────────────────────────────────────────── */
+const DESC_ARTICLES = "Browse our evidence-based articles on professional textile care, fabric science, laundry chemistry, and dry cleaning techniques.";
+
 export function ArticleList() {
   const [page, setPage] = useState(1);
   const LIMIT = 5;
@@ -106,6 +111,13 @@ export function ArticleList() {
 
   return (
     <Shell>
+      <PageSeo
+        title="Knowledge Hub — All Articles"
+        description={DESC_ARTICLES}
+        canonical={`${SITE_URL}/articles`}
+      />
+      <CollectionPageSchema name="Professional Textile Care Knowledge Hub" description={DESC_ARTICLES} url={`${SITE_URL}/articles`} />
+      <BreadcrumbSchema items={[{ name: "Home", url: SITE_URL || "/" }, { name: "Knowledge Hub" }]} />
       {/* ── Page header ── */}
       <div className="bg-white border-b border-gray-100 py-10 md:py-14 text-center">
         <nav className="flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-5">

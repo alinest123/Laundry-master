@@ -1,4 +1,5 @@
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
 import { BookOpen, Users, Globe, ShieldCheck } from "lucide-react";
 import aboutHero from "@assets/generated_images/about_hero.jpg";
 import { usePageContent } from "@/lib/usePageContent";
@@ -8,6 +9,10 @@ export function About() {
 
   return (
     <Shell>
+      <PageSeo
+        title="About"
+        description={c("hero_subheadline", "We are an independent, science-first institution dedicated to standardizing and elevating the global practices of commercial laundry, dry cleaning, and fabric science.")}
+      />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center bg-primary text-white overflow-hidden">
         <div className="absolute inset-0 z-0">

@@ -26,6 +26,9 @@ type FormData = {
   metaTitle: string; metaDescription: string; metaKeywords: string;
   canonicalUrl: string; ogImage: string; structuredData: string;
   noindex: boolean; nofollow: boolean;
+  primaryKeyword: string; secondaryKeywords: string;
+  searchIntent: string; targetAudience: string;
+  featuredImageAlt: string; ogImageAlt: string;
   images: ArticleImage[]; faqs: ArticleFaq[]; references: ArticleRef[];
 };
 
@@ -39,6 +42,8 @@ const EMPTY: FormData = {
   metaTitle: "", metaDescription: "", metaKeywords: "",
   canonicalUrl: "", ogImage: "", structuredData: "",
   noindex: false, nofollow: false,
+  primaryKeyword: "", secondaryKeywords: "", searchIntent: "",
+  targetAudience: "", featuredImageAlt: "", ogImageAlt: "",
   images: [], faqs: [], references: [],
 };
 
@@ -308,6 +313,9 @@ export function ArticleEditor() {
         metaKeywords: a.metaKeywords ?? "", canonicalUrl: a.canonicalUrl ?? "",
         ogImage: a.ogImage ?? "", structuredData: a.structuredData ?? "",
         noindex: !!a.noindex, nofollow: !!a.nofollow,
+        primaryKeyword: a.primaryKeyword ?? "", secondaryKeywords: a.secondaryKeywords ?? "",
+        searchIntent: a.searchIntent ?? "", targetAudience: a.targetAudience ?? "",
+        featuredImageAlt: a.featuredImageAlt ?? "", ogImageAlt: a.ogImageAlt ?? "",
         images: a.images?.map((i: any) => ({ url: i.url, caption: i.caption ?? "", altText: i.altText ?? "", sortOrder: i.sortOrder ?? 0 })) ?? [],
         faqs: a.faqs?.map((f: any) => ({ question: f.question, answer: f.answer, sortOrder: f.sortOrder ?? 0 })) ?? [],
         references: a.references?.map((r: any) => ({ title: r.title, url: r.url ?? "", description: r.description ?? "", refType: r.refType ?? "reference", sortOrder: r.sortOrder ?? 0 })) ?? [],
@@ -1044,6 +1052,39 @@ export function ArticleEditor() {
                     className="w-full px-3 py-2 border border-stone-200 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 resize-none"
                     rows={5} placeholder='{"@context":"https://schema.org","@type":"Article",...}'
                     value={form.structuredData} onChange={e => up({ structuredData: e.target.value })} />
+                </div>
+
+                <div>
+                  <SectionLabel>Search Strategy</SectionLabel>
+                  <div className="space-y-3">
+                    <Input label="Primary Keyword" value={form.primaryKeyword} onChange={v => up({ primaryKeyword: v })}
+                      placeholder="e.g. textile care chemistry" help="The single main keyword this article targets" />
+                    <Input label="Secondary Keywords" value={form.secondaryKeywords} onChange={v => up({ secondaryKeywords: v })}
+                      placeholder="keyword1, keyword2, keyword3" help="Comma-separated supporting keywords" />
+                    <div>
+                      <label className="block text-xs font-medium text-stone-600 mb-1">Search Intent</label>
+                      <select value={form.searchIntent} onChange={e => up({ searchIntent: e.target.value })}
+                        className="w-full px-3 py-1.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30 focus:border-[#4a7c59] bg-white">
+                        <option value="">Not set</option>
+                        <option value="informational">Informational — reader wants to learn</option>
+                        <option value="navigational">Navigational — reader wants to find a page</option>
+                        <option value="transactional">Transactional — reader wants to take action</option>
+                        <option value="commercial">Commercial Investigation — reader compares options</option>
+                      </select>
+                    </div>
+                    <Input label="Target Audience" value={form.targetAudience} onChange={v => up({ targetAudience: v })}
+                      placeholder="e.g. professional laundry technicians, facility managers" />
+                  </div>
+                </div>
+
+                <div>
+                  <SectionLabel>Image Alt Text</SectionLabel>
+                  <div className="space-y-3">
+                    <Input label="Featured Image Alt" value={form.featuredImageAlt} onChange={v => up({ featuredImageAlt: v })}
+                      placeholder="Describe the image for screen readers and crawlers" />
+                    <Input label="OG Image Alt" value={form.ogImageAlt} onChange={v => up({ ogImageAlt: v })}
+                      placeholder="Describe the social sharing image" />
+                  </div>
                 </div>
 
                 <div>

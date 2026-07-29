@@ -5,3 +5,4 @@
 - [Knowledge Platform Schema](knowledge-platform-schema.md) — 6 new tables + 6 article columns; migration in 0001_knowledge_platform.sql applied to Supabase
 - [Admin Route Pattern](api-server-build.md) — new admin routers: topics uses /admin prefix internally; learning-paths and editorial-documents mount under /admin; editorial-documents also serves public /editorial/:slug
 - [Supabase Only DB](supabase-only-db.md) — DATABASE_URL fallback fully removed; SUPABASE_DATABASE_URL is the sole required env; always use SSL with rejectUnauthorized:false via parseDbUrl
+- [SEO Architecture](seo-architecture.md) — react-helmet-async; PageSeo component + JsonLd schemas wired to all public pages; auth rate limiter applied at path level (not /api/auth/*) since auth routes live at /api/login, /api/register etc.

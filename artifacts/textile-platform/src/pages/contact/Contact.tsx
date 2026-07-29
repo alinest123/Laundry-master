@@ -1,4 +1,5 @@
 import { Shell } from "@/components/layout/Shell";
+import { PageSeo } from "@/components/seo/PageSeo";
 import { Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,10 @@ export function Contact() {
 
   return (
     <Shell>
+      <PageSeo
+        title="Contact"
+        description={c("contact_description", "Get in touch with the Laundry Master team for editorial inquiries, expert contributions, or professional textile care questions.")}
+      />
       <div className="container mx-auto px-4 md:px-8 py-20 max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
