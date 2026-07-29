@@ -165,6 +165,7 @@ router.post("/admin/articles", requirePermission("articles", "create"), async (r
       primaryKeyword: f.primaryKeyword ?? null, secondaryKeywords: f.secondaryKeywords ?? null,
       searchIntent: f.searchIntent ?? null, targetAudience: f.targetAudience ?? null,
       featuredImageAlt: f.featuredImageAlt ?? null, ogImageAlt: f.ogImageAlt ?? null,
+      pdfUrl: f.pdfUrl ?? null, pdfTitle: f.pdfTitle ?? null,
     }).returning();
 
     await syncRelations(article.id, { categoryIds, tagIds, relatedArticleIds, topicIds, images, faqs, references });
@@ -199,7 +200,8 @@ router.put("/admin/articles/:id", requirePermission("articles", "edit"), async (
     ["title","slug","excerpt","content","featuredImage","readingTime","status","authorId",
      "metaTitle","metaDescription","metaKeywords","canonicalUrl","ogImage","structuredData",
      "contentType","knowledgeLevel","difficulty","keyTakeaway","learningObjectives","expertReviewStatus",
-     "primaryKeyword","secondaryKeywords","searchIntent","targetAudience","featuredImageAlt","ogImageAlt"].forEach(str);
+     "primaryKeyword","secondaryKeywords","searchIntent","targetAudience","featuredImageAlt","ogImageAlt",
+     "pdfUrl","pdfTitle"].forEach(str);
     ["noindex","nofollow","tocEnabled"].forEach(bool);
     if (f.isFeatured !== undefined) upd.isFeatured = f.isFeatured ? 1 : 0;
     if (f.publishedAt !== undefined) upd.publishedAt = f.publishedAt ? new Date(f.publishedAt) : null;

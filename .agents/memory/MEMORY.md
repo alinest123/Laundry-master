@@ -6,3 +6,4 @@
 - [Admin Route Pattern](api-server-build.md) — new admin routers: topics uses /admin prefix internally; learning-paths and editorial-documents mount under /admin; editorial-documents also serves public /editorial/:slug
 - [Supabase Only DB](supabase-only-db.md) — DATABASE_URL fallback fully removed; SUPABASE_DATABASE_URL is the sole required env; always use SSL with rejectUnauthorized:false via parseDbUrl
 - [SEO Architecture](seo-architecture.md) — react-helmet-async; PageSeo component + JsonLd schemas wired to all public pages; auth rate limiter applied at path level (not /api/auth/*) since auth routes live at /api/login, /api/register etc.
+- [Supabase Storage](supabase-storage.md) — all uploads migrated to Supabase Storage; client uploads directly via signed URL; store servingUrl (public URL) in DB; requires SUPABASE_URL + SERVICE_ROLE_KEY + BUCKET + CRON_SECRET env vars

@@ -3,7 +3,7 @@ import { useLocation, useParams } from "wouter";
 import {
   Save, Send, Calendar, Plus,
   Image, HelpCircle, BookOpen, Search, X, ExternalLink, History,
-  RotateCcw, Clock, CalendarClock, CalendarCheck, CalendarX,
+  RotateCcw, Clock, CalendarClock, CalendarCheck, CalendarX, FileText,
 } from "lucide-react";
 import { AdminLayout } from "../AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
@@ -29,6 +29,7 @@ type FormData = {
   primaryKeyword: string; secondaryKeywords: string;
   searchIntent: string; targetAudience: string;
   featuredImageAlt: string; ogImageAlt: string;
+  pdfUrl: string; pdfTitle: string;
   images: ArticleImage[]; faqs: ArticleFaq[]; references: ArticleRef[];
 };
 
@@ -44,6 +45,7 @@ const EMPTY: FormData = {
   noindex: false, nofollow: false,
   primaryKeyword: "", secondaryKeywords: "", searchIntent: "",
   targetAudience: "", featuredImageAlt: "", ogImageAlt: "",
+  pdfUrl: "", pdfTitle: "",
   images: [], faqs: [], references: [],
 };
 
@@ -316,6 +318,7 @@ export function ArticleEditor() {
         primaryKeyword: a.primaryKeyword ?? "", secondaryKeywords: a.secondaryKeywords ?? "",
         searchIntent: a.searchIntent ?? "", targetAudience: a.targetAudience ?? "",
         featuredImageAlt: a.featuredImageAlt ?? "", ogImageAlt: a.ogImageAlt ?? "",
+        pdfUrl: a.pdfUrl ?? "", pdfTitle: a.pdfTitle ?? "",
         images: a.images?.map((i: any) => ({ url: i.url, caption: i.caption ?? "", altText: i.altText ?? "", sortOrder: i.sortOrder ?? 0 })) ?? [],
         faqs: a.faqs?.map((f: any) => ({ question: f.question, answer: f.answer, sortOrder: f.sortOrder ?? 0 })) ?? [],
         references: a.references?.map((r: any) => ({ title: r.title, url: r.url ?? "", description: r.description ?? "", refType: r.refType ?? "reference", sortOrder: r.sortOrder ?? 0 })) ?? [],
@@ -538,6 +541,36 @@ export function ArticleEditor() {
   const updateFaq = (i: number, patch: Partial<ArticleFaq>) => {
     const next = [...form.faqs]; next[i] = { ...next[i], ...patch }; up({ faqs: next });
   };
+
+  // ── PDF upload ────────────────────────────────────────────────────────────
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfUploadError, setPdfUploadError] = useState("");
+  const pdfFileRef = useRef<HTMLInputElement>(null);
+
+  const handlePdfUpload = useCallback(async (file: File) => {
+    if (file.type !== "application/pdf") { setPdfUploadError("Only PDF files are allowed."); return; }
+    if (file.size > 50 * 1024 * 1024) { setPdfUploadError("PDF must be under 50 MB."); return; }
+    setPdfUploadError(""); setPdfUploading(true);
+    try {
+      const metaRes = await fetch("/api/storage/uploads/request-url", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+      });
+      if (!metaRes.ok) {
+        const e = await metaRes.json().catch(() => ({}));
+        throw new Error((e as any).error || `HTTP ${metaRes.status}`);
+      }
+      const { uploadURL, servingUrl } = await metaRes.json();
+      const putRes = await fetch(uploadURL, { method: "PUT", headers: { "Content-Type": "application/pdf" }, body: file });
+      if (!putRes.ok) throw new Error("Upload to storage failed.");
+      up({ pdfUrl: servingUrl, pdfTitle: file.name.replace(/\.pdf$/i, "") });
+    } catch (e: any) {
+      setPdfUploadError(e.message || "Upload failed");
+    } finally {
+      setPdfUploading(false);
+    }
+  }, [up]);
 
   // ── Image helpers ─────────────────────────────────────────────────────────
   const addImage = () => up({ images: [...form.images, { url: "", caption: "", altText: "", sortOrder: form.images.length }] });
@@ -1131,6 +1164,48 @@ export function ArticleEditor() {
                       ))}
                     </div>
                   )}
+                </div>
+
+                {/* ── PDF Attachment ──────────────────────────────────── */}
+                <div>
+                  <SectionLabel>PDF Attachment</SectionLabel>
+                  {form.pdfUrl ? (
+                    <div className="border border-stone-200 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileText className="w-4 h-4 text-[#4a7c59] shrink-0" />
+                          <span className="text-xs text-stone-700 truncate">{form.pdfTitle || "PDF Attachment"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button onClick={() => pdfFileRef.current?.click()} className="text-xs text-[#4a7c59] hover:underline">Replace</button>
+                          <button onClick={() => up({ pdfUrl: "", pdfTitle: "" })} className="text-stone-300 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
+                        </div>
+                      </div>
+                      <input className="w-full px-2.5 py-1.5 border border-stone-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                        placeholder="PDF display title (shown on public page)" value={form.pdfTitle}
+                        onChange={e => up({ pdfTitle: e.target.value })} />
+                      <a href={form.pdfUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-xs text-[#4a7c59] hover:underline">Preview PDF ↗</a>
+                    </div>
+                  ) : (
+                    <div className="border border-dashed border-stone-200 rounded-lg p-4 text-center">
+                      <FileText className="w-6 h-6 text-stone-300 mx-auto mb-1" />
+                      {pdfUploading ? (
+                        <p className="text-xs text-[#4a7c59] animate-pulse">Uploading…</p>
+                      ) : (
+                        <>
+                          <p className="text-xs text-stone-400 mb-2">No PDF attached</p>
+                          <button onClick={() => pdfFileRef.current?.click()}
+                            className="inline-flex items-center gap-1 text-xs text-[#4a7c59] hover:text-[#3d6849]">
+                            <Plus className="w-3.5 h-3.5" /> Upload PDF
+                          </button>
+                        </>
+                      )}
+                      {pdfUploadError && <p className="text-xs text-red-500 mt-1">{pdfUploadError}</p>}
+                    </div>
+                  )}
+                  <input ref={pdfFileRef} type="file" accept="application/pdf" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handlePdfUpload(f); e.target.value = ""; }} />
                 </div>
               </>
             )}

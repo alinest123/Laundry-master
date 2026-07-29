@@ -3,7 +3,7 @@ import { db } from "@workspace/db";
 import { articlesTable } from "@workspace/db";
 import { logger } from "./logger";
 
-async function publishDueArticles(): Promise<void> {
+export async function publishDueArticles(): Promise<{ count: number; ids: number[] }> {
   try {
     const now = new Date();
     const published = await db
@@ -23,8 +23,11 @@ async function publishDueArticles(): Promise<void> {
         "Scheduled articles auto-published"
       );
     }
+
+    return { count: published.length, ids: published.map((r) => r.id) };
   } catch (err) {
     logger.error({ err }, "Scheduler: failed to publish scheduled articles");
+    return { count: 0, ids: [] };
   }
 }
 

@@ -42,19 +42,17 @@ const TOPICS = [
 
 async function uploadAvatar(file: File): Promise<string> {
   // 1. Request presigned URL
-  const { uploadURL, objectPath } = await apiPost<{ uploadURL: string; objectPath: string }>(
+  const { uploadURL, servingUrl } = await apiPost<{ uploadURL: string; objectPath: string; servingUrl: string }>(
     "/api/storage/uploads/request-url",
     { name: file.name, size: file.size, contentType: file.type },
   );
-  // 2. Upload directly to GCS
+  // 2. Upload directly to Supabase Storage
   await fetch(uploadURL, {
     method: "PUT",
     headers: { "Content-Type": file.type },
     body: file,
   });
-  // objectPath is /objects/<id>, serving endpoint is /api/storage/objects/<id>
-  const entityId = objectPath.replace(/^\/objects\//, "");
-  return `/api/storage/objects/${entityId}`;
+  return servingUrl;
 }
 
 // ── Tab: Profile ──────────────────────────────────────────────────────────────

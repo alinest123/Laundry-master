@@ -46,6 +46,9 @@ export const articlesTable = pgTable("articles", {
   targetAudience: text("target_audience"),
   featuredImageAlt: text("featured_image_alt"),
   ogImageAlt: text("og_image_alt"),
+  // PDF attachment
+  pdfUrl: text("pdf_url"),
+  pdfTitle: text("pdf_title"),
   // Features
   tocEnabled: boolean("toc_enabled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

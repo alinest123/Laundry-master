@@ -1,0 +1,211 @@
+Since you're **already using Supabase**, don't introduce Cloudflare R2 right now. It'll add unnecessary complexity. Use **Supabase Storage** for all uploads so everything stays in one platform.
+
+Here's the revised production task.
+
+---
+
+# Production Storage, Scheduler & PDF Upload (Supabase Only)
+
+## Objective
+
+Make the platform fully production-ready for Vercel using **Supabase Storage** as the only file storage service.
+
+Do not introduce Cloudflare R2 or any other storage provider.
+
+Do not break existing articles, URLs, database records, or admin functionality.
+
+---
+
+## 1. Replace Replit Object Storage with Supabase Storage
+
+Remove all Replit Object Storage code and dependencies.
+
+Use **Supabase Storage** for all uploads.
+
+Every upload should use the same storage system.
+
+Support:
+
+* Featured images
+* Author avatars
+* Site logo
+* Homepage images
+* Page content images
+* Editor inserted images
+* Gallery images
+* PDF attachments
+* Future uploads
+
+Uploads should return a permanent public URL from Supabase Storage.
+
+---
+
+## 2. Fix Image Uploads
+
+Some uploads currently fail or don't appear after uploading.
+
+Find and fix the root cause.
+
+After upload:
+
+* Image appears immediately
+* Image remains after refresh
+* Image works after deployment
+* Image works on Vercel
+* Image is stored permanently in Supabase Storage
+
+Verify every upload location in the CMS.
+
+---
+
+## 3. Add PDF Support
+
+Extend the articles table with:
+
+* pdfUrl
+* pdfTitle
+
+Article Editor
+
+Add a new **PDF Attachment** section.
+
+Allow:
+
+* Upload PDF
+* Replace PDF
+* Remove PDF
+
+Show uploaded filename.
+
+Public Article
+
+If a PDF exists, display a **Download PDF** button beside the existing Print and Share buttons.
+
+The file should download directly from Supabase Storage.
+
+---
+
+## 4. Scheduled Publishing on Vercel
+
+Replace the current `setInterval` scheduler.
+
+Create:
+
+```text
+/api/cron/publish
+```
+
+Protect it with:
+
+```text
+CRON_SECRET
+```
+
+Configure **Vercel Cron** to call it every minute.
+
+The cron job should:
+
+* Publish scheduled articles
+* Update publish dates if needed
+* Regenerate sitemap if applicable
+* Return a summary of published articles
+
+---
+
+## 5. Backward Compatibility
+
+Do not break existing content.
+
+If old image URLs already exist, continue displaying them.
+
+Only new uploads should use Supabase Storage.
+
+---
+
+## 6. Better Upload Experience
+
+Improve the admin upload UI.
+
+Include:
+
+* Upload progress
+* Success message
+* Error message
+* Retry button
+* Image preview
+* PDF filename
+* Replace option
+* Remove option
+
+---
+
+## 7. File Validation
+
+Allow only:
+
+Images
+
+* JPG
+* JPEG
+* PNG
+* WebP
+* SVG
+
+Documents
+
+* PDF
+
+Reject all other file types.
+
+Validate MIME type.
+
+Limit upload size.
+
+---
+
+## 8. Environment Variables
+
+Use only:
+
+```text
+SUPABASE_URL
+SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_STORAGE_BUCKET
+CRON_SECRET
+```
+
+No hardcoded credentials.
+
+---
+
+## 9. Production Verification
+
+Before finishing, verify:
+
+* Featured image uploads
+* Author avatar uploads
+* Branding/logo uploads
+* Editor image uploads
+* PDF uploads
+* Download PDF works
+* Scheduled publishing works
+* Existing articles still work
+* Existing image URLs still work
+* Admin CMS works
+* Public pages work
+* Vercel deployment works without Replit dependencies
+
+---
+
+## Final Requirement
+
+Perform a complete production audit before marking the task complete:
+
+* Remove all remaining Replit-specific storage code.
+* Confirm there are **no Replit-only dependencies** left.
+* Build with `NODE_ENV=production`.
+* Test locally in production mode.
+* Verify uploads, downloads, image rendering, scheduled publishing, and API endpoints.
+* Fix any broken image URLs, upload failures, or console errors.
+* Provide a final deployment checklist confirming the project is fully ready for Vercel.

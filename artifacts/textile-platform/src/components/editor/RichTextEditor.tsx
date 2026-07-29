@@ -184,9 +184,9 @@ function ImageModal({ onConfirm, onClose }: {
         const e = await metaRes.json().catch(() => ({}));
         throw new Error((e as any).error || `HTTP ${metaRes.status}`);
       }
-      const { uploadURL, objectPath } = await metaRes.json();
+      const { uploadURL, servingUrl: fileServingUrl } = await metaRes.json();
 
-      // Step 2 — upload file directly to GCS
+      // Step 2 — upload file directly to Supabase Storage
       const putRes = await fetch(uploadURL, {
         method: "PUT",
         headers: { "Content-Type": file.type },
@@ -194,9 +194,8 @@ function ImageModal({ onConfirm, onClose }: {
       });
       if (!putRes.ok) throw new Error("Upload to storage failed.");
 
-      // Step 3 — build serving URL
-      const servingUrl = `${API_ORIGIN}/api/storage${objectPath}`;
-      onConfirm(servingUrl, uploadAlt || file.name.replace(/\.[^.]+$/, ""));
+      // Step 3 — use the permanent public URL returned by the API
+      onConfirm(fileServingUrl, uploadAlt || file.name.replace(/\.[^.]+$/, ""));
     } catch (err: any) {
       setUploadError(err.message || "Upload failed. Please try again.");
     } finally {

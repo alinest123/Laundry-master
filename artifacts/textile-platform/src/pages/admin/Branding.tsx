@@ -44,14 +44,12 @@ function ImageField({
     if (file.size > 10 * 1024 * 1024) { setError("File must be under 10 MB."); return; }
     setError(""); setUploading(true);
     try {
-      const { uploadURL, objectPath } = await apiPost<{ uploadURL: string; objectPath: string }>(
+      const { uploadURL, servingUrl } = await apiPost<{ uploadURL: string; objectPath: string; servingUrl: string }>(
         "/api/storage/uploads/request-url",
         { name: file.name, size: file.size, contentType: file.type }
       );
       const resp = await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
       if (!resp.ok) throw new Error("Upload failed");
-      // Build the accessible URL from objectPath
-      const servingUrl = `/api${objectPath}`;
       onChange(servingUrl);
     } catch (e: any) {
       setError(e.message || "Upload failed");

@@ -1,7 +1,13 @@
 import { Readable } from "stream";
 import { z } from "zod";
 import { Router, type IRouter, type Request, type Response } from "express";
-import { ObjectNotFoundError, ObjectStorageService } from "../lib/objectStorage";
+import {
+  ObjectNotFoundError,
+  ObjectStorageService,
+  StorageNotConfiguredError,
+  UploadValidationError,
+  validateUpload,
+} from "../lib/objectStorage";
 import { requireAuth } from "../middleware/requireAuth";
 
 const router: IRouter = Router();
@@ -15,8 +21,9 @@ const UploadRequestBody = z.object({
 
 /**
  * POST /storage/uploads/request-url
- * Admin-only: returns a presigned GCS PUT URL.
- * Client uploads the file directly to GCS, never via this server.
+ * Admin-only: returns a presigned Supabase Storage PUT URL.
+ * Client uploads the file directly to Supabase, never via this server.
+ * Response: { uploadURL, objectPath, servingUrl, metadata }
  */
 router.post("/storage/uploads/request-url", requireAuth, async (req: Request, res: Response) => {
   const parsed = UploadRequestBody.safeParse(req.body);
@@ -25,12 +32,28 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
     return;
   }
 
+  const { name, size, contentType } = parsed.data;
+
   try {
-    const { name, size, contentType } = parsed.data;
-    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-    const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
-    res.json({ uploadURL, objectPath, metadata: { name, size, contentType } });
+    validateUpload(contentType, size);
   } catch (err) {
+    if (err instanceof UploadValidationError) {
+      res.status(422).json({ error: err.message });
+      return;
+    }
+    throw err;
+  }
+
+  try {
+    const { uploadURL, objectPath, servingUrl } =
+      await objectStorageService.getObjectEntityUploadURL(contentType);
+
+    res.json({ uploadURL, objectPath, servingUrl, metadata: { name, size, contentType } });
+  } catch (err) {
+    if (err instanceof StorageNotConfiguredError) {
+      res.status(503).json({ error: err.message });
+      return;
+    }
     req.log?.error?.({ err }, "Error generating upload URL");
     res.status(500).json({ error: "Failed to generate upload URL" });
   }
@@ -38,23 +61,18 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
 
 /**
  * GET /storage/public-objects/*
- * Unconditionally public — serves assets from PUBLIC_OBJECT_SEARCH_PATHS.
+ * Backward compat: redirect to Supabase public URL.
  */
 router.get("/storage/public-objects/*filePath", async (req: Request, res: Response) => {
   try {
     const raw = (req.params as any).filePath;
     const filePath = Array.isArray(raw) ? raw.join("/") : raw;
-    const file = await objectStorageService.searchPublicObject(filePath);
-    if (!file) { res.status(404).json({ error: "File not found" }); return; }
-
-    const response = await objectStorageService.downloadObject(file);
-    res.status(response.status);
-    response.headers.forEach((value, key) => res.setHeader(key, value));
-    if (response.body) {
-      Readable.fromWeb(response.body as ReadableStream<Uint8Array>).pipe(res);
-    } else {
-      res.end();
+    const response = await objectStorageService.downloadObject(`/${filePath}`);
+    if (response.status === 302) {
+      const loc = response.headers.get("location");
+      if (loc) { res.redirect(302, loc); return; }
     }
+    res.status(404).json({ error: "File not found" });
   } catch (err) {
     req.log?.error?.({ err }, "Error serving public object");
     res.status(500).json({ error: "Failed to serve public object" });
@@ -63,17 +81,21 @@ router.get("/storage/public-objects/*filePath", async (req: Request, res: Respon
 
 /**
  * GET /storage/objects/*
- * Serves uploaded object entities. Public for article images; add auth check
- * here if you ever need protected assets.
+ * Backward compat: redirect to Supabase public URL.
+ * New uploads store the Supabase URL directly so this proxy isn't needed for them.
  */
 router.get("/storage/objects/*path", async (req: Request, res: Response) => {
   try {
     const raw = (req.params as any).path;
     const wildcardPath = Array.isArray(raw) ? raw.join("/") : raw;
     const objectPath = `/objects/${wildcardPath}`;
-    const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
+    const response = await objectStorageService.downloadObject(objectPath);
 
-    const response = await objectStorageService.downloadObject(objectFile);
+    if (response.status === 302) {
+      const loc = response.headers.get("location");
+      if (loc) { res.redirect(302, loc); return; }
+    }
+    // Fallback: try to stream if somehow it returned a body
     res.status(response.status);
     response.headers.forEach((value, key) => res.setHeader(key, value));
     if (response.body) {

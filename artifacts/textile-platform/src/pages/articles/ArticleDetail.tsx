@@ -101,7 +101,7 @@ function ReadingProgressBar() {
 
 // ── Floating share sidebar ─────────────────────────────────────────────────────
 
-function FloatingShare({ title, url }: { title: string; url: string }) {
+function FloatingShare({ title, url, pdfUrl }: { title: string; url: string; pdfUrl?: string }) {
   const [copied, setCopied] = useState(false);
   const copyLink = () => {
     try {
@@ -137,6 +137,12 @@ function FloatingShare({ title, url }: { title: string; url: string }) {
         className="w-9 h-9 rounded-full border border-[#e8e8e4] bg-white hover:border-[#ccc] hover:shadow-sm flex items-center justify-center transition-all">
         <Printer className="w-4 h-4 text-[#aaa]" />
       </button>
+      {pdfUrl && (
+        <a href={pdfUrl} download title="Download PDF"
+          className="w-9 h-9 rounded-full border border-[#e8e8e4] bg-white hover:border-[#4a7c59] hover:shadow-sm flex items-center justify-center transition-all group">
+          <Download className="w-4 h-4 text-[#aaa] group-hover:text-[#4a7c59] transition-colors" />
+        </a>
+      )}
     </div>
   );
 }
@@ -464,7 +470,7 @@ function ProfessionalBadges({ article }: { article: any }) {
 
 // ── Share dropdown (inline header) ────────────────────────────────────────────
 
-function ShareDropdown({ title, url }: { title: string; url: string }) {
+function ShareDropdown({ title, url, pdfUrl }: { title: string; url: string; pdfUrl?: string }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -512,6 +518,12 @@ function ShareDropdown({ title, url }: { title: string; url: string }) {
             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
             <Printer className="w-3.5 h-3.5 text-[#888]" />Print / PDF
           </button>
+          {pdfUrl && (
+            <a href={pdfUrl} download onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+              <Download className="w-3.5 h-3.5 text-[#888]" />Download PDF
+            </a>
+          )}
         </div>
       )}
     </div>
@@ -917,7 +929,7 @@ export function ArticleDetail() {
                   </button>
                 </div>
                 <BookmarkButton articleId={article.id} />
-                <ShareDropdown title={article.title} url={window.location.href} />
+                <ShareDropdown title={article.title} url={window.location.href} pdfUrl={(article as any).pdfUrl ?? undefined} />
               </div>
             </div>
           </div>
@@ -940,7 +952,7 @@ export function ArticleDetail() {
 
             {/* Left: floating share */}
             <div className="w-12 shrink-0 hidden xl:block">
-              <FloatingShare title={article.title} url={window.location.href} />
+              <FloatingShare title={article.title} url={window.location.href} pdfUrl={(article as any).pdfUrl ?? undefined} />
             </div>
 
             {/* Centre: article body */}
