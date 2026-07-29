@@ -4,3 +4,4 @@
 - [DB Package Build](db-package-build.md) — lib/db uses composite:true; always run `pnpm --filter @workspace/db exec tsc --build` after schema additions or api-server tsc --noEmit will fail with "no exported member" errors
 - [Knowledge Platform Schema](knowledge-platform-schema.md) — 6 new tables + 6 article columns; migration in 0001_knowledge_platform.sql applied to Supabase
 - [Admin Route Pattern](api-server-build.md) — new admin routers: topics uses /admin prefix internally; learning-paths and editorial-documents mount under /admin; editorial-documents also serves public /editorial/:slug
+- [Supabase Only DB](supabase-only-db.md) — DATABASE_URL fallback fully removed; SUPABASE_DATABASE_URL is the sole required env; always use SSL with rejectUnauthorized:false via parseDbUrl

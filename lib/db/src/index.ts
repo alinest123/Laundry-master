@@ -4,13 +4,10 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-// Prefer Supabase when configured, fall back to Replit-provisioned DB.
-const rawUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+const rawUrl = process.env.SUPABASE_DATABASE_URL;
 
 if (!rawUrl) {
-  throw new Error(
-    "No database URL found. Set SUPABASE_DATABASE_URL or provision a Replit database.",
-  );
+  throw new Error("SUPABASE_DATABASE_URL is required. Set it in your environment secrets.");
 }
 
 /**
@@ -39,12 +36,11 @@ function parseDbUrl(url: string) {
   return { host, port, user, password, database };
 }
 
-const isSupabase = !!process.env.SUPABASE_DATABASE_URL;
-const poolConfig = isSupabase
-  ? { ...parseDbUrl(rawUrl), ssl: { rejectUnauthorized: false } }
-  : { connectionString: rawUrl };
+export const pool = new Pool({
+  ...parseDbUrl(rawUrl),
+  ssl: { rejectUnauthorized: false },
+});
 
-export const pool = new Pool(poolConfig);
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
