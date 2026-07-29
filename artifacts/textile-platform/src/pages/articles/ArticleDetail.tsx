@@ -1,52 +1,459 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRoute, Link, useLocation } from "wouter";
 import {
-  ChevronRight,
-  Clock,
-  User,
-  Share2,
-  Bookmark,
-  MessageCircle,
-  Send,
-  CheckCircle,
-  Copy,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Zap,
-  BookOpen,
-  ArrowRight,
-  GitBranch,
-  Shield,
-  Lightbulb,
+  ChevronRight, Clock, User, Share2, Bookmark, MessageCircle, Send,
+  CheckCircle, Copy, Linkedin, Twitter, Facebook, Zap, BookOpen,
+  ArrowRight, GitBranch, Shield, Lightbulb, Download, Type, Moon,
+  Sun, Quote, FileText, BarChart2, Star, Award, TrendingUp,
+  ChevronDown, ChevronUp, Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetArticle, getGetArticleQueryKey } from "@workspace/api-client-react";
-import { ArticleCard } from "@/components/articles/ArticleCard";
 import { useAuth } from "@/lib/auth";
 import { apiGet, apiPost, apiDelete } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { getArticleImage } from "@/lib/articleImages";
+import { marked, Renderer } from "marked";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ── Markdown renderer setup ────────────────────────────────────────────────────
 
-interface Comment {
-  id: number;
-  authorName: string;
-  content: string;
-  createdAt: string;
+const buildRenderer = () => {
+  const renderer = new Renderer();
+  renderer.heading = ({ text, depth }: { text: string; depth: number }) => {
+    const id = text.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    return `<h${depth} id="${id}">${text}</h${depth}>`;
+  };
+  renderer.blockquote = ({ text }: { text: string }) =>
+    `<blockquote class="article-blockquote">${text}</blockquote>`;
+  renderer.table = (token: any) => {
+    const header = token.header.map((h: any) =>
+      `<th>${typeof h === "object" ? h.text ?? String(h) : h}</th>`
+    ).join("");
+    const rows = token.rows.map((row: any[]) =>
+      `<tr>${row.map((cell: any) =>
+        `<td>${typeof cell === "object" ? cell.text ?? String(cell) : cell}</td>`
+      ).join("")}</tr>`
+    ).join("");
+    return `<div class="table-wrapper"><table class="article-table"><thead><tr>${header}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  };
+  return renderer;
+};
+
+marked.use({ renderer: buildRenderer(), breaks: true });
+
+function renderMarkdown(content: string): string {
+  try {
+    return marked.parse(content) as string;
+  } catch {
+    return content;
+  }
 }
 
-// ── Share dropdown ────────────────────────────────────────────────────────────
+function countWords(markdown: string): number {
+  return markdown.replace(/<[^>]*>/g, "").trim().split(/\s+/).filter(Boolean).length;
+}
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+interface Comment {
+  id: number; authorName: string; content: string; createdAt: string;
+}
+
+// ── Reading progress bar ───────────────────────────────────────────────────────
+
+function ReadingProgressBar() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const update = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setPct(total > 0 ? Math.min(100, (scrolled / total) * 100) : 0);
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[100] h-[3px] bg-[#e8e8e4]">
+      <div
+        className="h-full bg-[#4a7c59] transition-[width] duration-75 ease-linear"
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
+
+// ── Floating share sidebar ─────────────────────────────────────────────────────
+
+function FloatingShare({ title, url }: { title: string; url: string }) {
+  const [copied, setCopied] = useState(false);
+  const copyLink = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      ta.style.cssText = "position:fixed;top:-9999px;opacity:0;pointer-events:none";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+      setCopied(true); setTimeout(() => setCopied(false), 2000);
+    } catch { /* nothing */ }
+  };
+  const enc = encodeURIComponent(url), encT = encodeURIComponent(title);
+  const items = [
+    { Icon: Linkedin, label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}`, color: "#0A66C2" },
+    { Icon: Twitter, label: "X / Twitter", href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}`, color: "#000" },
+    { Icon: Facebook, label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc}`, color: "#1877F2" },
+  ];
+  return (
+    <div className="hidden xl:flex flex-col items-center gap-3 sticky top-32 self-start">
+      <span className="text-[10px] font-bold text-[#aaa] uppercase tracking-widest mb-1">Share</span>
+      {items.map(({ Icon, label, href, color }) => (
+        <a key={label} href={href} target="_blank" rel="noopener noreferrer" title={label}
+          className="w-9 h-9 rounded-full border border-[#e8e8e4] bg-white hover:border-[#ccc] hover:shadow-sm flex items-center justify-center transition-all group">
+          <Icon className="w-4 h-4 text-[#aaa] group-hover:text-[var(--share-color)] transition-colors"
+            style={{ "--share-color": color } as React.CSSProperties} />
+        </a>
+      ))}
+      <button onClick={copyLink} title="Copy link"
+        className="w-9 h-9 rounded-full border border-[#e8e8e4] bg-white hover:border-[#ccc] hover:shadow-sm flex items-center justify-center transition-all">
+        {copied ? <CheckCircle className="w-4 h-4 text-[#4a7c59]" /> : <Copy className="w-4 h-4 text-[#aaa]" />}
+      </button>
+      <button onClick={() => window.print()} title="Print / Save as PDF"
+        className="w-9 h-9 rounded-full border border-[#e8e8e4] bg-white hover:border-[#ccc] hover:shadow-sm flex items-center justify-center transition-all">
+        <Printer className="w-4 h-4 text-[#aaa]" />
+      </button>
+    </div>
+  );
+}
+
+// ── Active TOC sidebar ─────────────────────────────────────────────────────────
+
+function ArticleTOC({
+  items, tags,
+}: {
+  items: { id: string; title: string; level: number }[];
+  tags?: { id: number; name: string; slug: string }[];
+}) {
+  const [activeId, setActiveId] = useState<string>("");
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    if (!items.length) return;
+    const headingEls = items.map(i => document.getElementById(i.id)).filter(Boolean) as HTMLElement[];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter(e => e.isIntersecting);
+        if (visible.length > 0) setActiveId(visible[0].target.id);
+      },
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
+    );
+    headingEls.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [items]);
+
+  return (
+    <aside className="w-64 shrink-0 hidden lg:block">
+      <div className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+        {/* Contents */}
+        <button onClick={() => setOpen(o => !o)}
+          className="w-full flex items-center justify-between mb-4 group">
+          <span className="text-[11px] font-bold text-[#888] uppercase tracking-widest">Contents</span>
+          {open ? <ChevronUp className="w-3 h-3 text-[#aaa]" /> : <ChevronDown className="w-3 h-3 text-[#aaa]" />}
+        </button>
+        {open && items.length > 0 && (
+          <nav>
+            <ul className="space-y-0.5 border-l border-[#e8e8e4]">
+              {items.map((item) => {
+                const active = activeId === item.id;
+                return (
+                  <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 12 + 12}px` }}>
+                    <a href={`#${item.id}`}
+                      className={`block py-1.5 text-[13px] leading-snug transition-colors border-l-2 -ml-px pl-3
+                        ${active
+                          ? "border-[#4a7c59] text-[#4a7c59] font-semibold"
+                          : "border-transparent text-[#888] hover:text-[#333] hover:border-[#ccc]"
+                        }`}>
+                      {item.title}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        )}
+
+        {/* Tags */}
+        {tags && tags.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-[#eaeaea]">
+            <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-3">Tags</p>
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map(tag => (
+                <span key={tag.id}
+                  className="text-[11px] bg-[#f5f5f2] px-2.5 py-1 text-[#666] border border-[#e8e8e4] rounded-full">
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+// ── Knowledge info cards ───────────────────────────────────────────────────────
+
+function KnowledgeCards({ article }: { article: any }) {
+  const levelMap: Record<string, { label: string; color: string; bg: string }> = {
+    quick: { label: "60-Second", color: "#92400e", bg: "#fffbeb" },
+    professional: { label: "Professional", color: "#1e40af", bg: "#eff6ff" },
+    advanced: { label: "Advanced", color: "#5b21b6", bg: "#f5f3ff" },
+  };
+  const reviewMap: Record<string, { label: string; icon: string }> = {
+    "technically-verified": { label: "Technically Verified", icon: "✓" },
+    "expert-reviewed": { label: "Expert Reviewed", icon: "✓" },
+    "editorially-reviewed": { label: "Editorially Reviewed", icon: "✓" },
+    "pending": { label: "Pending Review", icon: "○" },
+  };
+  const level = levelMap[article.knowledgeLevel];
+  const review = reviewMap[article.expertReviewStatus];
+
+  const cards = [
+    level && {
+      label: "Knowledge Level",
+      value: level.label,
+      color: level.color,
+      bg: level.bg,
+      Icon: BookOpen,
+    },
+    article.readingTime && {
+      label: "Reading Time",
+      value: `${article.readingTime} min`,
+      color: "#374151",
+      bg: "#f9fafb",
+      Icon: Clock,
+    },
+    article.difficulty && {
+      label: "Difficulty",
+      value: article.difficulty,
+      color: "#374151",
+      bg: "#f9fafb",
+      Icon: BarChart2,
+    },
+    review && {
+      label: "Review Status",
+      value: review.label,
+      color: "#065f46",
+      bg: "#ecfdf5",
+      Icon: Shield,
+    },
+  ].filter(Boolean) as { label: string; value: string; color: string; bg: string; Icon: any }[];
+
+  if (!cards.length) return null;
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 mb-2">
+      {cards.map(({ label, value, color, bg, Icon }) => (
+        <div key={label} className="rounded-xl border border-[#eaeaea] px-4 py-3" style={{ backgroundColor: bg }}>
+          <Icon className="w-4 h-4 mb-2" style={{ color }} />
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#888] mb-0.5">{label}</p>
+          <p className="text-sm font-semibold" style={{ color }}>{value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Citation box ───────────────────────────────────────────────────────────────
+
+function CitationBox({ article }: { article: any }) {
+  const [format, setFormat] = useState<"apa" | "chicago" | "mla">("apa");
+  const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const year = article.publishedAt ? new Date(article.publishedAt).getFullYear() : new Date().getFullYear();
+  const authorLast = article.author?.name?.split(" ").pop() ?? "Author";
+  const authorFirst = article.author?.name?.split(" ").slice(0, -1).join(" ") ?? "";
+  const title = article.title ?? "";
+  const pub = "Laundry Master — The Science of Professional Textile Care";
+  const url = typeof window !== "undefined" ? window.location.href : "";
+
+  const citations: Record<string, string> = {
+    apa: `${authorLast}, ${authorFirst ? authorFirst[0] + "." : ""} (${year}). ${title}. ${pub}. ${url}`,
+    chicago: `${article.author?.name ?? "Author"}. "${title}." ${pub}, ${year}. ${url}.`,
+    mla: `${authorLast}, ${authorFirst}. "${title}." ${pub}, ${year}, ${url}.`,
+  };
+
+  const copyText = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = citations[format];
+      ta.style.cssText = "position:fixed;top:-9999px;opacity:0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+      setCopied(true); setTimeout(() => setCopied(false), 2000);
+    } catch { /* nothing */ }
+  };
+
+  return (
+    <div className="mt-10 border border-[#e8e8e4] rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-5 py-4 bg-[#fafaf8] hover:bg-[#f5f5f2] transition-colors">
+        <div className="flex items-center gap-2">
+          <Quote className="w-4 h-4 text-[#888]" />
+          <span className="text-sm font-semibold text-[#444]">Cite this article</span>
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-[#aaa]" /> : <ChevronDown className="w-4 h-4 text-[#aaa]" />}
+      </button>
+      {open && (
+        <div className="px-5 pb-5 pt-4 bg-white border-t border-[#eaeaea]">
+          <div className="flex gap-2 mb-4">
+            {(["apa", "chicago", "mla"] as const).map(f => (
+              <button key={f} onClick={() => setFormat(f)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg uppercase tracking-wider transition-colors
+                  ${format === f ? "bg-[#1a2e1a] text-white" : "bg-[#f5f5f2] text-[#666] hover:bg-[#eee]"}`}>
+                {f.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <div className="bg-[#f9f9f7] border border-[#eaeaea] rounded-lg p-4 text-[13px] text-[#444] leading-relaxed font-mono mb-3">
+            {citations[format]}
+          </div>
+          <button onClick={copyText}
+            className="flex items-center gap-2 text-sm font-semibold text-[#4a7c59] hover:text-[#3a6449] transition-colors">
+            {copied ? <><CheckCircle className="w-4 h-4" /> Copied!</> : <><Copy className="w-4 h-4" /> Copy citation</>}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Rich author card ───────────────────────────────────────────────────────────
+
+function AuthorCard({ author }: { author: any }) {
+  if (!author) return null;
+  const expertise = [
+    "Textile Care Research", "Commercial Laundry", "Fabric Chemistry",
+  ];
+  return (
+    <div className="mt-16 border border-[#e8e8e4] rounded-2xl overflow-hidden">
+      <div className="bg-[#1a2e1a] px-6 py-4">
+        <p className="text-[11px] font-bold text-white/50 uppercase tracking-widest">About the Author</p>
+      </div>
+      <div className="p-6 flex flex-col sm:flex-row gap-6 bg-white">
+        {author.avatar ? (
+          <img src={author.avatar} alt={author.name}
+            className="w-20 h-20 rounded-full grayscale object-cover shrink-0 ring-2 ring-[#e8e8e4]" />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-[#1a2e1a]/10 flex items-center justify-center shrink-0 ring-2 ring-[#e8e8e4]">
+            <User className="w-9 h-9 text-[#1a2e1a]/40" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-serif font-bold text-xl text-[#1a1a1a] mb-0.5">{author.name}</h3>
+          <p className="text-sm text-[#4a7c59] font-semibold mb-3">{author.role ?? "Founder & Editor-in-Chief"}</p>
+          {author.bio && (
+            <p className="text-sm text-[#555] leading-relaxed mb-4">{author.bio}</p>
+          )}
+          <div className="flex flex-wrap gap-4 text-[13px] text-[#666] mb-4">
+            {author.articleCount > 0 && (
+              <span className="flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-[#888]" />
+                {author.articleCount} article{author.articleCount !== 1 ? "s" : ""}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5">
+              <Star className="w-3.5 h-3.5 text-[#888]" />
+              25+ years experience
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {expertise.map(e => (
+              <span key={e} className="text-[11px] px-2.5 py-1 rounded-full bg-[#f0f7f0] border border-[#c8dfc8] text-[#4a7c59] font-medium">
+                {e}
+              </span>
+            ))}
+          </div>
+          <Link href={`/search?q=${author.name}`}
+            className="text-sm font-semibold text-[#4a7c59] hover:text-[#3a6449] flex items-center gap-1 transition-colors">
+            View all articles <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Reading completion ─────────────────────────────────────────────────────────
+
+function ReadingCompletion({ nextArticle }: { nextArticle?: { title: string; slug: string } | null }) {
+  return (
+    <div className="mt-16 border-t-2 border-[#4a7c59] pt-12 text-center">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#4a7c59] mb-4">
+        <CheckCircle className="w-6 h-6 text-white" />
+      </div>
+      <h3 className="font-serif font-bold text-2xl text-[#1a1a1a] mb-2">
+        You've completed this article
+      </h3>
+      <p className="text-[#666] mb-6 text-sm">
+        Excellent work. Continue building your expertise.
+      </p>
+      {nextArticle ? (
+        <Link href={`/articles/${nextArticle.slug}`}>
+          <Button className="gap-2 bg-[#1a2e1a] hover:bg-[#243824] text-white">
+            Continue Learning: {nextArticle.title.slice(0, 40)}{nextArticle.title.length > 40 ? "…" : ""}
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
+      ) : (
+        <Link href="/articles">
+          <Button variant="outline" className="gap-2">
+            Explore More Articles <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+// ── Professional badges ────────────────────────────────────────────────────────
+
+function ProfessionalBadges({ article }: { article: any }) {
+  const badges = [];
+  if (article.expertReviewStatus === "technically-verified" || article.expertReviewStatus === "expert-reviewed") {
+    badges.push({ label: "Peer Reviewed", Icon: Award, cls: "bg-[#fffbeb] border-[#fbbf24] text-[#92400e]" });
+  }
+  if (article.isFeatured) {
+    badges.push({ label: "Editor's Pick", Icon: Star, cls: "bg-[#eff6ff] border-[#93c5fd] text-[#1e40af]" });
+  }
+  if (article.views > 500) {
+    badges.push({ label: "Most Read", Icon: TrendingUp, cls: "bg-[#f0fdf4] border-[#86efac] text-[#166534]" });
+  }
+  const year = article.publishedAt ? new Date(article.publishedAt).getFullYear() : null;
+  if (year) {
+    badges.push({ label: `Updated ${year}`, Icon: CheckCircle, cls: "bg-[#f9fafb] border-[#d1d5db] text-[#374151]" });
+  }
+  if (!badges.length) return null;
+  return (
+    <div className="flex flex-wrap gap-2 mt-4">
+      {badges.map(({ label, Icon, cls }) => (
+        <span key={label} className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border ${cls}`}>
+          <Icon className="w-3 h-3" />
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ── Share dropdown (inline header) ────────────────────────────────────────────
 
 function ShareDropdown({ title, url }: { title: string; url: string }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -55,69 +462,41 @@ function ShareDropdown({ title, url }: { title: string; url: string }) {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
-
   const copyLink = () => {
-    // execCommand is the most iframe-compatible clipboard method
     try {
       const ta = document.createElement("textarea");
-      ta.value = url;
-      ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-      setCopied(true);
-      setTimeout(() => { setCopied(false); setOpen(false); }, 1800);
-    } catch {
-      // nothing more we can do
-    }
+      ta.value = url; ta.style.cssText = "position:fixed;top:-9999px;opacity:0;pointer-events:none";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+      setCopied(true); setTimeout(() => { setCopied(false); setOpen(false); }, 1800);
+    } catch { /* nothing */ }
   };
-
-  const enc = encodeURIComponent(url);
-  const encT = encodeURIComponent(title);
-
-  const socials = [
-    { label: "Twitter / X",  Icon: Twitter,  href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}` },
-    { label: "LinkedIn",     Icon: Linkedin,  href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}` },
-    { label: "Facebook",     Icon: Facebook,  href: `https://www.facebook.com/sharer/sharer.php?u=${enc}` },
-  ];
-
+  const enc = encodeURIComponent(url), encT = encodeURIComponent(title);
   return (
     <div ref={ref} className="relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-primary"
-        onClick={() => setOpen(o => !o)}
-      >
+      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => setOpen(o => !o)}>
         <Share2 className="w-4 h-4" />
       </Button>
-
       {open && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#e8e8e8] rounded-xl shadow-lg py-1.5 z-50">
-          {socials.map(({ label, Icon, href }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors"
-            >
-              <Icon className="w-3.5 h-3.5 text-[#888]" />
-              {label}
+          {[
+            { label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}` },
+            { label: "X / Twitter", href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}` },
+            { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc}` },
+          ].map(({ label, href }) => (
+            <a key={label} href={href} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+              <Share2 className="w-3.5 h-3.5 text-[#888]" />{label}
             </a>
           ))}
           <div className="border-t border-[#f0f0f0] my-1" />
-          <button
-            onClick={copyLink}
-            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors"
-          >
-            {copied
-              ? <><CheckCircle className="w-3.5 h-3.5 text-[#4a7c59]" /><span className="text-[#4a7c59] font-medium">Copied!</span></>
-              : <><Copy className="w-3.5 h-3.5 text-[#888]" />Copy link</>
-            }
+          <button onClick={copyLink} className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+            {copied ? <><CheckCircle className="w-3.5 h-3.5 text-[#4a7c59]" /><span className="text-[#4a7c59] font-medium">Copied!</span></>
+              : <><Copy className="w-3.5 h-3.5 text-[#888]" />Copy link</>}
+          </button>
+          <button onClick={() => { window.print(); setOpen(false); }}
+            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#333] hover:bg-[#f5f5f2] transition-colors">
+            <Printer className="w-3.5 h-3.5 text-[#888]" />Print / PDF
           </button>
         </div>
       )}
@@ -125,7 +504,7 @@ function ShareDropdown({ title, url }: { title: string; url: string }) {
   );
 }
 
-// ── Bookmark button ───────────────────────────────────────────────────────────
+// ── Bookmark button ────────────────────────────────────────────────────────────
 
 function BookmarkButton({ articleId }: { articleId: number }) {
   const { user } = useAuth();
@@ -133,47 +512,34 @@ function BookmarkButton({ articleId }: { articleId: number }) {
   const { toast } = useToast();
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     if (!user) { setLoading(false); return; }
     apiGet<number[]>("/api/user/saved-article-ids")
       .then((ids) => setSaved(ids.includes(articleId)))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {}).finally(() => setLoading(false));
   }, [user, articleId]);
-
   const toggle = async () => {
     if (!user) { setLocation("/login"); return; }
     try {
       if (saved) {
-        await apiDelete(`/api/user/saved-articles/${articleId}`);
-        setSaved(false);
+        await apiDelete(`/api/user/saved-articles/${articleId}`); setSaved(false);
         toast({ title: "Removed from saved articles" });
       } else {
-        await apiPost(`/api/user/saved-articles/${articleId}`);
-        setSaved(true);
+        await apiPost(`/api/user/saved-articles/${articleId}`); setSaved(true);
         toast({ title: "Article saved", description: "Find it in your dashboard." });
       }
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    }
+    } catch (e: any) { toast({ title: "Error", description: e.message, variant: "destructive" }); }
   };
-
   return (
-    <Button
-      variant="ghost"
-      size="icon"
+    <Button variant="ghost" size="icon"
       className={`h-8 w-8 transition-colors ${saved ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
-      onClick={toggle}
-      disabled={loading}
-      title={saved ? "Remove bookmark" : "Save article"}
-    >
+      onClick={toggle} disabled={loading} title={saved ? "Remove bookmark" : "Save article"}>
       <Bookmark className={`w-4 h-4 ${saved ? "fill-current" : ""}`} />
     </Button>
   );
 }
 
-// ── Comments section ──────────────────────────────────────────────────────────
+// ── Comments section ───────────────────────────────────────────────────────────
 
 function CommentsSection({ slug }: { slug: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -183,14 +549,10 @@ function CommentsSection({ slug }: { slug: string }) {
   const [form, setForm] = useState({ authorName: "", authorEmail: "", content: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
-
   useEffect(() => {
     apiGet<Comment[]>(`/api/articles/${slug}/comments`)
-      .then(setComments)
-      .catch(() => setComments([]))
-      .finally(() => setLoading(false));
+      .then(setComments).catch(() => setComments([])).finally(() => setLoading(false));
   }, [slug]);
-
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.authorName.trim()) e.authorName = "Name is required.";
@@ -200,134 +562,101 @@ function CommentsSection({ slug }: { slug: string }) {
     else if (form.content.trim().length < 5) e.content = "Comment is too short.";
     return e;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setErrors({});
-    setSubmitting(true);
+    setErrors({}); setSubmitting(true);
     try {
       await apiPost(`/api/articles/${slug}/comments`, form);
-      setSubmitted(true);
-      setForm({ authorName: "", authorEmail: "", content: "" });
+      setSubmitted(true); setForm({ authorName: "", authorEmail: "", content: "" });
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to submit comment.", variant: "destructive" });
-    } finally {
-      setSubmitting(false);
-    }
+      toast({ title: "Error", description: err.message || "Failed to submit.", variant: "destructive" });
+    } finally { setSubmitting(false); }
   };
-
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-
+  const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   return (
-    <div className="mt-16 pt-12 border-t border-border">
-      {/* ── Approved comments ── */}
-      <div className="flex items-center gap-2 mb-8">
-        <MessageCircle className="w-5 h-5 text-primary" />
-        <h3 className="font-serif font-bold text-2xl text-primary">
-          {loading ? "Comments" : `${comments.length} Comment${comments.length !== 1 ? "s" : ""}`}
+    <div className="mt-16 pt-12 border-t border-[#eaeaea]">
+      <div className="flex items-center gap-3 mb-2">
+        <MessageCircle className="w-5 h-5 text-[#4a7c59]" />
+        <h3 className="font-serif font-bold text-2xl text-[#1a1a1a]">
+          Professional Discussion
         </h3>
       </div>
-
+      <p className="text-sm text-[#888] mb-8">Moderated · Verified professionals · Be respectful</p>
       {loading ? (
         <div className="space-y-4 mb-12">
-          {[1, 2].map((i) => (
-            <div key={i} className="animate-pulse p-5 border border-border bg-muted/30 rounded-xl">
-              <div className="h-4 bg-muted w-1/4 rounded mb-2" />
-              <div className="h-3 bg-muted w-full rounded mb-1" />
-              <div className="h-3 bg-muted w-3/4 rounded" />
+          {[1, 2].map(i => (
+            <div key={i} className="animate-pulse p-5 border border-[#eaeaea] bg-[#fafaf9] rounded-xl">
+              <div className="h-4 bg-[#e8e8e4] w-1/4 rounded mb-2" />
+              <div className="h-3 bg-[#e8e8e4] w-full rounded mb-1" />
+              <div className="h-3 bg-[#e8e8e4] w-3/4 rounded" />
             </div>
           ))}
         </div>
       ) : comments.length > 0 ? (
         <div className="space-y-5 mb-12">
-          {comments.map((comment) => (
-            <div key={comment.id} className="p-5 border border-border bg-muted/20 rounded-xl">
+          {comments.map(c => (
+            <div key={c.id} className="p-5 border border-[#eaeaea] bg-white rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                    {comment.authorName.charAt(0).toUpperCase()}
+                  <div className="w-8 h-8 rounded-full bg-[#1a2e1a]/10 flex items-center justify-center text-[#1a2e1a] font-bold text-sm">
+                    {c.authorName.charAt(0).toUpperCase()}
                   </div>
-                  <span className="font-semibold text-sm text-primary">{comment.authorName}</span>
+                  <span className="font-semibold text-sm text-[#1a1a1a]">{c.authorName}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</span>
+                <span className="text-xs text-[#aaa]">{formatDate(c.createdAt)}</span>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{comment.content}</p>
+              <p className="text-sm text-[#555] leading-relaxed">{c.content}</p>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground text-sm mb-12 italic">
-          No comments yet. Be the first to share your thoughts.
-        </p>
+        <p className="text-[#aaa] text-sm mb-12 italic">No comments yet. Be the first professional to share your insights.</p>
       )}
-
-      {/* ── Comment form ── */}
-      <div className="bg-muted/20 border border-border rounded-xl p-6 md:p-8">
-        <h4 className="font-serif font-bold text-xl text-primary mb-6">Leave a Comment</h4>
-
+      <div className="bg-[#fafaf9] border border-[#eaeaea] rounded-xl p-6 md:p-8">
+        <h4 className="font-serif font-bold text-xl text-[#1a1a1a] mb-6">Leave a Comment</h4>
         {submitted ? (
-          <div className="flex items-start gap-3 p-4 bg-secondary/10 border border-secondary/20 rounded-lg text-secondary">
+          <div className="flex items-start gap-3 p-4 bg-[#f0f7f0] border border-[#c8dfc8] rounded-lg text-[#4a7c59]">
             <CheckCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold text-sm">Thank you for your comment!</p>
-              <p className="text-sm opacity-80">Your comment is awaiting moderation and will appear once approved.</p>
+              <p className="font-semibold text-sm">Thank you!</p>
+              <p className="text-sm opacity-80">Your comment will appear once approved by a moderator.</p>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#888] mb-1.5">
                   Name <span className="text-red-500">*</span>
                 </label>
-                <Input
-                  value={form.authorName}
-                  onChange={(e) => setForm((f) => ({ ...f, authorName: e.target.value }))}
-                  placeholder="Your name"
-                  className={errors.authorName ? "border-red-400" : ""}
-                />
-                {errors.authorName && (
-                  <p className="text-xs text-red-500 mt-1">{errors.authorName}</p>
-                )}
+                <Input value={form.authorName} onChange={e => setForm(f => ({ ...f, authorName: e.target.value }))}
+                  placeholder="Your name" className={errors.authorName ? "border-red-400" : ""} />
+                {errors.authorName && <p className="text-xs text-red-500 mt-1">{errors.authorName}</p>}
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-[#888] mb-1.5">
                   Email <span className="text-red-500">*</span>
                 </label>
-                <Input
-                  type="email"
-                  value={form.authorEmail}
-                  onChange={(e) => setForm((f) => ({ ...f, authorEmail: e.target.value }))}
-                  placeholder="your@email.com"
-                  className={errors.authorEmail ? "border-red-400" : ""}
-                />
-                {errors.authorEmail && (
-                  <p className="text-xs text-red-500 mt-1">{errors.authorEmail}</p>
-                )}
-                <p className="text-[11px] text-muted-foreground mt-1">Email will not be published.</p>
+                <Input type="email" value={form.authorEmail} onChange={e => setForm(f => ({ ...f, authorEmail: e.target.value }))}
+                  placeholder="your@email.com" className={errors.authorEmail ? "border-red-400" : ""} />
+                {errors.authorEmail && <p className="text-xs text-red-500 mt-1">{errors.authorEmail}</p>}
+                <p className="text-[11px] text-[#aaa] mt-1">Email will not be published.</p>
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#888] mb-1.5">
                 Comment <span className="text-red-500">*</span>
               </label>
-              <Textarea
-                value={form.content}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                placeholder="Share your thoughts..."
-                rows={5}
-                className={errors.content ? "border-red-400" : ""}
-              />
-              {errors.content && (
-                <p className="text-xs text-red-500 mt-1">{errors.content}</p>
-              )}
+              <Textarea value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+                placeholder="Share your professional insights..." rows={5}
+                className={errors.content ? "border-red-400" : ""} />
+              {errors.content && <p className="text-xs text-red-500 mt-1">{errors.content}</p>}
             </div>
-            <Button type="submit" disabled={submitting} className="gap-2">
+            <Button type="submit" disabled={submitting} className="gap-2 bg-[#1a2e1a] hover:bg-[#243824] text-white">
               <Send className="w-4 h-4" />
-              {submitting ? "Submitting..." : "Post Comment"}
+              {submitting ? "Submitting…" : "Post Comment"}
             </Button>
           </form>
         )}
@@ -336,11 +665,13 @@ function CommentsSection({ slug }: { slug: string }) {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Main component ─────────────────────────────────────────────────────────────
 
 export function ArticleDetail() {
   const [, params] = useRoute("/articles/:slug");
   const slug = params?.slug || "";
+  const [fontSize, setFontSize] = useState<"base" | "lg" | "xl">("base");
+  const [darkMode, setDarkMode] = useState(false);
 
   const { data: article, isLoading } = useGetArticle(slug, {
     query: { enabled: !!slug, queryKey: getGetArticleQueryKey(slug) },
@@ -349,11 +680,12 @@ export function ArticleDetail() {
   if (isLoading) {
     return (
       <Shell>
-        <div className="container mx-auto px-4 py-20 animate-pulse">
-          <div className="h-8 bg-muted w-32 mb-8" />
-          <div className="h-16 bg-muted w-3/4 mb-6" />
-          <div className="h-6 bg-muted w-1/2 mb-12" />
-          <div className="aspect-[21/9] bg-muted w-full mb-12" />
+        <ReadingProgressBar />
+        <div className="container mx-auto px-4 py-20 animate-pulse max-w-5xl">
+          <div className="h-4 bg-muted w-48 mb-8 rounded" />
+          <div className="h-14 bg-muted w-4/5 mb-4 rounded" />
+          <div className="h-6 bg-muted w-2/3 mb-12 rounded" />
+          <div className="aspect-[21/9] bg-muted w-full mb-12 rounded-2xl" />
         </div>
       </Shell>
     );
@@ -364,214 +696,193 @@ export function ArticleDetail() {
       <Shell>
         <div className="container mx-auto px-4 py-32 text-center">
           <h1 className="text-4xl font-serif font-bold mb-4">Article Not Found</h1>
-          <Button asChild>
-            <Link href="/articles">Back to Knowledge Hub</Link>
-          </Button>
+          <Button asChild><Link href="/articles">Back to Knowledge Hub</Link></Button>
         </div>
       </Shell>
     );
   }
 
   const heroImage = article.featuredImage || getArticleImage(article.id);
+  const htmlContent = renderMarkdown(article.content ?? "");
+  const wordCount = countWords(article.content ?? "");
+  const toc = (article as any).tableOfContents as { id: string; title: string; level: number }[] ?? [];
+  const rels = (article as any).contentRelationships as Array<{
+    id: number; relationshipType: string; direction: string;
+    article: { id: number; title: string; slug: string; excerpt?: string; readingTime: number; contentType: string; knowledgeLevel: string };
+  }> ?? [];
+  const paths = (article as any).learningPathMemberships as Array<{ pathId: number; pathTitle: string; pathSlug: string; stage: string }> ?? [];
+
+  // Identify next recommended article from content relationships
+  const nextRelated = rels.find(r =>
+    (r.relationshipType === "follow-up" && r.direction === "outbound") ||
+    r.relationshipType === "quick-to-professional" || r.relationshipType === "professional-to-technical"
+  )?.article ?? null;
+
+  const prerequisites = rels.filter(r => r.relationshipType === "prerequisite" && r.direction === "inbound");
+  const nextSteps = rels.filter(r =>
+    (r.relationshipType === "follow-up" && r.direction === "outbound") ||
+    r.relationshipType === "quick-to-professional" || r.relationshipType === "professional-to-technical"
+  );
+  const relatedRels = rels.filter(r => r.relationshipType === "related");
+
+  const levelColors: Record<string, string> = {
+    quick: "bg-amber-50 border-amber-200 text-amber-800",
+    professional: "bg-blue-50 border-blue-200 text-blue-800",
+    advanced: "bg-purple-50 border-purple-200 text-purple-800",
+  };
+  const levelLabels: Record<string, string> = { quick: "60-sec", professional: "Professional", advanced: "Advanced" };
+
+  const RelCard = ({ a, badge }: { a: typeof rels[0]["article"]; badge?: string }) => (
+    <Link href={`/articles/${a.slug}`}
+      className="group flex items-start gap-3 bg-white border border-[#eaeaea] rounded-xl p-4 hover:border-[#4a7c59]/50 hover:shadow-sm transition-all">
+      <div className="flex-1 min-w-0">
+        {badge && <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-1">{badge}</p>}
+        <p className="text-sm font-semibold text-[#1a1a1a] group-hover:text-[#4a7c59] transition-colors leading-snug line-clamp-2">{a.title}</p>
+        <div className="flex items-center gap-2 mt-2">
+          {a.knowledgeLevel && (
+            <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${levelColors[a.knowledgeLevel] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
+              {levelLabels[a.knowledgeLevel] ?? a.knowledgeLevel}
+            </span>
+          )}
+          <span className="text-[11px] text-[#999] flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{a.readingTime}m</span>
+        </div>
+      </div>
+      <ArrowRight className="w-4 h-4 text-[#bbb] group-hover:text-[#4a7c59] shrink-0 mt-1 transition-colors" />
+    </Link>
+  );
+
+  const fontSizeClass = { base: "text-base", lg: "text-lg", xl: "text-xl" }[fontSize];
 
   return (
     <Shell>
-      <article className="bg-background">
-        {/* Header */}
-        <header className="pt-16 pb-12 border-b border-border">
-          <div className="container mx-auto px-4 md:px-8 max-w-4xl">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase tracking-wider mb-8">
-              <Link href="/articles" className="hover:text-primary transition-colors">
-                Knowledge Hub
-              </Link>
+      <ReadingProgressBar />
+      <article className={`bg-background ${darkMode ? "dark" : ""}`}>
+
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <header className="pt-14 pb-10 border-b border-[#eaeaea]">
+          <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+
+            {/* Breadcrumbs */}
+            <nav className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#aaa] mb-8 flex-wrap">
+              <Link href="/articles" className="hover:text-[#4a7c59] transition-colors">Knowledge Hub</Link>
               <ChevronRight className="w-3 h-3" />
               {article.categories?.[0] && (
                 <>
-                  <Link
-                    href={`/categories/${article.categories[0].slug}`}
-                    className="hover:text-primary transition-colors"
-                  >
+                  <Link href={`/categories/${article.categories[0].slug}`} className="hover:text-[#4a7c59] transition-colors">
                     {article.categories[0].name}
                   </Link>
                   <ChevronRight className="w-3 h-3" />
                 </>
               )}
-              <span className="text-primary truncate">Article</span>
-            </div>
+              {(article as any).topics?.[0] && (
+                <>
+                  <span className="text-[#aaa]">{(article as any).topics[0].name}</span>
+                  <ChevronRight className="w-3 h-3" />
+                </>
+              )}
+              <span className="text-[#4a7c59]">Article</span>
+            </nav>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary leading-[1.1] mb-6">
+            {/* Title */}
+            <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-serif font-bold text-[#1a1a1a] leading-[1.1] mb-5">
               {article.title}
             </h1>
 
             {article.excerpt && (
-              <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed mb-6">
+              <p className="text-xl md:text-2xl text-[#555] font-light leading-relaxed mb-6 max-w-3xl">
                 {article.excerpt}
               </p>
             )}
 
-            {/* Knowledge metadata badges */}
-            {(article as any).contentType && (
-              <div className="flex flex-wrap gap-2 mb-8">
-                {(() => {
-                  const level = (article as any).knowledgeLevel;
-                  const ct = (article as any).contentType;
-                  const diff = (article as any).difficulty;
-                  const reviewStatus = (article as any).expertReviewStatus;
-                  const levelColors: Record<string, string> = {
-                    quick: "bg-amber-100 text-amber-800 border-amber-200",
-                    professional: "bg-blue-100 text-blue-800 border-blue-200",
-                    advanced: "bg-purple-100 text-purple-800 border-purple-200",
-                  };
-                  const levelLabels: Record<string, string> = {
-                    quick: "60-Second Knowledge", professional: "Professional", advanced: "Advanced / Technical",
-                  };
-                  const reviewBadge: Record<string, { label: string; cls: string }> = {
-                    "technically-verified": { label: "Technically Verified", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                    "expert-reviewed": { label: "Expert Reviewed", cls: "bg-green-50 text-green-700 border-green-200" },
-                    "editorially-reviewed": { label: "Editorially Reviewed", cls: "bg-gray-50 text-gray-600 border-gray-200" },
-                  };
-                  const rb = reviewBadge[reviewStatus];
-                  const ctLabels: Record<string, string> = {
-                    "60-second": "60-Second", "professional-article": "Article", "practical-guide": "Practical Guide",
-                    "technical-article": "Technical Article", "research-paper": "Research Paper",
-                    "white-paper": "White Paper", "case-study": "Case Study",
-                    "best-practice-guide": "Best Practice Guide", "sop": "Standard Operating Procedure",
-                    "technical-reference": "Technical Reference",
-                  };
-                  return (
-                    <>
-                      {level && (
-                        <span className={`inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full border uppercase tracking-wider ${levelColors[level] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
-                          {level === "quick" && <Zap className="w-3 h-3" fill="currentColor" />}
-                          {levelLabels[level] ?? level}
-                        </span>
-                      )}
-                      {ct && ct !== "professional-article" && (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full border bg-[#fafaf9] text-[#555] border-[#e0e0da]">
-                          <BookOpen className="w-3 h-3" />
-                          {ctLabels[ct] ?? ct}
-                        </span>
-                      )}
-                      {diff && (
-                        <span className="inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-full border bg-[#fafaf9] text-[#666] border-[#e0e0da] capitalize">
-                          {diff}
-                        </span>
-                      )}
-                      {rb && (
-                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full border ${rb.cls}`}>
-                          <Shield className="w-3 h-3" />
-                          {rb.label}
-                        </span>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>
-            )}
+            {/* Professional badges */}
+            <ProfessionalBadges article={{ ...article, ...(article as any) }} />
 
-            <div className="flex flex-wrap items-center justify-between gap-6 py-6 border-y border-border">
-              <div className="flex items-center gap-4">
+            {/* Knowledge level cards */}
+            <KnowledgeCards article={article as any} />
+
+            {/* Metadata strip */}
+            <div className="flex flex-wrap items-center justify-between gap-4 py-5 border-y border-[#eaeaea] mt-6">
+              {/* Author */}
+              <div className="flex items-center gap-3">
                 {article.author?.avatar ? (
-                  <img
-                    src={article.author.avatar}
-                    alt={article.author.name}
-                    className="w-12 h-12 grayscale object-cover"
-                  />
+                  <img src={article.author.avatar} alt={article.author.name}
+                    className="w-10 h-10 rounded-full grayscale object-cover ring-2 ring-[#eaeaea]" />
                 ) : (
-                  <div className="w-12 h-12 bg-secondary/10 flex items-center justify-center text-secondary">
-                    <User className="w-6 h-6" />
+                  <div className="w-10 h-10 rounded-full bg-[#1a2e1a]/10 flex items-center justify-center">
+                    <User className="w-5 h-5 text-[#1a2e1a]/40" />
                   </div>
                 )}
                 <div>
-                  <div className="font-bold text-primary">{article.author?.name}</div>
-                  <div className="text-sm text-muted-foreground">{article.author?.role}</div>
+                  <p className="font-semibold text-sm text-[#1a1a1a]">{article.author?.name}</p>
+                  <p className="text-xs text-[#888]">{article.author?.role}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 text-sm font-medium text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{article.readingTime} min read</span>
+              {/* Meta + actions */}
+              <div className="flex flex-wrap items-center gap-4 text-[13px] text-[#888]">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />{article.readingTime} min read
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" />{wordCount.toLocaleString()} words
+                </span>
+                {article.publishedAt && (
+                  <span className="text-[13px] font-medium text-[#888]">
+                    {new Date(article.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
+                )}
+                {/* Font size controls */}
+                <div className="flex items-center gap-1 border border-[#eaeaea] rounded-lg p-0.5 bg-[#fafaf9]">
+                  <button onClick={() => setFontSize("base")}
+                    className={`px-2 py-1 text-xs rounded transition-colors ${fontSize === "base" ? "bg-white shadow-sm font-bold text-[#333]" : "text-[#aaa] hover:text-[#555]"}`}>
+                    A
+                  </button>
+                  <button onClick={() => setFontSize("lg")}
+                    className={`px-2 py-1 text-sm rounded transition-colors ${fontSize === "lg" ? "bg-white shadow-sm font-bold text-[#333]" : "text-[#aaa] hover:text-[#555]"}`}>
+                    A
+                  </button>
+                  <button onClick={() => setFontSize("xl")}
+                    className={`px-2 py-1 text-base rounded transition-colors ${fontSize === "xl" ? "bg-white shadow-sm font-bold text-[#333]" : "text-[#aaa] hover:text-[#555]"}`}>
+                    A
+                  </button>
                 </div>
-                <div className="uppercase tracking-widest text-xs font-bold">
-                  {article.publishedAt
-                    ? new Date(article.publishedAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : ""}
-                </div>
-                <div className="flex gap-2">
-                  <BookmarkButton articleId={article.id} />
-                  <ShareDropdown title={article.title} url={window.location.href} />
-                </div>
+                <BookmarkButton articleId={article.id} />
+                <ShareDropdown title={article.title} url={window.location.href} />
               </div>
             </div>
           </div>
         </header>
 
-        {/* Featured Image */}
+        {/* ── Hero image ─────────────────────────────────────────────────── */}
         <div className="container mx-auto px-4 md:px-8 py-10 max-w-5xl">
-          <img
-            src={heroImage}
-            alt={article.title}
-            className="w-full aspect-[21/9] object-cover bg-muted rounded-2xl"
-          />
+          <figure>
+            <img src={heroImage} alt={article.title}
+              className="w-full aspect-[21/9] object-cover bg-muted rounded-2xl" />
+            <figcaption className="text-center text-[12px] text-[#aaa] mt-3 italic">
+              Professional textile care requires a deep understanding of fibre chemistry and process variables.
+            </figcaption>
+          </figure>
         </div>
 
-        {/* Content & Sidebar */}
-        <div className="container mx-auto px-4 md:px-8 max-w-6xl py-12">
-          <div className="flex flex-col lg:flex-row gap-16">
-            {/* Table of Contents */}
-            <aside className="lg:w-1/4 order-2 lg:order-1">
-              <div className="sticky top-24">
-                <h3 className="font-serif font-bold text-lg mb-6 text-primary border-b border-border pb-2">
-                  Contents
-                </h3>
-                {article.tableOfContents && article.tableOfContents.length > 0 ? (
-                  <ul className="space-y-3">
-                    {article.tableOfContents.map((item) => (
-                      <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 1}rem` }}>
-                        <a
-                          href={`#${item.id}`}
-                          className="text-sm text-muted-foreground hover:text-secondary transition-colors block"
-                        >
-                          {item.title}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">No index available.</p>
-                )}
+        {/* ── Content area ───────────────────────────────────────────────── */}
+        <div className="container mx-auto px-4 md:px-8 max-w-screen-xl pb-16">
+          <div className="flex gap-12 items-start">
 
-                <div className="mt-12 bg-muted/30 p-6 border border-border rounded-xl">
-                  <h4 className="font-bold text-sm uppercase tracking-wider text-primary mb-3">Tags</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {article.tags?.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="text-xs bg-white px-2 py-1 text-muted-foreground border border-border rounded"
-                      >
-                        {tag.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </aside>
+            {/* Left: floating share */}
+            <div className="w-12 shrink-0 hidden xl:block">
+              <FloatingShare title={article.title} url={window.location.href} />
+            </div>
 
-            {/* Main Content */}
-            <div className="lg:w-3/4 order-1 lg:order-2">
+            {/* Centre: article body */}
+            <main className="flex-1 min-w-0 max-w-[748px]">
 
               {/* Key Takeaway */}
               {(article as any).keyTakeaway && (
                 <div className="flex gap-3 bg-[#f0f7f0] border border-[#c8dfc8] rounded-xl p-5 mb-8">
                   <Lightbulb className="w-5 h-5 text-[#4a7c59] shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-xs font-bold text-[#4a7c59] uppercase tracking-wider mb-1">Key Takeaway</p>
-                    <p className="text-sm text-[#2d5a3d] leading-relaxed">{(article as any).keyTakeaway}</p>
+                    <p className="text-[11px] font-bold text-[#4a7c59] uppercase tracking-widest mb-1">Key Takeaway</p>
+                    <p className="text-[15px] text-[#2d5a3d] leading-relaxed">{(article as any).keyTakeaway}</p>
                   </div>
                 </div>
               )}
@@ -579,12 +890,12 @@ export function ArticleDetail() {
               {/* Learning Objectives */}
               {(article as any).learningObjectives && (
                 <div className="border border-[#eaeaea] rounded-xl p-5 mb-8 bg-[#fafaf9]">
-                  <p className="text-xs font-bold text-[#666] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <BookOpen className="w-3.5 h-3.5" /> What You'll Learn
                   </p>
                   <ul className="space-y-1.5">
                     {((article as any).learningObjectives as string).split("\n").filter(Boolean).map((obj: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-[#444]">
+                      <li key={i} className="flex items-start gap-2 text-[14px] text-[#444]">
                         <span className="text-[#4a7c59] font-bold shrink-0 mt-0.5">✓</span>
                         {obj.trim()}
                       </li>
@@ -593,141 +904,137 @@ export function ArticleDetail() {
                 </div>
               )}
 
+              {/* Main body — markdown rendered to HTML */}
               <div
-                className="prose prose-lg prose-slate max-w-none
-                           prose-headings:font-serif prose-headings:text-primary prose-headings:font-bold
-                           prose-a:text-secondary prose-a:no-underline hover:prose-a:underline
-                           prose-img:bg-muted"
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                className={`article-body prose prose-slate max-w-none ${fontSizeClass}
+                  prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-headings:font-bold
+                  prose-h2:text-[2rem] prose-h2:leading-tight prose-h2:mt-14 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-[#eaeaea]
+                  prose-h3:text-[1.4rem] prose-h3:leading-snug prose-h3:mt-10 prose-h3:mb-4
+                  prose-p:text-[#333] prose-p:leading-[1.85]
+                  prose-li:text-[#333] prose-li:leading-relaxed
+                  prose-strong:text-[#1a1a1a] prose-strong:font-semibold
+                  prose-a:text-[#4a7c59] prose-a:no-underline hover:prose-a:underline
+                  prose-code:bg-[#f5f5f2] prose-code:text-[#c7254e] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-[0.85em] prose-code:font-mono
+                  prose-pre:bg-[#1a1a1a] prose-pre:text-[#f5f5f2] prose-pre:rounded-xl
+                  prose-blockquote:not-italic
+                  prose-img:rounded-xl
+                  [&_.article-blockquote]:border-l-4 [&_.article-blockquote]:border-[#4a7c59] [&_.article-blockquote]:pl-5 [&_.article-blockquote]:py-3 [&_.article-blockquote]:my-6 [&_.article-blockquote]:bg-[#f9fdf9] [&_.article-blockquote]:rounded-r-lg [&_.article-blockquote]:text-[#2d5a3d]
+                  [&_.table-wrapper]:overflow-x-auto [&_.table-wrapper]:my-8 [&_.table-wrapper]:rounded-xl [&_.table-wrapper]:border [&_.table-wrapper]:border-[#e0e0da]
+                  [&_.article-table]:min-w-full [&_.article-table]:border-collapse [&_.article-table]:text-sm
+                  [&_.article-table_th]:bg-[#1a2e1a] [&_.article-table_th]:text-white [&_.article-table_th]:px-5 [&_.article-table_th]:py-3 [&_.article-table_th]:text-left [&_.article-table_th]:text-[12px] [&_.article-table_th]:font-bold [&_.article-table_th]:uppercase [&_.article-table_th]:tracking-wider
+                  [&_.article-table_td]:px-5 [&_.article-table_td]:py-3 [&_.article-table_td]:border-t [&_.article-table_td]:border-[#eaeaea] [&_.article-table_td]:text-[#444]
+                  [&_.article-table_tr:nth-child(even)_td]:bg-[#fafaf8]`}
+                dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
 
-              {/* Author Bio */}
-              <div className="mt-20 p-8 bg-muted/30 border border-border rounded-xl flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-                {article.author?.avatar ? (
-                  <img
-                    src={article.author.avatar}
-                    alt={article.author.name}
-                    className="w-24 h-24 grayscale object-cover"
-                  />
-                ) : (
-                  <div className="w-24 h-24 bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                    <User className="w-10 h-10" />
-                  </div>
-                )}
-                <div>
-                  <h3 className="font-serif font-bold text-xl text-primary mb-1">
-                    Written by {article.author?.name}
-                  </h3>
-                  <p className="text-sm text-secondary font-bold mb-3">{article.author?.role}</p>
-                  <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                    {article.author?.bio ||
-                      "Expert contributor to The Science of Professional Textile Care."}
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-primary" asChild>
-                    <Link href={`/search?q=${article.author?.name}`}>
-                      View all {article.author?.articleCount} articles →
-                    </Link>
-                  </Button>
-                </div>
-              </div>
+              {/* Citation box */}
+              <CitationBox article={article} />
+
+              {/* Author card */}
+              <AuthorCard author={article.author} />
+
+              {/* Reading completion */}
+              <ReadingCompletion nextArticle={nextRelated} />
 
               {/* Comments */}
               <CommentsSection slug={slug} />
-            </div>
+            </main>
+
+            {/* Right: sticky TOC */}
+            <ArticleTOC items={toc} tags={article.tags} />
           </div>
         </div>
 
-        {/* Related Articles */}
+        {/* ── Related articles ───────────────────────────────────────────── */}
         {article.relatedArticles && article.relatedArticles.length > 0 && (
-          <div className="bg-muted/30 py-20 border-t border-border mt-12">
-            <div className="container mx-auto px-4 md:px-8">
-              <h2 className="text-3xl font-serif font-bold text-primary mb-10 text-center">
-                Related Research
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {article.relatedArticles.map((related) => (
-                  <ArticleCard key={related.id} article={related} />
+          <div className="bg-[#fafaf9] py-20 border-t border-[#eaeaea]">
+            <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+              <div className="flex items-end justify-between mb-10">
+                <div>
+                  <p className="text-[11px] font-bold text-[#4a7c59] uppercase tracking-widest mb-2">Because you read this…</p>
+                  <h2 className="text-3xl font-serif font-bold text-[#1a1a1a]">Recommended Reading</h2>
+                </div>
+                <Link href="/articles" className="text-sm font-semibold text-[#4a7c59] hover:text-[#3a6449] flex items-center gap-1 transition-colors">
+                  All articles <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {article.relatedArticles.map((r: any) => (
+                  <Link key={r.id} href={`/articles/${r.slug}`}
+                    className="group bg-white border border-[#eaeaea] rounded-2xl overflow-hidden hover:shadow-md hover:border-[#4a7c59]/30 transition-all">
+                    <div className="aspect-[16/9] bg-[#f5f5f2] overflow-hidden">
+                      <img src={getArticleImage(r.id)} alt={r.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="p-5">
+                      {r.knowledgeLevel && (
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-wide ${levelColors[r.knowledgeLevel] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
+                          {levelLabels[r.knowledgeLevel] ?? r.knowledgeLevel}
+                        </span>
+                      )}
+                      <h3 className="font-serif font-bold text-[#1a1a1a] mt-3 mb-2 leading-snug group-hover:text-[#4a7c59] transition-colors line-clamp-2">
+                        {r.title}
+                      </h3>
+                      <p className="text-[13px] text-[#888] line-clamp-2 leading-relaxed">{r.excerpt}</p>
+                      <div className="flex items-center gap-1.5 mt-3 text-[12px] text-[#aaa]">
+                        <Clock className="w-3 h-3" />{r.readingTime} min read
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* Continue Learning — content relationships */}
-        {(() => {
-          const rels = (article as any).contentRelationships as Array<{
-            id: number; relationshipType: string; direction: string;
-            article: { id: number; title: string; slug: string; excerpt?: string; readingTime: number; contentType: string; knowledgeLevel: string; expertReviewStatus: string };
-          }> ?? [];
-          const paths = (article as any).learningPathMemberships as Array<{ pathId: number; pathTitle: string; pathSlug: string; stage: string }> ?? [];
-          if (!rels.length && !paths.length) return null;
-
-          // Group relationships into journey lanes
-          const prerequisites = rels.filter(r => r.relationshipType === "prerequisite" && r.direction === "inbound");
-          const nextSteps = rels.filter(r => (r.relationshipType === "follow-up" && r.direction === "outbound") || r.relationshipType === "quick-to-professional" || r.relationshipType === "professional-to-technical");
-          const related = rels.filter(r => r.relationshipType === "related");
-
-          const levelColors: Record<string, string> = {
-            quick: "bg-amber-50 border-amber-200 text-amber-800",
-            professional: "bg-blue-50 border-blue-200 text-blue-800",
-            advanced: "bg-purple-50 border-purple-200 text-purple-800",
-          };
-          const levelLabels: Record<string, string> = { quick: "60-sec", professional: "Professional", advanced: "Advanced" };
-
-          const RelCard = ({ a, label }: { a: typeof rels[0]["article"]; label?: string }) => (
-            <Link href={`/articles/${a.slug}`}
-              className="group flex items-start gap-3 bg-white border border-[#eaeaea] rounded-xl p-4 hover:border-[#4a7c59]/50 hover:shadow-sm transition-all">
-              <div className="flex-1 min-w-0">
-                {label && <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-1">{label}</p>}
-                <p className="text-sm font-semibold text-[#1a1a1a] group-hover:text-[#4a7c59] transition-colors leading-snug line-clamp-2">{a.title}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  {a.knowledgeLevel && (
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${levelColors[a.knowledgeLevel] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
-                      {levelLabels[a.knowledgeLevel] ?? a.knowledgeLevel}
-                    </span>
-                  )}
-                  <span className="text-[11px] text-[#999] flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{a.readingTime}m</span>
-                </div>
+        {/* ── Continue Learning ─────────────────────────────────────────── */}
+        {(rels.length > 0 || paths.length > 0) && (
+          <div className="border-t border-[#eaeaea] pt-16 pb-20 bg-white">
+            <div className="container mx-auto px-4 md:px-8 max-w-4xl">
+              <div className="flex items-center gap-2 mb-10">
+                <GitBranch className="w-5 h-5 text-[#4a7c59]" />
+                <h2 className="text-2xl font-serif font-bold text-[#1a1a1a]">Continue Learning</h2>
+                <p className="text-sm text-[#aaa] ml-2">Your structured learning journey</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-[#bbb] group-hover:text-[#4a7c59] shrink-0 mt-1 transition-colors" />
-            </Link>
-          );
 
-          return (
-            <div className="border-t border-[#eaeaea] mt-12 pt-16 pb-20 bg-[#fafaf9]">
-              <div className="container mx-auto px-4 md:px-8 max-w-4xl">
-                <div className="flex items-center gap-2 mb-10">
-                  <GitBranch className="w-5 h-5 text-[#4a7c59]" />
-                  <h2 className="text-2xl font-serif font-bold text-[#1a1a1a]">Continue Learning</h2>
+              {/* Journey timeline */}
+              <div className="relative pl-6 border-l-2 border-[#e8e8e4] space-y-8">
+                {prerequisites.length > 0 && (
+                  <div>
+                    <div className="absolute -left-[9px] w-4 h-4 rounded-full bg-[#e8e8e4] border-2 border-white" />
+                    <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-3">Read First</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {prerequisites.map(r => <RelCard key={r.id} a={r.article} />)}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <div className="absolute -left-[9px] w-4 h-4 rounded-full bg-[#4a7c59] border-2 border-white" />
+                  <p className="text-[11px] font-bold text-[#4a7c59] uppercase tracking-widest mb-3">Current Article</p>
+                  <div className="bg-[#f0f7f0] border border-[#c8dfc8] rounded-xl px-4 py-3 text-sm font-semibold text-[#2d5a3d]">
+                    {article.title}
+                  </div>
                 </div>
 
-                <div className="space-y-8">
-                  {/* Before this article — prerequisites */}
-                  {prerequisites.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold text-[#888] uppercase tracking-wider mb-3">Read First</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {prerequisites.map(r => <RelCard key={r.id} a={r.article} />)}
-                      </div>
+                {nextSteps.length > 0 && (
+                  <div>
+                    <div className="absolute -left-[9px] w-4 h-4 rounded-full bg-[#e8e8e4] border-2 border-white" />
+                    <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-3">Up Next</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {nextSteps.map(r => <RelCard key={r.id} a={r.article} />)}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Next steps / journey advancement */}
-                  {nextSteps.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold text-[#888] uppercase tracking-wider mb-3">Up Next</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {nextSteps.map(r => <RelCard key={r.id} a={r.article} />)}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Learning path membership */}
-                  {paths.length > 0 && (
+                {paths.length > 0 && (
+                  <div>
+                    <div className="absolute -left-[9px] w-4 h-4 rounded-full bg-[#1a2e1a] border-2 border-white" />
+                    <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-3">Learning Path</p>
                     <div className="bg-[#1a2e1a] rounded-xl p-5 text-white">
                       <div className="flex items-center gap-2 mb-3">
                         <BookOpen className="w-4 h-4 text-white/60" />
-                        <p className="text-xs font-bold text-white/60 uppercase tracking-wider">Part of a Learning Path</p>
+                        <p className="text-xs font-bold text-white/60 uppercase tracking-wider">Part of a structured learning path</p>
                       </div>
                       {paths.map((p, i) => (
                         <div key={i} className="flex items-center justify-between">
@@ -736,22 +1043,22 @@ export function ArticleDetail() {
                         </div>
                       ))}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Related */}
-                  {related.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold text-[#888] uppercase tracking-wider mb-3">Also Relevant</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {related.map(r => <RelCard key={r.id} a={r.article} />)}
-                      </div>
+                {relatedRels.length > 0 && (
+                  <div>
+                    <div className="absolute -left-[9px] w-4 h-4 rounded-full bg-[#e8e8e4] border-2 border-white" />
+                    <p className="text-[11px] font-bold text-[#888] uppercase tracking-widest mb-3">Also Relevant</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {relatedRels.map(r => <RelCard key={r.id} a={r.article} />)}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          );
-        })()}
+          </div>
+        )}
       </article>
     </Shell>
   );

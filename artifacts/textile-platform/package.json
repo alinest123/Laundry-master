@@ -94,6 +94,7 @@
     "@tiptap/extension-underline": "^3.29.0",
     "@tiptap/pm": "^3.29.0",
     "@tiptap/react": "^3.29.0",
-    "@tiptap/starter-kit": "^3.29.0"
+    "@tiptap/starter-kit": "^3.29.0",
+    "marked": "^18.0.7"
   }
 }
