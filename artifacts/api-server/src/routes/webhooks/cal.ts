@@ -174,6 +174,17 @@ router.post("/", async (req, res): Promise<void> => {
         break;
       }
 
+      case "BOOKING_NO_SHOW_UPDATED": {
+        const uid = payload.uid as string | undefined;
+        if (!uid) break;
+        await db
+          .update(appointmentsTable)
+          .set({ status: "no-show", updatedAt: new Date() })
+          .where(eq(appointmentsTable.calBookingUid, uid));
+        logger.info({ uid }, "Cal.com booking marked no-show");
+        break;
+      }
+
       default:
         logger.info({ triggerEvent }, "Cal.com webhook: unhandled event (ignored)");
     }
