@@ -8,6 +8,11 @@ import {
   tagsTable,
   articleCategoriesTable,
   articleTagsTable,
+  contentRelationshipsTable,
+  articleTopicsTable,
+  topicsTable,
+  learningPathItemsTable,
+  learningPathsTable,
 } from "@workspace/db";
 import {
   ListArticlesQueryParams,
@@ -184,19 +189,69 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
   const full = await getArticleWithRelations(rows[0].id);
   if (!full) { res.status(404).json({ error: "Not found" }); return; }
 
-  // Get related articles (same category)
+  const articleId = rows[0].id;
+
+  // Fetch everything in parallel: related by category, content relationships, topics, learning path memberships
+  const [catLinks4Related, contentRels, topicLinks, pathItemLinks] = await Promise.all([
+    full.categories.length > 0
+      ? db.select({ articleId: articleCategoriesTable.articleId }).from(articleCategoriesTable)
+          .where(eq(articleCategoriesTable.categoryId, full.categories[0].id))
+      : Promise.resolve([] as { articleId: number }[]),
+    db.select().from(contentRelationshipsTable)
+      .where(or(eq(contentRelationshipsTable.sourceArticleId, articleId), eq(contentRelationshipsTable.targetArticleId, articleId))),
+    db.select({ topicId: articleTopicsTable.topicId }).from(articleTopicsTable)
+      .where(eq(articleTopicsTable.articleId, articleId)),
+    db.select({ lpi: learningPathItemsTable, lp: learningPathsTable })
+      .from(learningPathItemsTable)
+      .leftJoin(learningPathsTable, eq(learningPathItemsTable.learningPathId, learningPathsTable.id))
+      .where(eq(learningPathItemsTable.articleId, articleId)),
+  ]);
+
+  // Related by category
   let related: Awaited<ReturnType<typeof buildArticleSummary>>[] = [];
-  if (full.categories.length > 0) {
-    const catLinks = await db.select({ articleId: articleCategoriesTable.articleId })
-      .from(articleCategoriesTable)
-      .where(eq(articleCategoriesTable.categoryId, full.categories[0].id));
-    const relatedIds = catLinks.map(l => l.articleId).filter(id => id !== rows[0].id).slice(0, 4);
-    if (relatedIds.length > 0) {
-      const relRows = await db.select().from(articlesTable)
+  const relatedIds = catLinks4Related.map(l => l.articleId).filter(id => id !== articleId).slice(0, 4);
+  if (relatedIds.length > 0) {
+    const relRows = await db.select().from(articlesTable)
       .where(and(inArray(articlesTable.id, relatedIds), eq(articlesTable.status, "published")));
-      related = await Promise.all(relRows.map(buildArticleSummary));
-    }
+    related = await Promise.all(relRows.map(buildArticleSummary));
   }
+
+  // Hydrate content relationships with target/source article summaries
+  const relArticleIds = new Set<number>();
+  contentRels.forEach(r => {
+    if (r.sourceArticleId !== articleId) relArticleIds.add(r.sourceArticleId);
+    if (r.targetArticleId !== articleId) relArticleIds.add(r.targetArticleId);
+  });
+  const relArticles = relArticleIds.size > 0
+    ? await db.select({ id: articlesTable.id, title: articlesTable.title, slug: articlesTable.slug,
+        excerpt: articlesTable.excerpt, readingTime: articlesTable.readingTime,
+        contentType: articlesTable.contentType, knowledgeLevel: articlesTable.knowledgeLevel,
+        expertReviewStatus: articlesTable.expertReviewStatus, featuredImage: articlesTable.featuredImage })
+        .from(articlesTable).where(and(inArray(articlesTable.id, [...relArticleIds]), eq(articlesTable.status, "published")))
+    : [];
+  const relAMap = Object.fromEntries(relArticles.map(a => [a.id, a]));
+
+  const contentRelationships = contentRels.map(r => ({
+    id: r.id,
+    relationshipType: r.relationshipType,
+    sortOrder: r.sortOrder,
+    direction: r.sourceArticleId === articleId ? "outbound" : "inbound",
+    article: r.sourceArticleId === articleId ? relAMap[r.targetArticleId] : relAMap[r.sourceArticleId],
+  })).filter(r => r.article);
+
+  // Topics for this article
+  const topicIds = topicLinks.map(t => t.topicId);
+  const topics = topicIds.length > 0
+    ? await db.select().from(topicsTable).where(inArray(topicsTable.id, topicIds))
+    : [];
+
+  // Learning path memberships
+  const learningPathMemberships = pathItemLinks.map(row => ({
+    pathId: row.lpi.learningPathId,
+    pathTitle: row.lp?.title ?? null,
+    pathSlug: row.lp?.slug ?? null,
+    stage: row.lpi.stage,
+  }));
 
   // Build table of contents from content headings
   const headingRegex = /^(#{1,3})\s+(.+)$/gm;
@@ -224,7 +279,18 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     author: full.author,
     categories: full.categories,
     tags: full.tags,
+    // Knowledge architecture fields
+    contentType: full.contentType,
+    knowledgeLevel: full.knowledgeLevel,
+    difficulty: full.difficulty,
+    keyTakeaway: full.keyTakeaway,
+    learningObjectives: full.learningObjectives,
+    expertReviewStatus: full.expertReviewStatus,
+    // Relations
     relatedArticles: related.filter(Boolean),
+    contentRelationships,
+    topics,
+    learningPathMemberships,
     tableOfContents: toc,
   });
 });

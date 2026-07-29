@@ -57,6 +57,7 @@ import { SecurityLogs } from "@/pages/admin/SecurityLogs";
 import { Topics } from "@/pages/admin/Topics";
 import { LearningPaths } from "@/pages/admin/LearningPaths";
 import { EditorialDocs } from "@/pages/admin/EditorialDocs";
+import { TopicPage } from "@/pages/knowledge/TopicPage";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +143,7 @@ function Router() {
       <Route path="/categories" component={CategoryList} />
       <Route path="/categories/:slug" component={CategoryDetail} />
       <Route path="/knowledge" component={KnowledgeHub} />
+      <Route path="/knowledge/:slug" component={TopicPage} />
       <Route path="/search" component={SearchResults} />
       <Route path="/consultations" component={ConsultationsList} />
       <Route path="/consultations/book" component={BookConsultation} />

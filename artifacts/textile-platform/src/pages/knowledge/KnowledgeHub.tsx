@@ -146,17 +146,44 @@ export function KnowledgeHub() {
   return (
     <Shell>
       {/* Hero */}
-      <div className="bg-primary text-white py-20">
+      <div className="bg-[#1a2e1a] text-white pt-20 pb-14">
         <div className="container mx-auto px-4 md:px-8 text-center max-w-3xl">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold mb-5">
             {c("hero_headline", "The Knowledge Hub")}
           </h1>
-          <p className="text-xl text-white/80 font-light leading-relaxed">
+          <p className="text-xl text-white/75 font-light leading-relaxed mb-8">
             {c("hero_subheadline", "Professional knowledge and technical resources for textile care specialists.")}
           </p>
-          {data && (
-            <p className="mt-4 text-sm text-white/60">{data.totalItems} resources</p>
-          )}
+          {/* Three-layer journey entry points */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left max-w-2xl mx-auto">
+            <button onClick={() => { setKnowledgeLevel("quick"); setContentType("60-second"); }}
+              className={`group p-4 rounded-xl border transition-all text-left ${knowledgeLevel === "quick" ? "bg-amber-500/20 border-amber-400" : "bg-white/5 border-white/15 hover:bg-white/10"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-4 h-4 text-amber-400" fill="currentColor" />
+                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">60-Second</span>
+              </div>
+              <p className="text-white text-sm font-medium leading-snug">Essential facts, fast</p>
+              <p className="text-white/50 text-xs mt-1">Quick knowledge cards</p>
+            </button>
+            <button onClick={() => { setKnowledgeLevel("professional"); setContentType(""); }}
+              className={`group p-4 rounded-xl border transition-all text-left ${knowledgeLevel === "professional" && !contentType ? "bg-blue-500/20 border-blue-400" : "bg-white/5 border-white/15 hover:bg-white/10"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <BookOpen className="w-4 h-4 text-blue-300" />
+                <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">Professional</span>
+              </div>
+              <p className="text-white text-sm font-medium leading-snug">Applied expertise</p>
+              <p className="text-white/50 text-xs mt-1">Guides, SOPs, case studies</p>
+            </button>
+            <button onClick={() => { setKnowledgeLevel("advanced"); setContentType(""); }}
+              className={`group p-4 rounded-xl border transition-all text-left ${knowledgeLevel === "advanced" ? "bg-purple-500/20 border-purple-400" : "bg-white/5 border-white/15 hover:bg-white/10"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <FlaskConical className="w-4 h-4 text-purple-300" />
+                <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">Technical</span>
+              </div>
+              <p className="text-white text-sm font-medium leading-snug">Deep technical mastery</p>
+              <p className="text-white/50 text-xs mt-1">Research, white papers, specs</p>
+            </button>
+          </div>
         </div>
       </div>
 

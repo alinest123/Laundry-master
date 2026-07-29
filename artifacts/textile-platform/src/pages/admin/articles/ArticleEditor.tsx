@@ -42,7 +42,7 @@ const EMPTY: FormData = {
   images: [], faqs: [], references: [],
 };
 
-const SIDEBAR_TABS = ["Publish", "Organize", "Knowledge", "SEO", "Media", "Extras", "Revisions"] as const;
+const SIDEBAR_TABS = ["Publish", "Organize", "Knowledge", "Relationships", "SEO", "Media", "Extras", "Revisions"] as const;
 type SidebarTab = (typeof SIDEBAR_TABS)[number];
 
 const CONTENT_TYPES = [
@@ -254,6 +254,13 @@ export function ArticleEditor() {
   const [tags, setTags] = useState<any[]>([]);
   const [topics, setTopics] = useState<any[]>([]);
   const [relatedSearch, setRelatedSearch] = useState("");
+
+  // Relationships state
+  const [relationships, setRelationships] = useState<any[]>([]);
+  const [relSearch, setRelSearch] = useState("");
+  const [relSearchResults, setRelSearchResults] = useState<any[]>([]);
+  const [relType, setRelType] = useState("related");
+  const [relLoading, setRelLoading] = useState(false);
   const [relatedResults, setRelatedResults] = useState<any[]>([]);
   const [relatedTitles, setRelatedTitles] = useState<Record<number, string>>({});
 
@@ -318,6 +325,48 @@ export function ArticleEditor() {
     }).catch(() => setError("Failed to load article"))
       .finally(() => setLoading(false));
   }, [articleId]);
+
+  // Load relationships when Relationships tab is opened
+  useEffect(() => {
+    if (activeTab !== "Relationships" || !articleId) return;
+    setRelLoading(true);
+    fetch(`/api/admin/articles/${articleId}/relationships`, { credentials: "include" })
+      .then(r => r.json()).then(setRelationships).catch(() => setRelationships([]))
+      .finally(() => setRelLoading(false));
+  }, [activeTab, articleId]);
+
+  // Relationship article search
+  useEffect(() => {
+    if (!relSearch.trim()) { setRelSearchResults([]); return; }
+    const t = setTimeout(async () => {
+      try {
+        const data = await adminApi.articles.list({ search: relSearch, limit: "8" });
+        setRelSearchResults((data.articles || []).filter((a: any) => a.id !== articleId));
+      } catch {}
+    }, 300);
+    return () => clearTimeout(t);
+  }, [relSearch, articleId]);
+
+  const addRelationship = async (targetArticle: any) => {
+    if (!articleId) return;
+    try {
+      const rel = await fetch(`/api/admin/articles/${articleId}/relationships`, {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetArticleId: targetArticle.id, relationshipType: relType }),
+      }).then(r => r.json());
+      setRelationships(prev => [...prev, { ...rel, targetArticle, sourceArticle: { id: articleId }, direction: "outbound" }]);
+      setRelSearch(""); setRelSearchResults([]);
+    } catch { showToast("Failed to add relationship"); }
+  };
+
+  const removeRelationship = async (relId: number) => {
+    if (!articleId) return;
+    try {
+      await fetch(`/api/admin/articles/${articleId}/relationships/${relId}`, { method: "DELETE", credentials: "include" });
+      setRelationships(prev => prev.filter(r => r.id !== relId));
+    } catch { showToast("Failed to remove relationship"); }
+  };
 
   // Load revisions when Revisions tab is opened
   useEffect(() => {
@@ -889,6 +938,77 @@ export function ArticleEditor() {
                     onChange={e => up({ learningObjectives: e.target.value })} />
                   <p className="text-xs text-stone-400 mt-0.5">One per line. Stored as a list.</p>
                 </div>
+              </>
+            )}
+
+            {/* ── RELATIONSHIPS tab ────────────────────────────────────────── */}
+            {activeTab === "Relationships" && (
+              <>
+                {isNew ? (
+                  <p className="text-xs text-stone-400 text-center py-4">Save the article first to manage content relationships.</p>
+                ) : (
+                  <>
+                    <div>
+                      <SectionLabel>Add Relationship</SectionLabel>
+                      <div className="space-y-2">
+                        <select className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                          value={relType} onChange={e => setRelType(e.target.value)}>
+                          <option value="related">Related</option>
+                          <option value="prerequisite">Prerequisite (read first)</option>
+                          <option value="follow-up">Follow-up (read next)</option>
+                          <option value="case-study">Case Study</option>
+                          <option value="sop">SOP</option>
+                          <option value="reference">Reference</option>
+                          <option value="quick-to-professional">60-Second → Professional</option>
+                          <option value="professional-to-technical">Professional → Technical</option>
+                        </select>
+                        <div className="relative">
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+                          <input className="w-full pl-8 pr-3 py-1.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
+                            placeholder="Search articles to link…"
+                            value={relSearch} onChange={e => setRelSearch(e.target.value)} />
+                        </div>
+                        {relSearchResults.length > 0 && (
+                          <div className="border border-stone-200 rounded-lg divide-y divide-stone-50 max-h-40 overflow-y-auto">
+                            {relSearchResults.map((a: any) => (
+                              <button key={a.id} onClick={() => addRelationship(a)}
+                                className="w-full text-left px-3 py-2 text-xs hover:bg-stone-50 flex items-center justify-between gap-2">
+                                <span className="text-stone-700 truncate">{a.title}</span>
+                                <Plus className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <SectionLabel>Current Relationships ({relationships.length})</SectionLabel>
+                      {relLoading ? (
+                        <p className="text-xs text-stone-400">Loading…</p>
+                      ) : relationships.length === 0 ? (
+                        <p className="text-xs text-stone-400 italic">No relationships yet. Add one above.</p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {relationships.map((rel: any) => {
+                            const linked = rel.direction === "outbound" ? rel.targetArticle : rel.sourceArticle;
+                            return (
+                              <div key={rel.id} className="flex items-start gap-2 bg-stone-50 rounded-lg px-2.5 py-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-stone-700 truncate">{linked?.title ?? `#${linked?.id}`}</p>
+                                  <p className="text-[10px] text-stone-400 capitalize">{rel.relationshipType.replace(/-/g, " ")} · {rel.direction}</p>
+                                </div>
+                                <button onClick={() => removeRelationship(rel.id)} className="text-stone-400 hover:text-red-500 shrink-0 mt-0.5">
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
 

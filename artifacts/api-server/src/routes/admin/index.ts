@@ -27,6 +27,7 @@ import dashboardRouter from "./dashboard";
 import topicsRouter from "./topics";
 import learningPathsRouter from "./learningPaths";
 import editorialDocumentsRouter from "./editorialDocuments";
+import contentRelationshipsRouter from "./contentRelationships";
 
 const router = Router();
 
@@ -59,5 +60,6 @@ router.use("/admin", dashboardRouter);
 router.use(topicsRouter);           // already includes /admin prefix
 router.use("/admin", learningPathsRouter);
 router.use(editorialDocumentsRouter); // includes /admin/* and /editorial/*
+router.use("/admin", contentRelationshipsRouter); // /admin/articles/:id/relationships
 
 export default router;

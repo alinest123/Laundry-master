@@ -14,6 +14,12 @@ import {
   Twitter,
   Linkedin,
   Facebook,
+  Zap,
+  BookOpen,
+  ArrowRight,
+  GitBranch,
+  Shield,
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -398,9 +404,69 @@ export function ArticleDetail() {
             </h1>
 
             {article.excerpt && (
-              <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed mb-10">
+              <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed mb-6">
                 {article.excerpt}
               </p>
+            )}
+
+            {/* Knowledge metadata badges */}
+            {(article as any).contentType && (
+              <div className="flex flex-wrap gap-2 mb-8">
+                {(() => {
+                  const level = (article as any).knowledgeLevel;
+                  const ct = (article as any).contentType;
+                  const diff = (article as any).difficulty;
+                  const reviewStatus = (article as any).expertReviewStatus;
+                  const levelColors: Record<string, string> = {
+                    quick: "bg-amber-100 text-amber-800 border-amber-200",
+                    professional: "bg-blue-100 text-blue-800 border-blue-200",
+                    advanced: "bg-purple-100 text-purple-800 border-purple-200",
+                  };
+                  const levelLabels: Record<string, string> = {
+                    quick: "60-Second Knowledge", professional: "Professional", advanced: "Advanced / Technical",
+                  };
+                  const reviewBadge: Record<string, { label: string; cls: string }> = {
+                    "technically-verified": { label: "Technically Verified", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+                    "expert-reviewed": { label: "Expert Reviewed", cls: "bg-green-50 text-green-700 border-green-200" },
+                    "editorially-reviewed": { label: "Editorially Reviewed", cls: "bg-gray-50 text-gray-600 border-gray-200" },
+                  };
+                  const rb = reviewBadge[reviewStatus];
+                  const ctLabels: Record<string, string> = {
+                    "60-second": "60-Second", "professional-article": "Article", "practical-guide": "Practical Guide",
+                    "technical-article": "Technical Article", "research-paper": "Research Paper",
+                    "white-paper": "White Paper", "case-study": "Case Study",
+                    "best-practice-guide": "Best Practice Guide", "sop": "Standard Operating Procedure",
+                    "technical-reference": "Technical Reference",
+                  };
+                  return (
+                    <>
+                      {level && (
+                        <span className={`inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full border uppercase tracking-wider ${levelColors[level] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
+                          {level === "quick" && <Zap className="w-3 h-3" fill="currentColor" />}
+                          {levelLabels[level] ?? level}
+                        </span>
+                      )}
+                      {ct && ct !== "professional-article" && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full border bg-[#fafaf9] text-[#555] border-[#e0e0da]">
+                          <BookOpen className="w-3 h-3" />
+                          {ctLabels[ct] ?? ct}
+                        </span>
+                      )}
+                      {diff && (
+                        <span className="inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-full border bg-[#fafaf9] text-[#666] border-[#e0e0da] capitalize">
+                          {diff}
+                        </span>
+                      )}
+                      {rb && (
+                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full border ${rb.cls}`}>
+                          <Shield className="w-3 h-3" />
+                          {rb.label}
+                        </span>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
             )}
 
             <div className="flex flex-wrap items-center justify-between gap-6 py-6 border-y border-border">
@@ -498,6 +564,35 @@ export function ArticleDetail() {
 
             {/* Main Content */}
             <div className="lg:w-3/4 order-1 lg:order-2">
+
+              {/* Key Takeaway */}
+              {(article as any).keyTakeaway && (
+                <div className="flex gap-3 bg-[#f0f7f0] border border-[#c8dfc8] rounded-xl p-5 mb-8">
+                  <Lightbulb className="w-5 h-5 text-[#4a7c59] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-[#4a7c59] uppercase tracking-wider mb-1">Key Takeaway</p>
+                    <p className="text-sm text-[#2d5a3d] leading-relaxed">{(article as any).keyTakeaway}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Learning Objectives */}
+              {(article as any).learningObjectives && (
+                <div className="border border-[#eaeaea] rounded-xl p-5 mb-8 bg-[#fafaf9]">
+                  <p className="text-xs font-bold text-[#666] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5" /> What You'll Learn
+                  </p>
+                  <ul className="space-y-1.5">
+                    {((article as any).learningObjectives as string).split("\n").filter(Boolean).map((obj: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-[#444]">
+                        <span className="text-[#4a7c59] font-bold shrink-0 mt-0.5">✓</span>
+                        {obj.trim()}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div
                 className="prose prose-lg prose-slate max-w-none
                            prose-headings:font-serif prose-headings:text-primary prose-headings:font-bold
@@ -557,6 +652,106 @@ export function ArticleDetail() {
             </div>
           </div>
         )}
+
+        {/* Continue Learning — content relationships */}
+        {(() => {
+          const rels = (article as any).contentRelationships as Array<{
+            id: number; relationshipType: string; direction: string;
+            article: { id: number; title: string; slug: string; excerpt?: string; readingTime: number; contentType: string; knowledgeLevel: string; expertReviewStatus: string };
+          }> ?? [];
+          const paths = (article as any).learningPathMemberships as Array<{ pathId: number; pathTitle: string; pathSlug: string; stage: string }> ?? [];
+          if (!rels.length && !paths.length) return null;
+
+          // Group relationships into journey lanes
+          const prerequisites = rels.filter(r => r.relationshipType === "prerequisite" && r.direction === "inbound");
+          const nextSteps = rels.filter(r => (r.relationshipType === "follow-up" && r.direction === "outbound") || r.relationshipType === "quick-to-professional" || r.relationshipType === "professional-to-technical");
+          const related = rels.filter(r => r.relationshipType === "related");
+
+          const levelColors: Record<string, string> = {
+            quick: "bg-amber-50 border-amber-200 text-amber-800",
+            professional: "bg-blue-50 border-blue-200 text-blue-800",
+            advanced: "bg-purple-50 border-purple-200 text-purple-800",
+          };
+          const levelLabels: Record<string, string> = { quick: "60-sec", professional: "Professional", advanced: "Advanced" };
+
+          const RelCard = ({ a, label }: { a: typeof rels[0]["article"]; label?: string }) => (
+            <Link href={`/articles/${a.slug}`}
+              className="group flex items-start gap-3 bg-white border border-[#eaeaea] rounded-xl p-4 hover:border-[#4a7c59]/50 hover:shadow-sm transition-all">
+              <div className="flex-1 min-w-0">
+                {label && <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-1">{label}</p>}
+                <p className="text-sm font-semibold text-[#1a1a1a] group-hover:text-[#4a7c59] transition-colors leading-snug line-clamp-2">{a.title}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  {a.knowledgeLevel && (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${levelColors[a.knowledgeLevel] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
+                      {levelLabels[a.knowledgeLevel] ?? a.knowledgeLevel}
+                    </span>
+                  )}
+                  <span className="text-[11px] text-[#999] flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />{a.readingTime}m</span>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-[#bbb] group-hover:text-[#4a7c59] shrink-0 mt-1 transition-colors" />
+            </Link>
+          );
+
+          return (
+            <div className="border-t border-[#eaeaea] mt-12 pt-16 pb-20 bg-[#fafaf9]">
+              <div className="container mx-auto px-4 md:px-8 max-w-4xl">
+                <div className="flex items-center gap-2 mb-10">
+                  <GitBranch className="w-5 h-5 text-[#4a7c59]" />
+                  <h2 className="text-2xl font-serif font-bold text-[#1a1a1a]">Continue Learning</h2>
+                </div>
+
+                <div className="space-y-8">
+                  {/* Before this article — prerequisites */}
+                  {prerequisites.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-[#888] uppercase tracking-wider mb-3">Read First</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {prerequisites.map(r => <RelCard key={r.id} a={r.article} />)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Next steps / journey advancement */}
+                  {nextSteps.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-[#888] uppercase tracking-wider mb-3">Up Next</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {nextSteps.map(r => <RelCard key={r.id} a={r.article} />)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Learning path membership */}
+                  {paths.length > 0 && (
+                    <div className="bg-[#1a2e1a] rounded-xl p-5 text-white">
+                      <div className="flex items-center gap-2 mb-3">
+                        <BookOpen className="w-4 h-4 text-white/60" />
+                        <p className="text-xs font-bold text-white/60 uppercase tracking-wider">Part of a Learning Path</p>
+                      </div>
+                      {paths.map((p, i) => (
+                        <div key={i} className="flex items-center justify-between">
+                          <p className="font-semibold text-white">{p.pathTitle}</p>
+                          <span className="text-xs text-white/50 capitalize">{p.stage?.replace(/-/g, " ")}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Related */}
+                  {related.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-[#888] uppercase tracking-wider mb-3">Also Relevant</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {related.map(r => <RelCard key={r.id} a={r.article} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </article>
     </Shell>
   );
