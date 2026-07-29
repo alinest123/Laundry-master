@@ -178,25 +178,29 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
   const parsed = GetArticleParams.safeParse({ slug: rawSlug });
   if (!parsed.success) { res.status(400).json({ error: "Invalid slug" }); return; }
 
+  // ── Batch 1: fetch the article row ───────────────────────────────────────────
   const rows = await db.select().from(articlesTable)
     .where(and(eq(articlesTable.slug, parsed.data.slug), eq(articlesTable.status, "published")))
     .limit(1);
   if (!rows[0]) { res.status(404).json({ error: "Not found" }); return; }
+  const article = rows[0];
+  const articleId = article.id;
 
-  // Increment views
-  await db.update(articlesTable).set({ views: rows[0].views + 1 }).where(eq(articlesTable.id, rows[0].id));
+  // Fire view increment without awaiting — don't block the response
+  db.update(articlesTable).set({ views: article.views + 1 }).where(eq(articlesTable.id, articleId)).catch(() => {});
 
-  const full = await getArticleWithRelations(rows[0].id);
-  if (!full) { res.status(404).json({ error: "Not found" }); return; }
-
-  const articleId = rows[0].id;
-
-  // Fetch everything in parallel: related by category, content relationships, topics, learning path memberships
-  const [catLinks4Related, contentRels, topicLinks, pathItemLinks] = await Promise.all([
-    full.categories.length > 0
-      ? db.select({ articleId: articleCategoriesTable.articleId }).from(articleCategoriesTable)
-          .where(eq(articleCategoriesTable.categoryId, full.categories[0].id))
-      : Promise.resolve([] as { articleId: number }[]),
+  // ── Batch 2: all link-table lookups in parallel ───────────────────────────────
+  const [
+    authorRows,
+    catLinks,
+    tagLinks,
+    contentRels,
+    topicLinks,
+    pathItemLinks,
+  ] = await Promise.all([
+    db.select().from(authorsTable).where(eq(authorsTable.id, article.authorId)).limit(1),
+    db.select().from(articleCategoriesTable).where(eq(articleCategoriesTable.articleId, articleId)),
+    db.select().from(articleTagsTable).where(eq(articleTagsTable.articleId, articleId)),
     db.select().from(contentRelationshipsTable)
       .where(or(eq(contentRelationshipsTable.sourceArticleId, articleId), eq(contentRelationshipsTable.targetArticleId, articleId))),
     db.select({ topicId: articleTopicsTable.topicId }).from(articleTopicsTable)
@@ -207,28 +211,57 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
       .where(eq(learningPathItemsTable.articleId, articleId)),
   ]);
 
-  // Related by category
-  let related: Awaited<ReturnType<typeof buildArticleSummary>>[] = [];
-  const relatedIds = catLinks4Related.map(l => l.articleId).filter(id => id !== articleId).slice(0, 4);
-  if (relatedIds.length > 0) {
-    const relRows = await db.select().from(articlesTable)
-      .where(and(inArray(articlesTable.id, relatedIds), eq(articlesTable.status, "published")));
-    related = await Promise.all(relRows.map(buildArticleSummary));
-  }
-
-  // Hydrate content relationships with target/source article summaries
+  // Compute IDs needed for batch 3 while batch 2 results are fresh
+  const catIds = catLinks.map(c => c.categoryId);
+  const tagIds = tagLinks.map(t => t.tagId);
+  const topicIds = topicLinks.map(t => t.topicId);
   const relArticleIds = new Set<number>();
   contentRels.forEach(r => {
     if (r.sourceArticleId !== articleId) relArticleIds.add(r.sourceArticleId);
     if (r.targetArticleId !== articleId) relArticleIds.add(r.targetArticleId);
   });
-  const relArticles = relArticleIds.size > 0
+  // Related by first category
+  const relatedCatId = catIds[0] ?? null;
+
+  // ── Batch 3: hydrate IDs → full records, all parallel ────────────────────────
+  const [
+    categories,
+    tags,
+    topics,
+    relArticles,
+    catRelatedLinks,
+  ] = await Promise.all([
+    catIds.length > 0 ? db.select().from(categoriesTable).where(inArray(categoriesTable.id, catIds)) : Promise.resolve([]),
+    tagIds.length > 0 ? db.select().from(tagsTable).where(inArray(tagsTable.id, tagIds)) : Promise.resolve([]),
+    topicIds.length > 0 ? db.select().from(topicsTable).where(inArray(topicsTable.id, topicIds)) : Promise.resolve([]),
+    relArticleIds.size > 0
+      ? db.select({ id: articlesTable.id, title: articlesTable.title, slug: articlesTable.slug,
+          excerpt: articlesTable.excerpt, readingTime: articlesTable.readingTime,
+          contentType: articlesTable.contentType, knowledgeLevel: articlesTable.knowledgeLevel,
+          expertReviewStatus: articlesTable.expertReviewStatus, featuredImage: articlesTable.featuredImage })
+          .from(articlesTable)
+          .where(and(inArray(articlesTable.id, [...relArticleIds]), eq(articlesTable.status, "published")))
+      : Promise.resolve([]),
+    relatedCatId != null
+      ? db.select({ articleId: articleCategoriesTable.articleId }).from(articleCategoriesTable)
+          .where(eq(articleCategoriesTable.categoryId, relatedCatId))
+      : Promise.resolve([] as { articleId: number }[]),
+  ]);
+
+  // ── Batch 4: related articles (requires catRelatedLinks from batch 3) ─────────
+  const relatedIds = catRelatedLinks.map(l => l.articleId).filter(id => id !== articleId).slice(0, 3);
+  const relatedRows = relatedIds.length > 0
     ? await db.select({ id: articlesTable.id, title: articlesTable.title, slug: articlesTable.slug,
         excerpt: articlesTable.excerpt, readingTime: articlesTable.readingTime,
-        contentType: articlesTable.contentType, knowledgeLevel: articlesTable.knowledgeLevel,
-        expertReviewStatus: articlesTable.expertReviewStatus, featuredImage: articlesTable.featuredImage })
-        .from(articlesTable).where(and(inArray(articlesTable.id, [...relArticleIds]), eq(articlesTable.status, "published")))
+        featuredImage: articlesTable.featuredImage, publishedAt: articlesTable.publishedAt,
+        views: articlesTable.views, authorId: articlesTable.authorId,
+        contentType: articlesTable.contentType, knowledgeLevel: articlesTable.knowledgeLevel })
+        .from(articlesTable)
+        .where(and(inArray(articlesTable.id, relatedIds), eq(articlesTable.status, "published")))
     : [];
+
+  // ── Assemble response ─────────────────────────────────────────────────────────
+  const author = authorRows[0] ?? { id: 0, name: "Unknown", bio: null, avatar: null, role: "Author", articleCount: 0 };
   const relAMap = Object.fromEntries(relArticles.map(a => [a.id, a]));
 
   const contentRelationships = contentRels.map(r => ({
@@ -239,13 +272,6 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     article: r.sourceArticleId === articleId ? relAMap[r.targetArticleId] : relAMap[r.sourceArticleId],
   })).filter(r => r.article);
 
-  // Topics for this article
-  const topicIds = topicLinks.map(t => t.topicId);
-  const topics = topicIds.length > 0
-    ? await db.select().from(topicsTable).where(inArray(topicsTable.id, topicIds))
-    : [];
-
-  // Learning path memberships
   const learningPathMemberships = pathItemLinks.map(row => ({
     pathId: row.lpi.learningPathId,
     pathTitle: row.lp?.title ?? null,
@@ -253,11 +279,11 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     stage: row.lpi.stage,
   }));
 
-  // Build table of contents from content headings
+  // Build table of contents from headings (pure CPU — no extra queries)
   const headingRegex = /^(#{1,3})\s+(.+)$/gm;
   const toc: { id: string; title: string; level: number }[] = [];
   let match;
-  while ((match = headingRegex.exec(full.content)) !== null) {
+  while ((match = headingRegex.exec(article.content ?? "")) !== null) {
     toc.push({
       id: match[2].toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
       title: match[2],
@@ -266,28 +292,33 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
   }
 
   res.json({
-    id: full.id,
-    title: full.title,
-    slug: full.slug,
-    excerpt: full.excerpt,
-    content: full.content,
-    featuredImage: full.featuredImage,
-    readingTime: full.readingTime,
-    publishedAt: full.publishedAt?.toISOString() ?? null,
-    status: full.status,
-    views: full.views + 1,
-    author: full.author,
-    categories: full.categories,
-    tags: full.tags,
-    // Knowledge architecture fields
-    contentType: full.contentType,
-    knowledgeLevel: full.knowledgeLevel,
-    difficulty: full.difficulty,
-    keyTakeaway: full.keyTakeaway,
-    learningObjectives: full.learningObjectives,
-    expertReviewStatus: full.expertReviewStatus,
+    id: article.id,
+    title: article.title,
+    slug: article.slug,
+    excerpt: article.excerpt,
+    content: article.content,
+    featuredImage: article.featuredImage,
+    readingTime: article.readingTime,
+    publishedAt: article.publishedAt?.toISOString() ?? null,
+    status: article.status,
+    views: article.views + 1,
+    author,
+    categories: categories.map(c => ({ id: c.id, name: c.name, slug: c.slug, description: c.description, featuredImage: c.featuredImage, articleCount: 0, parentId: c.parentId, subcategories: [] })),
+    tags: tags.map(t => ({ id: t.id, name: t.name, slug: t.slug, articleCount: t.articleCount })),
+    // Knowledge fields
+    contentType: article.contentType,
+    knowledgeLevel: article.knowledgeLevel,
+    difficulty: article.difficulty,
+    keyTakeaway: article.keyTakeaway,
+    learningObjectives: article.learningObjectives,
+    expertReviewStatus: article.expertReviewStatus,
     // Relations
-    relatedArticles: related.filter(Boolean),
+    relatedArticles: relatedRows.map(r => ({
+      id: r.id, title: r.title, slug: r.slug, excerpt: r.excerpt,
+      featuredImage: r.featuredImage, readingTime: r.readingTime,
+      publishedAt: r.publishedAt?.toISOString() ?? null, views: r.views,
+      contentType: r.contentType, knowledgeLevel: r.knowledgeLevel,
+    })),
     contentRelationships,
     topics,
     learningPathMemberships,
