@@ -153,8 +153,8 @@ function ArticleTOC({
   }, [items]);
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:block">
-      <div className="sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+    <aside className="w-64 shrink-0 hidden lg:block sticky top-28 self-start max-h-[calc(100vh-8rem)] overflow-y-auto pr-2">
+      <div>
         {/* Contents */}
         <button onClick={() => setOpen(o => !o)}
           className="w-full flex items-center justify-between mb-4 group">
