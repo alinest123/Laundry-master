@@ -3,11 +3,20 @@ import { Shell } from "@/components/layout/Shell";
 import { useRoute, Link, useLocation } from "wouter";
 import {
   ChevronRight, Clock, User, Share2, Bookmark, MessageCircle, Send,
-  CheckCircle, Copy, Linkedin, Twitter, Facebook, Zap, BookOpen,
+  CheckCircle, Copy, Linkedin, Facebook, Zap, BookOpen,
   ArrowRight, GitBranch, Shield, Lightbulb, Download, Type, Moon,
   Sun, Quote, FileText, BarChart2, Star, Award, TrendingUp,
   ChevronDown, ChevronUp, Printer,
 } from "lucide-react";
+// X (formerly Twitter) logo — replaces the removed Twitter bird icon
+function XLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" className={className}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -102,7 +111,7 @@ function FloatingShare({ title, url }: { title: string; url: string }) {
   const enc = encodeURIComponent(url), encT = encodeURIComponent(title);
   const items = [
     { Icon: Linkedin, label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}`, color: "#0A66C2" },
-    { Icon: Twitter, label: "X / Twitter", href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}`, color: "#000" },
+    { Icon: XLogo, label: "X", href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}`, color: "#000" },
     { Icon: Facebook, label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc}`, color: "#1877F2" },
   ];
   return (
@@ -481,7 +490,7 @@ function ShareDropdown({ title, url }: { title: string; url: string }) {
         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#e8e8e8] rounded-xl shadow-lg py-1.5 z-50">
           {[
             { label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}` },
-            { label: "X / Twitter", href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}` },
+            { label: "X",           href: `https://twitter.com/intent/tweet?text=${encT}&url=${enc}` },
             { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc}` },
           ].map(({ label, href }) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}
