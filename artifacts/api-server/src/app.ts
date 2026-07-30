@@ -75,7 +75,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(
   cors({
-    origin: isProd
+    // Only enforce the whitelist when ALLOWED_ORIGINS is explicitly configured.
+    // When unset (e.g. same-domain Vercel deployment), allow all origins — the
+    // frontend and API share the same domain so CORS restriction isn't needed.
+    origin: isProd && allowedOrigins.length > 0
       ? (origin, cb) => {
           if (!origin) return cb(null, true);
           if (allowedOrigins.some((o) => origin === o || origin.startsWith(o)))
