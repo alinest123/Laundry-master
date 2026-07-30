@@ -146,4 +146,18 @@ app.use("/api", authRouter);
 // ── All other API routes (general rate limit) ─────────────────────────────────
 app.use("/api", apiLimiter, router);
 
+// ── Global error handler (must be last, 4-arg signature) ──────────────────────
+// Express 5 async handlers forward thrown errors here automatically.
+// Returns JSON instead of HTML so clients get parseable error details.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: unknown, req: import("express").Request, res: import("express").Response, _next: import("express").NextFunction) => {
+  const message = err instanceof Error ? err.message : String(err);
+  const stack   = err instanceof Error ? err.stack   : undefined;
+  logger.error({ err, path: req.path }, "Unhandled server error");
+  res.status(500).json({
+    error: message,
+    ...(isProd ? {} : { stack }),
+  });
+});
+
 export default app;

@@ -80,6 +80,7 @@ async function buildArticleSummary(article: typeof articlesTable.$inferSelect) {
 }
 
 router.get("/articles", async (req, res): Promise<void> => {
+  try {
   const parsed = ListArticlesQueryParams.safeParse(req.query);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -141,9 +142,15 @@ router.get("/articles", async (req, res): Promise<void> => {
     limit,
     totalPages: Math.ceil(Number(total[0]?.count ?? 0) / limit),
   });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    res.status(500).json({ error: msg, stack });
+  }
 });
 
 router.get("/articles/featured", async (req, res): Promise<void> => {
+  try {
   const parsed = GetFeaturedArticlesQueryParams.safeParse(req.query);
   const limit = parsed.success ? (parsed.data.limit ?? 6) : 6;
   const rows = await db.select().from(articlesTable)
@@ -151,9 +158,13 @@ router.get("/articles/featured", async (req, res): Promise<void> => {
     .orderBy(desc(articlesTable.publishedAt)).limit(limit);
   const articles = await Promise.all(rows.map(buildArticleSummary));
   res.json(articles.filter(Boolean));
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined });
+  }
 });
 
 router.get("/articles/popular", async (req, res): Promise<void> => {
+  try {
   const parsed = GetPopularArticlesQueryParams.safeParse(req.query);
   const limit = parsed.success ? (parsed.data.limit ?? 8) : 8;
   const rows = await db.select().from(articlesTable)
@@ -161,9 +172,13 @@ router.get("/articles/popular", async (req, res): Promise<void> => {
     .orderBy(desc(articlesTable.views)).limit(limit);
   const articles = await Promise.all(rows.map(buildArticleSummary));
   res.json(articles.filter(Boolean));
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined });
+  }
 });
 
 router.get("/articles/latest", async (req, res): Promise<void> => {
+  try {
   const parsed = GetLatestArticlesQueryParams.safeParse(req.query);
   const limit = parsed.success ? (parsed.data.limit ?? 6) : 6;
   const rows = await db.select().from(articlesTable)
@@ -171,9 +186,13 @@ router.get("/articles/latest", async (req, res): Promise<void> => {
     .orderBy(desc(articlesTable.publishedAt)).limit(limit);
   const articles = await Promise.all(rows.map(buildArticleSummary));
   res.json(articles.filter(Boolean));
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined });
+  }
 });
 
 router.get("/articles/:slug", async (req, res): Promise<void> => {
+  try {
   const rawSlug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug;
   const parsed = GetArticleParams.safeParse({ slug: rawSlug });
   if (!parsed.success) { res.status(400).json({ error: "Invalid slug" }); return; }
@@ -324,6 +343,9 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     learningPathMemberships,
     tableOfContents: toc,
   });
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined });
+  }
 });
 
 export default router;
