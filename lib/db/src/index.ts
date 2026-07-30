@@ -7,7 +7,15 @@ const { Pool } = pg;
 const rawUrl = process.env.SUPABASE_DATABASE_URL;
 
 if (!rawUrl) {
-  throw new Error("SUPABASE_DATABASE_URL is required. Set it in your environment secrets.");
+  // Log but do NOT throw at module load time.
+  // Throwing here produces Vercel's opaque FUNCTION_INVOCATION_FAILED.
+  // Deferring lets the function start and return a useful HTTP 500 instead.
+  // Fix: set SUPABASE_DATABASE_URL in Vercel → Settings → Environment Variables.
+  console.error(
+    "[db] FATAL: SUPABASE_DATABASE_URL is not set. " +
+    "Database queries will fail. " +
+    "Set SUPABASE_DATABASE_URL in Vercel → Settings → Environment Variables."
+  );
 }
 
 /**
@@ -36,10 +44,11 @@ function parseDbUrl(url: string) {
   return { host, port, user, password, database };
 }
 
-export const pool = new Pool({
-  ...parseDbUrl(rawUrl),
-  ssl: { rejectUnauthorized: false },
-});
+export const pool = new Pool(
+  rawUrl
+    ? { ...parseDbUrl(rawUrl), ssl: { rejectUnauthorized: false } }
+    : { host: "localhost", port: 5432 } // will fail at first query — not at module load
+);
 
 export const db = drizzle(pool, { schema });
 

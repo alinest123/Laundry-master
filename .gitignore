@@ -3,6 +3,11 @@
 # compiled output
 dist
 tmp
+# Exception: pre-compiled Vercel serverless function bundle.
+# Vercel's @vercel/node function bundler runs in a separate step that may not
+# have access to files created by the buildCommand. Committing this bundle
+# ensures it is always available. The buildCommand rebuilds it on every deploy.
+!artifacts/api-server/dist/app.cjs
 out-tsc
 *.tsbuildinfo
 .expo
