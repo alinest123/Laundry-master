@@ -209,7 +209,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#f0f0f0]">
       <TopBanner />
-      <div className="max-w-[1280px] mx-auto px-6 h-[64px] flex items-center justify-between gap-6">
+      <div className="max-w-[1280px] mx-auto px-6 h-[64px] flex gap-6 justify-between items-center mt-[15px] mb-[15px]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80">
           {logoUrl ? (
@@ -289,7 +289,6 @@ export function Navbar() {
           </button>
         </div>
       </div>
-
       {/* Mobile drawer */}
       {open && (
         <div className="md:hidden border-t border-[#e8e8e8] bg-white">
