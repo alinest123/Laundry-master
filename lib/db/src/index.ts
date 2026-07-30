@@ -39,11 +39,27 @@ function parseDbUrl(url: string) {
 // Supabase session-mode pooler caps at 15 total connections across ALL clients.
 // Vercel serverless + Replit dev can easily exceed that with the default max=10.
 // Keep max=2 so up to ~6 concurrent Vercel invocations + local stay under the limit.
+const parsed = parseDbUrl(rawUrl);
+
+// Supabase session-mode pooler (*.pooler.supabase.com:5432) has a hard limit of
+// 15 total connections across ALL clients.  Vercel serverless creates a new Pool
+// per invocation, so even max:2 can exhaust that limit with ~8 concurrent requests.
+//
+// Transaction mode (port 6543) multiplexes many clients over fewer server connections
+// and is designed for serverless — connection limits are ~100+ on the free tier.
+// Automatically switch when the URL targets the Supabase pooler on port 5432.
+const host = parsed.host;
+const useTransactionMode =
+  host.endsWith('.pooler.supabase.com') && parsed.port === 5432;
+
 export const pool = new Pool({
-  ...parseDbUrl(rawUrl),
+  ...parsed,
+  port: useTransactionMode ? 6543 : parsed.port,
   ssl: { rejectUnauthorized: false },
-  max: 2,
-  idleTimeoutMillis: 5_000,   // release idle connections quickly (important for serverless)
+  // One connection per serverless process is sufficient and prevents exhausting
+  // the pooler limit even under high concurrency.
+  max: 1,
+  idleTimeoutMillis: 3_000,
   connectionTimeoutMillis: 10_000,
 });
 
