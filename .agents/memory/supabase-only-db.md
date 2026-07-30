@@ -15,3 +15,6 @@ description: Database is exclusively Supabase PostgreSQL — all DATABASE_URL fa
 - One-time migration scripts (`lib/db/scripts/migrate-to-supabase.mjs`, `apply-to-supabase.mjs`) have been deleted — do not recreate them
 - Never re-introduce `|| process.env.DATABASE_URL` into any connection code
 - For Vercel deployment: set `SUPABASE_DATABASE_URL` and `SESSION_SECRET` in Vercel env vars; no other DB env vars needed
+- Pool is configured `max: 1, idleTimeoutMillis: 3000` — required for serverless; do not raise max without understanding the Supabase pooler limits
+- If `SUPABASE_DATABASE_URL` uses the Supabase session-mode pooler (`*.pooler.supabase.com:5432`), the pool automatically switches to transaction mode (port 6543) — this is intentional and prevents EMAXCONNSESSION errors (session mode caps at 15 total connections; transaction mode caps at ~100)
+- `SUPABASE_URL` does not need to be set; `objectStorage.ts` derives it from `SUPABASE_DATABASE_URL` automatically via `deriveSupabaseUrl()`
