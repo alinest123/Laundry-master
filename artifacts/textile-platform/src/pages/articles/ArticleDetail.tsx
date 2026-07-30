@@ -58,32 +58,63 @@ const buildRenderer = () => {
 
 marked.use({ renderer: buildRenderer(), breaks: true });
 
+/**
+ * When users paste raw markdown into TipTap, it strips newlines and wraps
+ * everything in <p> tags, e.g. <p>## Heading *italic* Body text...</p>.
+ *
+ * Two problems arise:
+ * 1. The <p> wrapper hides the ## from marked (invisible to block-level parser).
+ * 2. TipTap collapses real line-breaks inside a paste into spaces, so a heading
+ *    and its following paragraph end up on the same logical line:
+ *    "## Heading *subtitle* Every day, people wake to..." — marked then treats
+ *    ALL of that as one <h2>.
+ *
+ * This function handles both cases.
+ */
+function splitMergedHeadingLines(text: string): string {
+  // For each line that starts with a markdown heading marker, look for the
+  // point where the heading ends and body text begins, then split there.
+  // Heuristics (in priority order):
+  //   1. After a closing * or ** (end of inline italic/bold in the heading).
+  //   2. After sentence-ending punctuation (. ! ?) followed by a space + uppercase.
+  return text.split('\n').map(line => {
+    if (!/^#{1,6}\s/.test(line)) return line;
+    // Try: ...closing-inline-marker* [space] Capital
+    let split = line.replace(/^(#{1,6}\s.*?[*_])\s+([A-Z])/, '$1\n\n$2');
+    if (split !== line) return split;
+    // Try: sentence-end punctuation followed by space + Capital
+    split = line.replace(/^(#{1,6}\s.*?[.!?])\s+([A-Z])/, '$1\n\n$2');
+    return split;
+  }).join('\n');
+}
+
 function renderMarkdown(content: string): string {
   if (!content) return "";
   const trimmed = content.trim();
   try {
     // TipTap saves as HTML. Clean HTML should be rendered directly.
-    // Exception: when raw markdown is pasted into TipTap instead of using the
-    // formatting toolbar, TipTap wraps everything in <p> tags — producing
-    // <p>## Heading *text*</p>. The `##` inside a <p> is invisible to marked,
-    // so we detect this pattern, strip the HTML wrapper, and re-parse the
-    // inner text as markdown so headings, bold, italics etc. render properly.
+    // Exception: when raw markdown is pasted into TipTap, it wraps everything
+    // in <p> tags — <p>## Heading *text*</p>. The ## inside a <p> is invisible
+    // to marked, so we detect this pattern, strip the HTML wrapper, split any
+    // merged heading+paragraph lines, then re-parse.
     if (trimmed.startsWith('<')) {
       const flat = trimmed.replace(/\s+/g, ' ');
       const hasWrappedMarkdown = /<p>\s*#{1,6}\s/.test(flat);
       if (!hasWrappedMarkdown) return trimmed; // clean TipTap HTML — render as-is
-      // Strip HTML → plain markdown → re-parse
-      const text = trimmed
+      // Strip HTML → plain markdown text
+      let text = trimmed
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
         .replace(/<[^>]+>/g, '')
         .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
         .trim();
+      // Split heading lines that had their following paragraph merged in
+      text = splitMergedHeadingLines(text);
       return marked.parse(text) as string;
     }
     // Raw markdown (legacy articles or direct API creation)
-    return marked.parse(trimmed) as string;
+    return marked.parse(splitMergedHeadingLines(trimmed)) as string;
   } catch {
     return content;
   }
@@ -970,7 +1001,7 @@ export function ArticleDetail() {
         </div>
 
         {/* ── Content area ───────────────────────────────────────────────── */}
-        <div className="container mx-auto px-4 md:px-8 max-w-screen-xl pb-16">
+        <div className="container mx-auto px-4 md:px-8 max-w-[1240px] pb-16">
           <div className="flex gap-12 items-start">
 
             {/* Left: floating share */}
@@ -1013,8 +1044,8 @@ export function ArticleDetail() {
               <div
                 className={`article-body prose prose-slate max-w-none ${fontSizeClass}
                   prose-headings:font-serif prose-headings:text-[#1a1a1a] prose-headings:font-bold
-                  prose-h2:text-[2rem] prose-h2:leading-tight prose-h2:mt-14 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-[#eaeaea]
-                  prose-h3:text-[1.4rem] prose-h3:leading-snug prose-h3:mt-10 prose-h3:mb-4
+                  prose-h2:text-[2.25rem] prose-h2:leading-tight prose-h2:mt-16 prose-h2:mb-6 prose-h2:pb-4 prose-h2:border-b prose-h2:border-[#e0e0da]
+                  prose-h3:text-[1.5rem] prose-h3:leading-snug prose-h3:mt-10 prose-h3:mb-4
                   prose-p:text-[#333] prose-p:leading-[1.85]
                   prose-li:text-[#333] prose-li:leading-relaxed
                   prose-strong:text-[#1a1a1a] prose-strong:font-semibold
