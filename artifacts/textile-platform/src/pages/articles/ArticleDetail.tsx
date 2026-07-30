@@ -338,6 +338,61 @@ function KnowledgeCards({ article }: { article: any }) {
   );
 }
 
+// ── References section ─────────────────────────────────────────────────────────
+
+interface ArticleRef {
+  id: number; title: string; url?: string | null; description?: string | null; refType: string;
+}
+
+function ArticleReferences({ refs }: { refs: ArticleRef[] }) {
+  if (!refs?.length) return null;
+  const typeLabels: Record<string, string> = {
+    reference: "Reference",
+    citation: "Citation",
+    external: "External Source",
+    book: "Book",
+    journal: "Journal",
+    paper: "Research Paper",
+    standard: "Standard",
+    website: "Website",
+  };
+  return (
+    <div className="mt-14 pt-10 border-t-2 border-[#eaeaea]">
+      <div className="flex items-center gap-2 mb-6">
+        <BookOpen className="w-5 h-5 text-[#4a7c59]" />
+        <h3 className="font-serif font-bold text-xl text-[#1a1a1a]">References & Sources</h3>
+      </div>
+      <ol className="space-y-4">
+        {refs.map((ref, i) => (
+          <li key={ref.id} className="flex gap-4 text-[13.5px] leading-relaxed">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[#f0f7f0] border border-[#c8dfc8] text-[#4a7c59] font-bold text-[11px] flex items-center justify-center mt-0.5">
+              {i + 1}
+            </span>
+            <span>
+              {ref.url ? (
+                <a href={ref.url} target="_blank" rel="noopener noreferrer"
+                  className="font-semibold text-[#4a7c59] hover:text-[#3a6449] hover:underline transition-colors">
+                  {ref.title}
+                </a>
+              ) : (
+                <span className="font-semibold text-[#1a1a1a]">{ref.title}</span>
+              )}
+              {ref.refType && ref.refType !== "reference" && (
+                <span className="ml-2 text-[11px] px-2 py-0.5 rounded-full bg-[#f5f5f2] border border-[#e8e8e4] text-[#888] font-medium">
+                  {typeLabels[ref.refType] ?? ref.refType}
+                </span>
+              )}
+              {ref.description && (
+                <span className="block text-[#777] text-[12.5px] mt-0.5">{ref.description}</span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 // ── Citation box ───────────────────────────────────────────────────────────────
 
 function CitationBox({ article }: { article: any }) {
@@ -1047,12 +1102,15 @@ export function ArticleDetail() {
                   prose-h2:text-[2.25rem] prose-h2:leading-tight prose-h2:mt-16 prose-h2:mb-6 prose-h2:pb-4 prose-h2:border-b prose-h2:border-[#e0e0da]
                   prose-h3:text-[1.5rem] prose-h3:leading-snug prose-h3:mt-10 prose-h3:mb-4
                   prose-p:text-[#333] prose-p:leading-[1.85]
-                  prose-li:text-[#333] prose-li:leading-relaxed
+                  prose-li:text-[#333] prose-li:leading-relaxed prose-li:my-1.5
+                  prose-ul:my-5 prose-ul:pl-6 prose-ol:my-5 prose-ol:pl-6
+                  prose-ul:marker:text-[#4a7c59] prose-ol:marker:text-[#4a7c59] prose-ol:marker:font-bold
                   prose-strong:text-[#1a1a1a] prose-strong:font-semibold
                   prose-a:text-[#4a7c59] prose-a:no-underline hover:prose-a:underline
                   prose-code:bg-[#f5f5f2] prose-code:text-[#c7254e] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-[0.85em] prose-code:font-mono
                   prose-pre:bg-[#1a1a1a] prose-pre:text-[#f5f5f2] prose-pre:rounded-xl
-                  prose-blockquote:not-italic
+                  prose-blockquote:border-l-4 prose-blockquote:border-[#4a7c59] prose-blockquote:bg-[#f9fdf9] prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-[#2d5a3d] prose-blockquote:px-5 prose-blockquote:py-3
+                  prose-hr:border-[#e0e0da] prose-hr:my-10
                   prose-img:rounded-xl
                   [&_.article-blockquote]:border-l-4 [&_.article-blockquote]:border-[#4a7c59] [&_.article-blockquote]:pl-5 [&_.article-blockquote]:py-3 [&_.article-blockquote]:my-6 [&_.article-blockquote]:bg-[#f9fdf9] [&_.article-blockquote]:rounded-r-lg [&_.article-blockquote]:text-[#2d5a3d]
                   [&_.table-wrapper]:overflow-x-auto [&_.table-wrapper]:my-8 [&_.table-wrapper]:rounded-xl [&_.table-wrapper]:border [&_.table-wrapper]:border-[#e0e0da]
@@ -1062,6 +1120,12 @@ export function ArticleDetail() {
                   [&_.article-table_tr:nth-child(even)_td]:bg-[#fafaf8]`}
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
+
+              {/* References */}
+              {(() => {
+                const refs = (article as any).references as ArticleRef[] | undefined;
+                return refs && refs.length > 0 ? <ArticleReferences refs={refs} /> : null;
+              })()}
 
               {/* Citation box */}
               <CitationBox article={article} />

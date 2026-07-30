@@ -13,6 +13,7 @@ import {
   topicsTable,
   learningPathItemsTable,
   learningPathsTable,
+  articleReferencesTable,
 } from "@workspace/db";
 import {
   ListArticlesQueryParams,
@@ -216,6 +217,7 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     contentRels,
     topicLinks,
     pathItemLinks,
+    refsRows,
   ] = await Promise.all([
     db.select().from(authorsTable).where(eq(authorsTable.id, article.authorId)).limit(1),
     db.select().from(articleCategoriesTable).where(eq(articleCategoriesTable.articleId, articleId)),
@@ -228,6 +230,9 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
       .from(learningPathItemsTable)
       .leftJoin(learningPathsTable, eq(learningPathItemsTable.learningPathId, learningPathsTable.id))
       .where(eq(learningPathItemsTable.articleId, articleId)),
+    db.select().from(articleReferencesTable)
+      .where(eq(articleReferencesTable.articleId, articleId))
+      .orderBy(articleReferencesTable.sortOrder),
   ]);
 
   // Compute IDs needed for batch 3 while batch 2 results are fresh
@@ -342,6 +347,14 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     topics,
     learningPathMemberships,
     tableOfContents: toc,
+    references: refsRows.map(r => ({
+      id: r.id,
+      title: r.title,
+      url: r.url,
+      description: r.description,
+      refType: r.refType,
+      sortOrder: r.sortOrder,
+    })),
   });
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack : undefined });
