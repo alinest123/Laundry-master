@@ -59,8 +59,31 @@ const buildRenderer = () => {
 marked.use({ renderer: buildRenderer(), breaks: true });
 
 function renderMarkdown(content: string): string {
+  if (!content) return "";
+  const trimmed = content.trim();
   try {
-    return marked.parse(content) as string;
+    // TipTap saves as HTML. Clean HTML should be rendered directly.
+    // Exception: when raw markdown is pasted into TipTap instead of using the
+    // formatting toolbar, TipTap wraps everything in <p> tags — producing
+    // <p>## Heading *text*</p>. The `##` inside a <p> is invisible to marked,
+    // so we detect this pattern, strip the HTML wrapper, and re-parse the
+    // inner text as markdown so headings, bold, italics etc. render properly.
+    if (trimmed.startsWith('<')) {
+      const flat = trimmed.replace(/\s+/g, ' ');
+      const hasWrappedMarkdown = /<p>\s*#{1,6}\s/.test(flat);
+      if (!hasWrappedMarkdown) return trimmed; // clean TipTap HTML — render as-is
+      // Strip HTML → plain markdown → re-parse
+      const text = trimmed
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+        .trim();
+      return marked.parse(text) as string;
+    }
+    // Raw markdown (legacy articles or direct API creation)
+    return marked.parse(trimmed) as string;
   } catch {
     return content;
   }
