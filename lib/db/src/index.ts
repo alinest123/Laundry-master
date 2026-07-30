@@ -36,9 +36,15 @@ function parseDbUrl(url: string) {
   return { host, port, user, password, database };
 }
 
+// Supabase session-mode pooler caps at 15 total connections across ALL clients.
+// Vercel serverless + Replit dev can easily exceed that with the default max=10.
+// Keep max=2 so up to ~6 concurrent Vercel invocations + local stay under the limit.
 export const pool = new Pool({
   ...parseDbUrl(rawUrl),
   ssl: { rejectUnauthorized: false },
+  max: 2,
+  idleTimeoutMillis: 5_000,   // release idle connections quickly (important for serverless)
+  connectionTimeoutMillis: 10_000,
 });
 
 export const db = drizzle(pool, { schema });
