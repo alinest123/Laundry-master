@@ -5,16 +5,10 @@ import { siteSettingsTable } from "@workspace/db";
 
 const router = Router();
 
-// ── In-memory cache (refreshed every 10 s) ───────────────────────────────────
-let cache: {
-  maintenanceMode: boolean; siteName: string;
-  logoUrl: string | null; logoText: string; logoSizeDesktop: string; logoSizeMobile: string;
-  expires: number;
-} | null = null;
-const TTL = 10_000;
-
+// No in-memory cache — Vercel runs each serverless invocation in its own
+// process, so a module-level cache cannot be shared or invalidated across
+// instances. Always read directly from the DB (fast with the connection pool).
 async function getStatus() {
-  if (cache && Date.now() < cache.expires) return cache;
   try {
     const rows = await db
       .select({
@@ -28,25 +22,21 @@ async function getStatus() {
       .from(siteSettingsTable)
       .where(eq(siteSettingsTable.id, 1))
       .limit(1);
-    cache = {
+    return {
       maintenanceMode: rows[0]?.maintenanceMode ?? false,
       siteName: rows[0]?.siteName ?? "Laundry Master",
       logoUrl: rows[0]?.logoUrl ?? null,
       logoText: rows[0]?.logoText ?? "Laundry Master",
       logoSizeDesktop: rows[0]?.logoSizeDesktop ?? "32",
       logoSizeMobile: rows[0]?.logoSizeMobile ?? "28",
-      expires: Date.now() + TTL,
     };
   } catch {
-    cache = { maintenanceMode: false, siteName: "Laundry Master", logoUrl: null, logoText: "Laundry Master", logoSizeDesktop: "32", logoSizeMobile: "28", expires: Date.now() + TTL };
+    return { maintenanceMode: false, siteName: "Laundry Master", logoUrl: null, logoText: "Laundry Master", logoSizeDesktop: "32", logoSizeMobile: "28" };
   }
-  return cache;
 }
 
-/** Call this after a settings save so the next request re-reads from the DB. */
-export function invalidateStatusCache() {
-  cache = null;
-}
+/** No-op — kept for import compatibility; cache was removed. */
+export function invalidateStatusCache() {}
 
 /**
  * Express middleware — place BEFORE public routes.
