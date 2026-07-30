@@ -59,30 +59,41 @@ const buildRenderer = () => {
 marked.use({ renderer: buildRenderer(), breaks: true });
 
 /**
- * When users paste raw markdown into TipTap, it strips newlines and wraps
- * everything in <p> tags, e.g. <p>## Heading *italic* Body text...</p>.
+ * When users paste raw markdown into TipTap, it collapses all newlines so
+ * the entire article ends up as one long line, with ## headings, --- rules,
+ * and - list items all embedded inline.  marked needs these at the start of
+ * a line to recognise them as block-level elements.
  *
- * Two problems arise:
- * 1. The <p> wrapper hides the ## from marked (invisible to block-level parser).
- * 2. TipTap collapses real line-breaks inside a paste into spaces, so a heading
- *    and its following paragraph end up on the same logical line:
- *    "## Heading *subtitle* Every day, people wake to..." — marked then treats
- *    ALL of that as one <h2>.
- *
- * This function handles both cases.
+ * This function handles two complementary problems:
+ * 1. insertMarkdownNewlines — adds \n\n before/after block-level markers
+ *    (##, ###, ---, and list items that follow sentence-ending punctuation)
+ *    that appear mid-line.
+ * 2. splitMergedHeadingLines — for any line that already starts with a
+ *    heading marker, splits off trailing paragraph text that TipTap merged
+ *    onto the same line.
  */
+function insertMarkdownNewlines(text: string): string {
+  let t = text;
+  // Insert double newline before ## and ### headings that appear mid-text
+  t = t.replace(/([^\n])(#{1,6} )/g, '$1\n\n$2');
+  // Insert double newline before --- horizontal rules mid-text
+  t = t.replace(/([^\n])(---)/g, '$1\n\n$2');
+  // Insert double newline after --- if followed immediately by text (no newline)
+  t = t.replace(/(---)\s*([^\n\-])/g, '$1\n\n$2');
+  // Insert newline before - list items that follow sentence-ending punctuation
+  t = t.replace(/([.!?:]) (- )/g, '$1\n\n$2');
+  // Insert newline before | table rows mid-text
+  t = t.replace(/([^\n])(\|[^\n]+\|)/g, '$1\n\n$2');
+  return t;
+}
+
 function splitMergedHeadingLines(text: string): string {
-  // For each line that starts with a markdown heading marker, look for the
-  // point where the heading ends and body text begins, then split there.
-  // Heuristics (in priority order):
-  //   1. After a closing * or ** (end of inline italic/bold in the heading).
-  //   2. After sentence-ending punctuation (. ! ?) followed by a space + uppercase.
   return text.split('\n').map(line => {
     if (!/^#{1,6}\s/.test(line)) return line;
-    // Try: ...closing-inline-marker* [space] Capital
+    // Split after closing inline italic/bold marker
     let split = line.replace(/^(#{1,6}\s.*?[*_])\s+([A-Z])/, '$1\n\n$2');
     if (split !== line) return split;
-    // Try: sentence-end punctuation followed by space + Capital
+    // Split after sentence-ending punctuation + capital
     split = line.replace(/^(#{1,6}\s.*?[.!?])\s+([A-Z])/, '$1\n\n$2');
     return split;
   }).join('\n');
@@ -109,12 +120,17 @@ function renderMarkdown(content: string): string {
         .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
         .trim();
-      // Split heading lines that had their following paragraph merged in
+      // Re-insert newlines before block-level markers collapsed by TipTap,
+      // then split any heading lines that still have merged paragraph text.
+      text = insertMarkdownNewlines(text);
       text = splitMergedHeadingLines(text);
       return marked.parse(text) as string;
     }
-    // Raw markdown (legacy articles or direct API creation)
-    return marked.parse(splitMergedHeadingLines(trimmed)) as string;
+    // Raw markdown — may still be one long line if TipTap collapsed newlines
+    // before the content was stripped of its <p> wrapper.
+    let processed = insertMarkdownNewlines(trimmed);
+    processed = splitMergedHeadingLines(processed);
+    return marked.parse(processed) as string;
   } catch {
     return content;
   }
