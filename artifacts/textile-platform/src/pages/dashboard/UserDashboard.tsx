@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { uploadFile, deleteStorageFile } from "@/lib/uploadFile";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -40,18 +41,11 @@ const TOPICS = [
 
 // ── Avatar upload helper ───────────────────────────────────────────────────────
 
-async function uploadAvatar(file: File): Promise<string> {
-  // 1. Request presigned URL
-  const { uploadURL, servingUrl } = await apiPost<{ uploadURL: string; objectPath: string; servingUrl: string }>(
-    "/api/storage/uploads/request-url",
-    { name: file.name, size: file.size, contentType: file.type },
-  );
-  // 2. Upload directly to Supabase Storage
-  await fetch(uploadURL, {
-    method: "PUT",
-    headers: { "Content-Type": file.type },
-    body: file,
-  });
+async function uploadAvatar(
+  file: File,
+  onProgress?: (pct: number) => void,
+): Promise<string> {
+  const { servingUrl } = await uploadFile(file, "author", onProgress);
   return servingUrl;
 }
 
@@ -68,19 +62,22 @@ function ProfileTab({ user, onRefresh }: { user: any; onRefresh: () => void }) {
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
+    setUploading(true); setUploadProgress(0);
+    // Best-effort: delete the old avatar
+    if (form.avatarUrl) deleteStorageFile(form.avatarUrl);
     try {
-      const url = await uploadAvatar(file);
+      const url = await uploadAvatar(file, setUploadProgress);
       setForm(f => ({ ...f, avatarUrl: url }));
       toast({ title: "Avatar uploaded — save to apply" });
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
-      setUploading(false);
+      setUploading(false); setUploadProgress(0);
     }
   };
 

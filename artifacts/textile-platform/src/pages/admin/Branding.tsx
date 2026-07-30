@@ -5,6 +5,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { useInvalidateSiteImages } from "@/lib/useSiteImages";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiPut } from "@/lib/api";
+import { uploadFile, deleteStorageFile, type UploadPurpose } from "@/lib/uploadFile";
 import { Check, Upload, X, Image as ImageIcon, Palette, AlertCircle, RefreshCw } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -27,11 +28,13 @@ function cls(...args: (string | false | undefined | null)[]) {
 // ── Image upload component ────────────────────────────────────────────────────
 
 function ImageField({
-  label, description, value, onChange, aspectHint,
+  label, description, value, onChange, aspectHint, purpose = "branding",
 }: {
-  label: string; description?: string; value: string; onChange: (url: string) => void; aspectHint?: string;
+  label: string; description?: string; value: string; onChange: (url: string) => void;
+  aspectHint?: string; purpose?: UploadPurpose;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const [urlMode, setUrlMode] = useState(false);
   const [urlInput, setUrlInput] = useState(value);
@@ -42,21 +45,18 @@ function ImageField({
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith("image/")) { setError("Please select an image file."); return; }
     if (file.size > 10 * 1024 * 1024) { setError("File must be under 10 MB."); return; }
-    setError(""); setUploading(true);
+    setError(""); setUploading(true); setProgress(0);
+    // Best-effort: delete the old file before uploading the new one
+    if (value) deleteStorageFile(value);
     try {
-      const { uploadURL, servingUrl } = await apiPost<{ uploadURL: string; objectPath: string; servingUrl: string }>(
-        "/api/storage/uploads/request-url",
-        { name: file.name, size: file.size, contentType: file.type }
-      );
-      const resp = await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-      if (!resp.ok) throw new Error("Upload failed");
+      const { servingUrl } = await uploadFile(file, purpose, setProgress);
       onChange(servingUrl);
     } catch (e: any) {
       setError(e.message || "Upload failed");
     } finally {
-      setUploading(false);
+      setUploading(false); setProgress(0);
     }
-  }, [onChange]);
+  }, [onChange, value, purpose]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -126,19 +126,41 @@ function ImageField({
                   {aspectHint}
                 </div>
               )}
+              {/* Progress overlay when replacing */}
+              {uploading && (
+                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
+                  <p className="text-white text-xs font-medium">Uploading… {progress}%</p>
+                  <div className="w-2/3 bg-white/30 rounded-full h-1.5">
+                    <div className="bg-white rounded-full h-1.5 transition-all duration-200"
+                      style={{ width: `${Math.max(2, progress)}%` }} />
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <button type="button" onClick={() => fileRef.current?.click()}
               disabled={uploading}
               className="w-full flex flex-col items-center justify-center gap-2 py-8 text-stone-400 hover:text-stone-600 transition-colors disabled:opacity-50">
               {uploading
-                ? <RefreshCw className="w-6 h-6 animate-spin" />
-                : <ImageIcon className="w-6 h-6" />
+                ? (
+                  <div className="flex flex-col items-center gap-2 w-full px-8">
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    <span className="text-xs font-medium text-[#4a7c59]">Uploading… {progress}%</span>
+                    <div className="w-full bg-stone-200 rounded-full h-1.5">
+                      <div className="bg-[#4a7c59] rounded-full h-1.5 transition-all duration-200"
+                        style={{ width: `${Math.max(2, progress)}%` }} />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <ImageIcon className="w-6 h-6" />
+                    <span className="text-xs font-medium">
+                      Click to upload or drag & drop
+                    </span>
+                    {aspectHint && <span className="text-[10px] text-stone-300">{aspectHint}</span>}
+                  </>
+                )
               }
-              <span className="text-xs font-medium">
-                {uploading ? "Uploading…" : "Click to upload or drag & drop"}
-              </span>
-              {aspectHint && <span className="text-[10px] text-stone-300">{aspectHint}</span>}
             </button>
           )}
         </div>
@@ -213,6 +235,7 @@ function LogoTab() {
           value={form.logoUrl || ""}
           onChange={url => set("logoUrl", url)}
           aspectHint="Recommended: transparent PNG, any aspect ratio"
+          purpose="branding"
         />
         {form.logoUrl && (
           <div className="rounded-lg border border-[#e8e8e4] bg-[#fafaf9] p-4">
@@ -287,7 +310,7 @@ function LogoTab() {
                     <div className="bg-[#1c1c1c] rounded-sm flex items-center justify-center"
                       style={{ width: Math.round(desktopH * 0.875), height: Math.round(desktopH * 0.875) }}>
                       <svg width={Math.round(desktopH * 0.4375)} height={Math.round(desktopH * 0.4375)} viewBox="0 0 14 14" fill="none">
-                        <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
+                        <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H8z" fill="white" opacity="0.9"/>
                       </svg>
                     </div>
                     <span className="font-extrabold tracking-tight text-[#1c1c1c]"
@@ -309,7 +332,7 @@ function LogoTab() {
                     <div className="bg-[#1c1c1c] rounded-sm flex items-center justify-center"
                       style={{ width: Math.round(mobileH * 0.875), height: Math.round(mobileH * 0.875) }}>
                       <svg width={Math.round(mobileH * 0.4375)} height={Math.round(mobileH * 0.4375)} viewBox="0 0 14 14" fill="none">
-                        <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H8z" fill="white" opacity="0.9"/>
+                        <path d="M2 2h4v4H2zM8 2h4v4H8z" fill="white" opacity="0.9"/>
                       </svg>
                     </div>
                     <span className="font-extrabold tracking-tight text-[#1c1c1c]"
@@ -424,6 +447,7 @@ function ImagesTab() {
                   value={img.url}
                   onChange={url => handleChange(img, url)}
                   aspectHint={ASPECT_HINTS[section] || undefined}
+                  purpose="pages"
                 />
 
                 {errors[img.key] && (

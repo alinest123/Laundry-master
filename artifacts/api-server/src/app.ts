@@ -13,6 +13,12 @@ import { logger } from "./lib/logger";
 const app: Express = express();
 const isProd = process.env.NODE_ENV === "production";
 
+// ── Trust Vercel / reverse-proxy headers ──────────────────────────────────────
+// Required so Express sees the real client IP (for rate limiting) and the
+// connection as HTTPS (for secure session cookies) when running behind
+// Vercel's load balancer or any other reverse proxy.
+app.set("trust proxy", 1);
+
 // ── Remove fingerprint ────────────────────────────────────────────────────────
 app.disable("x-powered-by");
 

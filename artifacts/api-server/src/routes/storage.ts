@@ -7,6 +7,7 @@ import {
   StorageNotConfiguredError,
   UploadValidationError,
   validateUpload,
+  folderForPurpose,
 } from "../lib/objectStorage";
 import { requireAuth } from "../middleware/requireAuth";
 
@@ -17,6 +18,12 @@ const UploadRequestBody = z.object({
   name: z.string().min(1),
   size: z.number().positive(),
   contentType: z.string().min(1),
+  /** Optional: controls which folder the file is placed in. */
+  purpose: z.string().optional(),
+});
+
+const DeleteRequestBody = z.object({
+  servingUrl: z.string().url(),
 });
 
 /**
@@ -32,7 +39,7 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
     return;
   }
 
-  const { name, size, contentType } = parsed.data;
+  const { name, size, contentType, purpose } = parsed.data;
 
   try {
     validateUpload(contentType, size);
@@ -44,9 +51,11 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
     throw err;
   }
 
+  const folder = folderForPurpose(purpose);
+
   try {
     const { uploadURL, objectPath, servingUrl } =
-      await objectStorageService.getObjectEntityUploadURL(contentType);
+      await objectStorageService.getObjectEntityUploadURL(contentType, folder);
 
     res.json({ uploadURL, objectPath, servingUrl, metadata: { name, size, contentType } });
   } catch (err) {
@@ -56,6 +65,28 @@ router.post("/storage/uploads/request-url", requireAuth, async (req: Request, re
     }
     req.log?.error?.({ err }, "Error generating upload URL");
     res.status(500).json({ error: "Failed to generate upload URL" });
+  }
+});
+
+/**
+ * DELETE /storage/delete
+ * Admin-only: delete a previously-uploaded file from Supabase Storage.
+ * Body: { servingUrl: string }
+ * Used when an editor replaces or removes an uploaded image/PDF.
+ */
+router.delete("/storage/delete", requireAuth, async (req: Request, res: Response) => {
+  const parsed = DeleteRequestBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "servingUrl is required and must be a valid URL" });
+    return;
+  }
+
+  try {
+    await objectStorageService.deleteObject(parsed.data.servingUrl);
+    res.json({ ok: true });
+  } catch (err) {
+    req.log?.error?.({ err }, "Error deleting storage object");
+    res.status(500).json({ error: "Failed to delete object" });
   }
 });
 

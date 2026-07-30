@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { uploadFile } from "@/lib/uploadFile";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
@@ -142,6 +143,7 @@ function ImageModal({ onConfirm, onClose }: {
   const [preview, setPreview] = useState<string>("");
   const [uploadAlt, setUploadAlt] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -170,36 +172,15 @@ function ImageModal({ onConfirm, onClose }: {
 
   const submitUpload = async () => {
     if (!file) return;
-    setUploading(true);
+    setUploading(true); setUploadProgress(0);
     setUploadError("");
     try {
-      // Step 1 — request presigned URL
-      const metaRes = await fetch(`${API_ORIGIN}/api/storage/uploads/request-url`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
-      });
-      if (!metaRes.ok) {
-        const e = await metaRes.json().catch(() => ({}));
-        throw new Error((e as any).error || `HTTP ${metaRes.status}`);
-      }
-      const { uploadURL, servingUrl: fileServingUrl } = await metaRes.json();
-
-      // Step 2 — upload file directly to Supabase Storage
-      const putRes = await fetch(uploadURL, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!putRes.ok) throw new Error("Upload to storage failed.");
-
-      // Step 3 — use the permanent public URL returned by the API
-      onConfirm(fileServingUrl, uploadAlt || file.name.replace(/\.[^.]+$/, ""));
+      const { servingUrl } = await uploadFile(file, "article-gallery", setUploadProgress, API_ORIGIN);
+      onConfirm(servingUrl, uploadAlt || file.name.replace(/\.[^.]+$/, ""));
     } catch (err: any) {
       setUploadError(err.message || "Upload failed. Please try again.");
     } finally {
-      setUploading(false);
+      setUploading(false); setUploadProgress(0);
     }
   };
 
@@ -297,6 +278,19 @@ function ImageModal({ onConfirm, onClose }: {
 
               {uploadError && (
                 <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{uploadError}</p>
+              )}
+
+              {uploading && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-[#4a7c59]">Uploading…</span>
+                    <span className="text-xs text-stone-400">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-stone-100 rounded-full h-1.5">
+                    <div className="bg-[#4a7c59] rounded-full h-1.5 transition-all duration-200"
+                      style={{ width: `${Math.max(2, uploadProgress)}%` }} />
+                  </div>
+                </div>
               )}
 
               <div className="flex gap-2 pt-1">

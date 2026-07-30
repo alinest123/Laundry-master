@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "strict": false,
-    "noEmit": false,
-    "noEmitOnError": false,
-    "types": ["node"]
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@workspace/db": ["../lib/db/src/index.ts"],
+      "@workspace/db/*": ["../lib/db/src/*"]
+    }
   },
-  "include": ["index.ts"]
+  "include": ["index.ts", "../artifacts/api-server/src/**/*"]
 }

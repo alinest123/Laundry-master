@@ -4,13 +4,13 @@ import { logger } from './logger';
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 
-interface R2Config {
+interface StorageConfig {
   url: string;
   serviceRoleKey: string;
   bucket: string;
 }
 
-function getConfig(): R2Config | null {
+function getConfig(): StorageConfig | null {
   const url = process.env.SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   const bucket = (process.env.SUPABASE_STORAGE_BUCKET?.trim()) || 'media';
@@ -20,13 +20,30 @@ function getConfig(): R2Config | null {
 
 let _client: SupabaseClient | null = null;
 
-function getClient(cfg: R2Config): SupabaseClient {
+function getClient(cfg: StorageConfig): SupabaseClient {
   if (!_client) {
     _client = createClient(cfg.url, cfg.serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
   }
   return _client;
+}
+
+// ── Folder mapping ─────────────────────────────────────────────────────────────
+
+const FOLDER_MAP: Record<string, string> = {
+  'branding':         'branding',
+  'author':           'authors',
+  'article-featured': 'articles/featured',
+  'article-gallery':  'articles/gallery',
+  'article-pdf':      'articles/pdfs',
+  'pages':            'pages',
+  'testimonials':     'testimonials',
+};
+
+export function folderForPurpose(purpose?: string): string {
+  if (!purpose) return 'uploads';
+  return FOLDER_MAP[purpose] ?? 'uploads';
 }
 
 // ── Validation ─────────────────────────────────────────────────────────────────
@@ -97,12 +114,10 @@ function extensionFromContentType(ct: string): string {
 export class ObjectStorageService {
   /**
    * Generate a Supabase signed upload URL.
-   * Returns:
-   *   uploadURL  – the signed URL the client should PUT the file to
-   *   objectPath – the storage key (e.g. "uploads/{uuid}.jpg")
-   *   servingUrl – the permanent public URL to store and display
+   * @param contentType  MIME type of the file
+   * @param folder       Storage folder (e.g. "articles/pdfs", "branding", "authors")
    */
-  async getObjectEntityUploadURL(contentType?: string): Promise<{
+  async getObjectEntityUploadURL(contentType?: string, folder = 'uploads'): Promise<{
     uploadURL: string;
     objectPath: string;
     servingUrl: string;
@@ -111,7 +126,7 @@ export class ObjectStorageService {
     if (!cfg) throw new StorageNotConfiguredError();
 
     const ext = contentType ? extensionFromContentType(contentType) : '';
-    const objectPath = `uploads/${randomUUID()}${ext}`;
+    const objectPath = `${folder}/${randomUUID()}${ext}`;
 
     const supabase = getClient(cfg);
     const { data, error } = await supabase.storage
@@ -123,11 +138,36 @@ export class ObjectStorageService {
       throw new Error(`Failed to create upload URL: ${error?.message ?? 'unknown error'}`);
     }
 
-    // signedUrl from Supabase is a full URL
     const uploadURL = data.signedUrl;
     const servingUrl = `${cfg.url}/storage/v1/object/public/${cfg.bucket}/${objectPath}`;
 
     return { uploadURL, objectPath, servingUrl };
+  }
+
+  /**
+   * Delete an object from Supabase Storage by its public serving URL.
+   * Best-effort — logs a warning on failure but does not throw.
+   */
+  async deleteObject(servingUrl: string): Promise<void> {
+    const cfg = getConfig();
+    if (!cfg) return;
+
+    const prefix = `${cfg.url}/storage/v1/object/public/${cfg.bucket}/`;
+    if (!servingUrl.startsWith(prefix)) {
+      logger.warn({ servingUrl }, 'deleteObject: URL does not belong to configured bucket — skipping');
+      return;
+    }
+
+    const key = servingUrl.slice(prefix.length);
+    if (!key) return;
+
+    const supabase = getClient(cfg);
+    const { error } = await supabase.storage.from(cfg.bucket).remove([key]);
+    if (error) {
+      logger.warn({ err: error, key }, 'Failed to delete storage object');
+    } else {
+      logger.info({ key }, 'Storage object deleted');
+    }
   }
 
   /**

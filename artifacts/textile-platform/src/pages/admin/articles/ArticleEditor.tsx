@@ -8,6 +8,7 @@ import {
 import { AdminLayout } from "../AdminLayout";
 import { adminApi, generateSlug } from "@/lib/adminApi";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { uploadFile, deleteStorageFile } from "@/lib/uploadFile";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type ArticleImage = { url: string; caption: string; altText: string; sortOrder: number };
@@ -544,33 +545,26 @@ export function ArticleEditor() {
 
   // ── PDF upload ────────────────────────────────────────────────────────────
   const [pdfUploading, setPdfUploading] = useState(false);
+  const [pdfUploadProgress, setPdfUploadProgress] = useState(0);
   const [pdfUploadError, setPdfUploadError] = useState("");
   const pdfFileRef = useRef<HTMLInputElement>(null);
 
   const handlePdfUpload = useCallback(async (file: File) => {
     if (file.type !== "application/pdf") { setPdfUploadError("Only PDF files are allowed."); return; }
     if (file.size > 50 * 1024 * 1024) { setPdfUploadError("PDF must be under 50 MB."); return; }
-    setPdfUploadError(""); setPdfUploading(true);
+    setPdfUploadError(""); setPdfUploading(true); setPdfUploadProgress(0);
+    // Best-effort: delete the old PDF before uploading the replacement
+    if (form.pdfUrl) deleteStorageFile(form.pdfUrl);
     try {
-      const metaRes = await fetch("/api/storage/uploads/request-url", {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
-      });
-      if (!metaRes.ok) {
-        const e = await metaRes.json().catch(() => ({}));
-        throw new Error((e as any).error || `HTTP ${metaRes.status}`);
-      }
-      const { uploadURL, servingUrl } = await metaRes.json();
-      const putRes = await fetch(uploadURL, { method: "PUT", headers: { "Content-Type": "application/pdf" }, body: file });
-      if (!putRes.ok) throw new Error("Upload to storage failed.");
+      const { servingUrl } = await uploadFile(file, "article-pdf", setPdfUploadProgress);
+      // Auto-populate title from filename if not already set
       up({ pdfUrl: servingUrl, pdfTitle: file.name.replace(/\.pdf$/i, "") });
     } catch (e: any) {
       setPdfUploadError(e.message || "Upload failed");
     } finally {
-      setPdfUploading(false);
+      setPdfUploading(false); setPdfUploadProgress(0);
     }
-  }, [up]);
+  }, [up, form.pdfUrl]);
 
   // ── Image helpers ─────────────────────────────────────────────────────────
   const addImage = () => up({ images: [...form.images, { url: "", caption: "", altText: "", sortOrder: form.images.length }] });
@@ -1177,8 +1171,12 @@ export function ArticleEditor() {
                           <span className="text-xs text-stone-700 truncate">{form.pdfTitle || "PDF Attachment"}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <button onClick={() => pdfFileRef.current?.click()} className="text-xs text-[#4a7c59] hover:underline">Replace</button>
-                          <button onClick={() => up({ pdfUrl: "", pdfTitle: "" })} className="text-stone-300 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => pdfFileRef.current?.click()} disabled={pdfUploading}
+                            className="text-xs text-[#4a7c59] hover:underline disabled:opacity-50">Replace</button>
+                          <button onClick={() => { deleteStorageFile(form.pdfUrl); up({ pdfUrl: "", pdfTitle: "" }); }}
+                            disabled={pdfUploading} className="text-stone-300 hover:text-red-500 disabled:opacity-50">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                       <input className="w-full px-2.5 py-1.5 border border-stone-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#4a7c59]/30"
@@ -1186,12 +1184,33 @@ export function ArticleEditor() {
                         onChange={e => up({ pdfTitle: e.target.value })} />
                       <a href={form.pdfUrl} target="_blank" rel="noopener noreferrer"
                         className="text-xs text-[#4a7c59] hover:underline">Preview PDF ↗</a>
+                      {pdfUploading && (
+                        <div className="pt-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[11px] text-[#4a7c59]">Uploading…</span>
+                            <span className="text-[11px] text-stone-400">{pdfUploadProgress}%</span>
+                          </div>
+                          <div className="w-full bg-stone-100 rounded-full h-1.5">
+                            <div className="bg-[#4a7c59] rounded-full h-1.5 transition-all duration-200"
+                              style={{ width: `${Math.max(2, pdfUploadProgress)}%` }} />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="border border-dashed border-stone-200 rounded-lg p-4 text-center">
                       <FileText className="w-6 h-6 text-stone-300 mx-auto mb-1" />
                       {pdfUploading ? (
-                        <p className="text-xs text-[#4a7c59] animate-pulse">Uploading…</p>
+                        <div className="space-y-1.5 px-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-[#4a7c59]">Uploading PDF…</span>
+                            <span className="text-xs text-stone-400">{pdfUploadProgress}%</span>
+                          </div>
+                          <div className="w-full bg-stone-100 rounded-full h-1.5">
+                            <div className="bg-[#4a7c59] rounded-full h-1.5 transition-all duration-200"
+                              style={{ width: `${Math.max(2, pdfUploadProgress)}%` }} />
+                          </div>
+                        </div>
                       ) : (
                         <>
                           <p className="text-xs text-stone-400 mb-2">No PDF attached</p>

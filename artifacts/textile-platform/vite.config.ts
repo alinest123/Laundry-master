@@ -88,6 +88,17 @@ export default defineConfig(async ({ command }) => {
       fs: {
         strict: true,
       },
+      // Forward /api/* to the API server in development.
+      // This removes the need for VITE_API_URL on Replit.
+      // On Vercel, the same routing is handled by the rewrites in vercel.json.
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8080',
+          changeOrigin: false,
+          // Preserve the full /api/... path — the Express app mounts at /api
+          rewrite: (path) => path,
+        },
+      },
     },
     preview: {
       port,
