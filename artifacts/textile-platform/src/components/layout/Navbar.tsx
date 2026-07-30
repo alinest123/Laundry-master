@@ -202,50 +202,56 @@ export function Navbar() {
   const logoText = siteStatus !== undefined
     ? (siteStatus.logoText ?? "")
     : "Laundry Master";
-  const desktopH = Number(siteStatus?.logoSizeDesktop || 32);
-  const mobileH = Number(siteStatus?.logoSizeMobile || 28);
+  // Larger defaults so the logo is the clear focal point of the header.
+  const desktopH = Number(siteStatus?.logoSizeDesktop || 44);
+  const mobileH  = Number(siteStatus?.logoSizeMobile  || 36);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#f0f0f0]">
       <TopBanner />
       <div className="max-w-[1280px] mx-auto px-6 h-[64px] flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 transition-opacity hover:opacity-80">
           {logoUrl ? (
             <>
-              {/* Custom image logo */}
+              {/* Custom image logo — height driven by admin setting */}
               <img
                 src={logoUrl}
-                alt={logoText}
+                alt={logoText || "Logo"}
                 className="hidden md:block object-contain"
-                style={{ height: desktopH, width: "auto", maxWidth: 200 }}
+                style={{ height: desktopH, width: "auto", maxWidth: 260 }}
               />
               <img
                 src={logoUrl}
-                alt={logoText}
+                alt={logoText || "Logo"}
                 className="md:hidden object-contain"
-                style={{ height: mobileH, width: "auto", maxWidth: 160 }}
+                style={{ height: mobileH, width: "auto", maxWidth: 200 }}
               />
             </>
           ) : (
             <>
-              {/* Default SVG icon + text */}
+              {/* Default icon + optional brand text */}
               <div
-                className="bg-[#1c1c1c] rounded-sm flex items-center justify-center shrink-0"
-                style={{ width: Math.round(desktopH * 0.875), height: Math.round(desktopH * 0.875) }}
+                className="bg-[#1c1c1c] rounded-md flex items-center justify-center shrink-0"
+                style={{ width: Math.round(desktopH * 0.818), height: Math.round(desktopH * 0.818) }}
               >
                 <svg
-                  width={Math.round(desktopH * 0.4375)}
-                  height={Math.round(desktopH * 0.4375)}
-                  viewBox="0 0 14 14" fill="none"
+                  width={Math.round(desktopH * 0.409)}
+                  height={Math.round(desktopH * 0.409)}
+                  viewBox="0 0 16 16" fill="none"
                 >
-                  <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
+                  {/* Microscope-style icon matching the brand */}
+                  <rect x="6" y="1" width="4" height="7" rx="1" fill="white" opacity="0.95"/>
+                  <rect x="4" y="7" width="8" height="2" rx="1" fill="white" opacity="0.75"/>
+                  <rect x="7" y="9" width="2" height="3" fill="white" opacity="0.75"/>
+                  <rect x="3" y="12" width="10" height="2" rx="1" fill="white" opacity="0.6"/>
+                  <circle cx="8" cy="4" r="1.5" fill="#1c1c1c" opacity="0.4"/>
                 </svg>
               </div>
               {logoText && (
                 <span
-                  className="font-extrabold tracking-tight text-[#1c1c1c]"
-                  style={{ fontSize: Math.max(14, Math.round(desktopH * 0.525)) }}
+                  className="font-extrabold tracking-tight text-[#1c1c1c] leading-none"
+                  style={{ fontSize: Math.max(15, Math.round(desktopH * 0.5)) }}
                 >
                   {logoText}
                 </span>
