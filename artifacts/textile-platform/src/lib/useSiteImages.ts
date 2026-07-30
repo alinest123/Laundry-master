@@ -10,7 +10,7 @@ export function useSiteImages(): SiteImageMap {
   const { data } = useQuery<SiteImageMap>({
     queryKey: QUERY_KEY,
     queryFn: () => apiGet<SiteImageMap>("/api/site-images"),
-    staleTime: 60_000,
+    staleTime: 0, // always re-fetch so uploaded images appear instantly
   });
   return data ?? {};
 }

@@ -10,7 +10,7 @@ export function usePageContent(page: string) {
   const { data } = useQuery<Record<string, string>>({
     queryKey: ["page-content", page],
     queryFn: () => apiGet<Record<string, string>>(`/api/page-content/${page}`),
-    staleTime: 60_000,
+    staleTime: 0, // always re-fetch so admin edits appear instantly
   });
 
   function c(key: string, fallback: string): string {

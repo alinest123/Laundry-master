@@ -14,7 +14,6 @@ export function useSiteStatus() {
   return useQuery<SiteStatus>({
     queryKey: ["site-status"],
     queryFn: () => apiGet<SiteStatus>("/api/site-status"),
-    staleTime: 10_000,
-    refetchInterval: 15_000,
+    staleTime: 0, // always re-fetch so admin changes appear instantly
   });
 }

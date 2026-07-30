@@ -211,6 +211,16 @@ function LogoTab() {
     setSaving(true);
     try {
       await adminApi.settings.update(form);
+      // Immediately push new values into the shared cache so the public
+      // site reflects the change with zero delay — no stale-data flash.
+      qc.setQueryData(["site-status"], (old: any) => ({
+        ...old,
+        siteName:        form.siteName        ?? old?.siteName,
+        logoUrl:         form.logoUrl         ? form.logoUrl : (form.logoUrl === "" ? null : old?.logoUrl),
+        logoText:        form.logoText        ?? old?.logoText        ?? "",
+        logoSizeDesktop: form.logoSizeDesktop ?? old?.logoSizeDesktop ?? "44",
+        logoSizeMobile:  form.logoSizeMobile  ?? old?.logoSizeMobile  ?? "36",
+      }));
       qc.invalidateQueries({ queryKey: ["site-status"] });
       setSaved(true); setTimeout(() => setSaved(false), 2500);
     } catch (e: any) { alert(e.message); }

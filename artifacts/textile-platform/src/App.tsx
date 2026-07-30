@@ -85,8 +85,8 @@ function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const { data } = useQuery<{ maintenanceMode: boolean; siteName: string }>({
     queryKey: ["site-status"],
     queryFn: () => apiGet("/api/site-status"),
-    staleTime: 10_000,
-    refetchInterval: 15_000, // re-check every 15 s so turning it off/on reflects quickly
+    staleTime: 0,
+    refetchInterval: 15_000, // re-check every 15 s so maintenance toggle reflects quickly
   });
 
   const [location] = useLocation();

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link as LinkIcon, GripVertical, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "./AdminLayout";
 import { useToast } from "@/hooks/use-toast";
 import { adminApi } from "@/lib/adminApi";
@@ -197,6 +198,7 @@ const PAGE_KEYS = Object.keys(PAGE_CONFIGS);
 
 function HomeSectionsEditor({ onSaved }: { onSaved?: () => void }) {
   const { toast } = useToast();
+  const qc = useQueryClient();
   const [sections, setSections] = useState<HomeSectionConfig[]>(HOME_DEFAULT_SECTIONS);
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -236,9 +238,13 @@ function HomeSectionsEditor({ onSaved }: { onSaved?: () => void }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await adminApi.pageContent.update("home", {
-        sections_layout: JSON.stringify(sections),
-      });
+      const layout = JSON.stringify(sections);
+      await adminApi.pageContent.update("home", { sections_layout: layout });
+      // Push into public cache immediately — no stale flash.
+      qc.setQueryData(["page-content", "home"], (old: any) => ({
+        ...(old ?? {}),
+        sections_layout: layout,
+      }));
       toast({ title: "Saved", description: "Homepage section order and visibility updated." });
       onSaved?.();
     } catch {
@@ -336,6 +342,7 @@ export function PageContent() {
   const [loadedPages, setLoadedPages] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
+  const qc = useQueryClient();
 
   // Load content for the active tab (lazy, once per page)
   useEffect(() => {
@@ -366,6 +373,11 @@ export function PageContent() {
         payload[f.key] = fieldValues[page]?.[f.key] ?? "";
       }
       await adminApi.pageContent.update(page, payload);
+      // Immediately push new values into the public cache — no stale flash.
+      qc.setQueryData(["page-content", page], (old: any) => ({
+        ...(old ?? {}),
+        ...payload,
+      }));
       toast({ title: "Saved", description: `${PAGE_CONFIGS[page].label} — ${section.title} updated.` });
     } catch {
       toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
