@@ -10,8 +10,41 @@ interface StorageConfig {
   bucket: string;
 }
 
+/**
+ * Extract the Supabase project base URL from a database connection string.
+ * Works for both the direct connection (db.REF.supabase.co) and the
+ * PgBouncer pooler (postgres.REF@*.pooler.supabase.com).
+ */
+function deriveSupabaseUrl(dbUrl: string): string | null {
+  try {
+    const noProto = dbUrl.replace(/^postgres(?:ql)?:\/\//, '');
+    const lastAt = noProto.lastIndexOf('@');
+    const creds   = noProto.substring(0, lastAt);
+    const hostPart = noProto.substring(lastAt + 1);
+    const host     = hostPart.split('/')[0].split(':')[0];
+
+    // Direct connection: db.PROJECTREF.supabase.co
+    const direct = host.match(/^db\.([^.]+)\.supabase\.co$/);
+    if (direct) return `https://${direct[1]}.supabase.co`;
+
+    // Pooler: username is postgres.PROJECTREF
+    const user = creds.split(':')[0];
+    const pooler = user.match(/^postgres\.(.+)$/);
+    if (pooler) return `https://${pooler[1]}.supabase.co`;
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function getConfig(): StorageConfig | null {
-  const url = process.env.SUPABASE_URL?.trim();
+  let url = process.env.SUPABASE_URL?.trim();
+  // Fallback: derive the project URL from the database connection string
+  // so SUPABASE_URL doesn't need to be set as a separate env var.
+  if (!url && process.env.SUPABASE_DATABASE_URL) {
+    url = deriveSupabaseUrl(process.env.SUPABASE_DATABASE_URL) ?? undefined;
+  }
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   const bucket = (process.env.SUPABASE_STORAGE_BUCKET?.trim()) || 'media';
   if (!url || !serviceRoleKey) return null;

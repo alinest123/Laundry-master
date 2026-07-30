@@ -197,7 +197,11 @@ export function Navbar() {
   const { data: siteStatus } = useSiteStatus();
 
   const logoUrl = siteStatus?.logoUrl;
-  const logoText = siteStatus?.logoText || "Laundry Master";
+  // While siteStatus is loading show a fallback; once loaded respect an
+  // explicitly empty brand name (the user chose to hide the text label).
+  const logoText = siteStatus !== undefined
+    ? (siteStatus.logoText ?? "")
+    : "Laundry Master";
   const desktopH = Number(siteStatus?.logoSizeDesktop || 32);
   const mobileH = Number(siteStatus?.logoSizeMobile || 28);
 
@@ -238,12 +242,14 @@ export function Navbar() {
                   <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8h4v4H8z" fill="white" opacity="0.9"/>
                 </svg>
               </div>
-              <span
-                className="font-extrabold tracking-tight text-[#1c1c1c]"
-                style={{ fontSize: Math.max(14, Math.round(desktopH * 0.525)) }}
-              >
-                {logoText}
-              </span>
+              {logoText && (
+                <span
+                  className="font-extrabold tracking-tight text-[#1c1c1c]"
+                  style={{ fontSize: Math.max(14, Math.round(desktopH * 0.525)) }}
+                >
+                  {logoText}
+                </span>
+              )}
             </>
           )}
         </Link>
