@@ -1013,12 +1013,18 @@ export function ArticleDetail() {
               <div className="flex items-center gap-3">
                 {article.author?.avatar ? (
                   <img src={article.author.avatar} alt={article.author.name}
-                    className="w-10 h-10 rounded-full grayscale object-cover ring-2 ring-[#eaeaea]" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#1a2e1a]/10 flex items-center justify-center">
-                    <User className="w-5 h-5 text-[#1a2e1a]/40" />
-                  </div>
-                )}
+                    className="w-10 h-10 rounded-full grayscale object-cover ring-2 ring-[#eaeaea]"
+                    onError={e => {
+                      const el = e.currentTarget;
+                      el.style.display = "none";
+                      const fb = el.nextElementSibling as HTMLElement | null;
+                      if (fb) fb.style.display = "flex";
+                    }} />
+                ) : null}
+                <div className="w-10 h-10 rounded-full bg-[#1a2e1a]/10 items-center justify-center"
+                  style={{ display: article.author?.avatar ? "none" : "flex" }}>
+                  <User className="w-5 h-5 text-[#1a2e1a]/40" />
+                </div>
                 <div>
                   <p className="font-semibold text-sm text-[#1a1a1a]">{article.author?.name}</p>
                   <p className="text-xs text-[#888]">{article.author?.role}</p>
