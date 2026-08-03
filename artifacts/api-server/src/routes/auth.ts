@@ -54,7 +54,8 @@ router.post("/auth/register", async (req, res): Promise<void> => {
       verificationTokenExpiry: expiry,
     });
 
-    await sendVerificationEmail(email.toLowerCase().trim(), token).catch(err =>
+    // Fire-and-forget — never block registration on SMTP latency
+    sendVerificationEmail(email.toLowerCase().trim(), token).catch(err =>
       console.error("[register] email send failed:", err),
     );
 
@@ -118,7 +119,8 @@ router.post("/auth/forgot-password", async (req, res): Promise<void> => {
       .set({ passwordResetToken: token, resetTokenExpiry: expiry })
       .where(eq(usersTable.id, rows[0].id));
 
-    await sendPasswordResetEmail(rows[0].email, token).catch(err =>
+    // Fire-and-forget — response already sent above
+    sendPasswordResetEmail(rows[0].email, token).catch(err =>
       console.error("[forgot-password] email send failed:", err),
     );
   } catch (err) {

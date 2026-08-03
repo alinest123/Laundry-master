@@ -32,6 +32,9 @@ function buildTransporter(): Transporter {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10_000,  // 10 s — fail fast if SMTP is unreachable
+    greetingTimeout:   10_000,
+    socketTimeout:     15_000,
   });
 }
 
@@ -43,15 +46,24 @@ export function getTransactionalTransporter(): Transporter {
   return _transporter;
 }
 
+/** Log the email to console when SMTP is unavailable (dev / blocked-network) */
+function devLog(options: nodemailer.SendMailOptions): void {
+  const text = typeof options.text === "string" ? options.text : "(html-only email)";
+  logger.warn(
+    {
+      to: options.to,
+      subject: options.subject,
+    },
+    `[transactional:DEV] SMTP unavailable — email NOT sent. Content follows:\n${"─".repeat(60)}\n${text}\n${"─".repeat(60)}`,
+  );
+}
+
 /** Named export matching the spec */
 export const transactionalTransporter = {
-  /** Send mail with one automatic retry on failure */
+  /** Send mail — retries once on failure; falls back to console log in dev */
   async sendMail(options: nodemailer.SendMailOptions): Promise<void> {
     if (!isConfigured()) {
-      logger.warn(
-        { to: options.to, subject: options.subject },
-        "[transactional] SMTP not configured — email suppressed (dev mode)",
-      );
+      devLog(options);
       return;
     }
     const attempt = async () => getTransactionalTransporter().sendMail(options);
@@ -61,11 +73,16 @@ export const transactionalTransporter = {
     } catch (err) {
       logger.warn({ err }, "[transactional] first attempt failed, retrying once");
       try {
-        // Force a fresh transporter on retry
         _transporter = buildTransporter();
         await attempt();
         logger.info({ to: options.to, subject: options.subject }, "[transactional] sent (retry)");
       } catch (retryErr) {
+        // In dev/blocked-network environments fall back to a console log so
+        // links (verify, reset) remain accessible without a working SMTP relay.
+        if (process.env.NODE_ENV !== "production") {
+          devLog(options);
+          return;
+        }
         logger.error({ err: retryErr, to: options.to, subject: options.subject }, "[transactional] send failed");
         throw retryErr;
       }
