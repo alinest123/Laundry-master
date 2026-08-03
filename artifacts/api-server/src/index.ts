@@ -1,5 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { verifyTransactionalConnection } from "./services/email/transactional";
+import { verifyContactConnection } from "./services/email/contact";
 
 const rawPort = process.env["PORT"];
 
@@ -21,4 +23,8 @@ app.listen(port, (err) => {
     process.exit(1);
   }
   logger.info({ port }, "Server listening");
+
+  // Verify both SMTP connections asynchronously — errors are logged but do not crash the server
+  verifyTransactionalConnection().catch(() => {});
+  verifyContactConnection().catch(() => {});
 });

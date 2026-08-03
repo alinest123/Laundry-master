@@ -15,6 +15,7 @@ import adminRouter from "./admin";
 import userRouter from "./user";
 import pageContentRouter from "./page-content";
 import commentsRouter from "./comments";
+import contactRouter from "./contact";
 import storageRouter from "./storage";
 import siteStatusRouter, { maintenanceGate } from "./site-status";
 import sitemapRouter from "./sitemap";
@@ -43,5 +44,6 @@ router.use(statsRouter);
 router.use(knowledgeRouter);
 router.use(pageContentRouter);
 router.use(commentsRouter);
+router.use(contactRouter);          // POST /contact — public contact form
 
 export default router;

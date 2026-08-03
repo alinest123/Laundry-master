@@ -1,0 +1,297 @@
+Configure dual SMTP email support for the Laundry Master platform.
+
+
+
+We now have two separate email accounts with different responsibilities.
+
+
+
+========================
+
+1. Transactional Email
+
+========================
+
+
+
+Purpose:
+
+- User signup verification
+
+- Password reset
+
+- Welcome emails
+
+- Membership emails
+
+- Consultation booking confirmations
+
+- AI support ticket confirmations
+
+- Security notifications
+
+
+
+SMTP Environment Variables:
+
+
+
+SMTP_HOST=mail.laundry-master.com
+
+SMTP_PORT=465
+
+SMTP_SECURE=true
+
+
+
+SMTP_USER=donotreply@laundry-master.com
+
+SMTP_PASS=+K6Qa~U$bxut 
+
+
+
+SMTP_FROM="Laundry Master <donotreply@laundry-master.com>"
+
+
+
+Create a reusable transporter named:
+
+
+
+transactionalTransporter
+
+
+
+========================
+
+2. Contact Form Email
+
+========================
+
+
+
+Purpose:
+
+- Website Contact Us form
+
+- General enquiries
+
+- Partnership requests
+
+- Business enquiries
+
+
+
+SMTP Environment Variables:
+
+
+
+CONTACT_SMTP_HOST=mail.laundry-master.com
+
+CONTACT_SMTP_PORT=465
+
+CONTACT_SMTP_SECURE=true
+
+
+
+CONTACT_SMTP_USER=contactus@laundry-master.com
+
+CONTACT_SMTP_PASS=U?TE9kTG&Al- 
+
+
+
+CONTACT_FROM="Laundry Master Contact <contactus@laundry-master.com>"
+
+
+
+Create another transporter named:
+
+
+
+contactTransporter
+
+
+
+========================
+
+Contact Form Behaviour
+
+========================
+
+
+
+When someone submits the Contact Us form:
+
+
+
+1. Send the enquiry to:
+
+
+
+contactus@laundry-master.com
+
+
+
+including:
+
+
+
+- Name
+
+- Email
+
+- Company
+
+- Phone
+
+- Country
+
+- Subject
+
+- Message
+
+- Date & Time
+
+- IP (if available)
+
+
+
+2. Automatically send an acknowledgement email to the visitor.
+
+
+
+Subject:
+
+
+
+"We've received your enquiry"
+
+
+
+Body:
+
+
+
+Hello {{name}},
+
+
+
+Thank you for contacting Laundry Master.
+
+
+
+We have received your enquiry and our team will review it shortly.
+
+
+
+If your enquiry is urgent, please mention it in your reply.
+
+
+
+Regards,
+
+Laundry Master Team
+
+
+
+========================
+
+Signup Flow
+
+========================
+
+
+
+Use ONLY:
+
+
+
+transactionalTransporter
+
+
+
+for:
+
+
+
+- Email verification
+
+- Welcome email
+
+- Password reset
+
+- Membership confirmation
+
+- Consultation confirmation
+
+- AI support notifications
+
+
+
+========================
+
+Folder Structure
+
+========================
+
+
+
+Create:
+
+
+
+/services/email/
+
+    transactional.ts
+
+    contact.ts
+
+    templates/
+
+        welcome.ts
+
+        verify-email.ts
+
+        password-reset.ts
+
+        contact-received.ts
+
+        consultation-booked.ts
+
+        membership-confirmation.ts
+
+
+
+========================
+
+Requirements
+
+========================
+
+
+
+✓ Never hardcode passwords.
+
+
+
+✓ Read all credentials from environment variables.
+
+
+
+✓ Log SMTP errors.
+
+
+
+✓ Retry failed sends once.
+
+
+
+✓ Verify SMTP connection on server startup.
+
+
+
+✓ Return meaningful JSON errors if email sending fails.
+
+
+
+✓ Use HTML email templates with the Laundry Master branding.
