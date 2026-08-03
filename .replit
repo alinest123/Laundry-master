@@ -25,7 +25,7 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-ALLOWED_ORIGINS = "https://laundry-master.vercel.app"
+ALLOWED_ORIGINS = "https://laundry-master.vercel.app,https://www.laundry-master.com,https://laundry-master.com"
 CONTACT_FROM = "Laundry Master Contact <contactus@laundry-master.com>"
 CONTACT_SMTP_HOST = "mail.laundry-master.com"
 CONTACT_SMTP_PORT = "465"
