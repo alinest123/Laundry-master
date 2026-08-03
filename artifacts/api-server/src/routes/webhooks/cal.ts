@@ -14,6 +14,7 @@ import crypto from "node:crypto";
 import { db, appointmentsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "../../lib/logger";
+import { sendConsultationBookedEmail } from "../../lib/email";
 
 const router = Router();
 
@@ -140,6 +141,17 @@ router.post("/", async (req, res): Promise<void> => {
             },
           });
         logger.info({ uid: fields.calBookingUid }, "Cal.com booking created/upserted");
+
+        // Send confirmation email to attendee (fire-and-forget)
+        sendConsultationBookedEmail(fields.userEmail, {
+          name: fields.userName,
+          scheduledAt: fields.scheduledAt,
+          timezone: fields.timezone,
+          zoomLink: fields.zoomLink,
+          notes: fields.notes,
+        }).catch(err =>
+          logger.error({ err, uid: fields.calBookingUid }, "Cal.com booking confirmation email failed"),
+        );
         break;
       }
 

@@ -6,7 +6,12 @@ import { db } from "@workspace/db";
 import { usersTable, securityLogsTable } from "@workspace/db";
 import { logAudit } from "../lib/audit";
 import { generateCaptcha, verifyCaptcha } from "../lib/captcha";
-import { sendVerificationEmail, sendPasswordResetEmail } from "../lib/email";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  sendWelcomeEmail,
+  sendSecurityAlertEmail,
+} from "../lib/email";
 
 const router = Router();
 
@@ -83,6 +88,11 @@ router.post("/auth/verify-email", async (req, res): Promise<void> => {
       .set({ emailVerified: true, emailVerificationToken: null, verificationTokenExpiry: null })
       .where(eq(usersTable.id, rows[0].id));
 
+    // Send welcome email now that the address is confirmed
+    sendWelcomeEmail(rows[0].email, rows[0].name).catch(err =>
+      console.error("[verify-email] welcome email failed:", err),
+    );
+
     res.json({ ok: true, message: "Email verified. You can now sign in." });
   } catch (err) {
     console.error("[verify-email]", err);
@@ -147,6 +157,12 @@ router.post("/auth/reset-password", async (req, res): Promise<void> => {
       .set({ passwordHash, passwordResetToken: null, resetTokenExpiry: null })
       .where(eq(usersTable.id, rows[0].id));
 
+    // Notify user that their password was changed
+    sendSecurityAlertEmail(rows[0].email, "password_changed", {
+      name: rows[0].name,
+      timestamp: new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }),
+    }).catch(err => console.error("[reset-password] security alert failed:", err));
+
     res.json({ ok: true, message: "Password updated. You can now sign in." });
   } catch (err) {
     console.error("[reset-password]", err);
@@ -182,6 +198,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
         path: "/api/auth/login",
         detail: `Failed login attempt for ${email}`,
       }).catch(() => {});
+      // Notify the account owner of the failed attempt (fire-and-forget)
+      if (user) {
+        sendSecurityAlertEmail(user.email, "failed_login_attempts", {
+          name: user.name,
+          ipAddress: req.ip ?? null,
+          timestamp: new Date().toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }),
+        }).catch(() => {});
+      }
       res.status(401).json({ error: "Invalid email or password" });
       return;
     }
