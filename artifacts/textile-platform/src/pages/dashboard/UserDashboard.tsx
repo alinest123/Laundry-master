@@ -675,28 +675,6 @@ export function UserDashboard() {
   return (
     <Shell>
       <div className="min-h-screen bg-[#f0f0ee]">
-        {/* ── Mobile / top header ── */}
-        <div className="bg-white border-b border-[#eaeaea] px-4 h-14 flex items-center justify-between sticky top-0 z-30">
-          <button
-            onClick={() => setDrawerOpen(o => !o)}
-            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            {drawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-          <span className="font-bold text-base text-[#1a1a1a]">Dashboard</span>
-          {/* Avatar */}
-          <div className="w-9 h-9 shrink-0">
-            {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name}
-                className="w-9 h-9 rounded-full object-cover border border-[#e0e0e0]" />
-            ) : (
-              <div className="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-                {initials(user.name)}
-              </div>
-            )}
-          </div>
-        </div>
-
         <div className="flex">
           {/* ── Sidebar (desktop) / Drawer (mobile) ── */}
           <>
